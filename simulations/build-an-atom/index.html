@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Instructor-led H through Ne atom builder for introductory chemistry.">
+  <title>Build an Atom | CHEM 305</title>
+  <link rel="icon" href="data:,">
+  <style id="build-atom-styles">
+    :root {
+      --paper: #f3f2eb;
+      --panel: #fffef8;
+      --ink: #171918;
+      --muted: #686a66;
+      --grid: #c9c8c0;
+      --proton: #b9473d;
+      --electron: #216989;
+      --stable: #2b6a49;
+      --warning: #9a5b17;
+      --shadow: 5px 5px 0 var(--ink);
+      font-family: "Courier New", Courier, monospace;
+      color: var(--ink);
+      background: var(--paper);
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--paper); }
+    button, output { font: inherit; }
+    button {
+      min-height: 44px;
+      border: 3px solid var(--ink);
+      color: var(--ink);
+      background: var(--panel);
+      box-shadow: 3px 3px 0 var(--ink);
+      cursor: pointer;
+    }
+    button:hover:not(:disabled) { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+    button:active:not(:disabled) { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+    button:focus-visible { outline: 4px solid #a66f00; outline-offset: 3px; }
+    button:disabled { cursor: not-allowed; opacity: .42; box-shadow: none; }
+    h1, h2, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(1.65rem, 3vw, 2.7rem); letter-spacing: .06em; }
+    h2 { margin-bottom: 0; font-size: .88rem; letter-spacing: .08em; }
+    .eyebrow { margin-bottom: .35rem; color: var(--muted); font-size: .75rem; font-weight: 700; letter-spacing: .09em; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+
+    .app-shell {
+      width: min(1500px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 12px 16px;
+      display: grid;
+      grid-template-columns: minmax(240px, .9fr) minmax(430px, 1.65fr) minmax(260px, 1fr);
+      grid-template-areas:
+        "header header header"
+        "particles atom readout"
+        "identity identity identity"
+        "license license license";
+      gap: 8px 14px;
+    }
+    .app-header { grid-area: header; display: flex; align-items: center; justify-content: space-between; border: 4px solid var(--ink); padding: 12px 16px; background: var(--ink); color: var(--panel); }
+    .app-header .eyebrow { color: #d5d4cc; }
+    .history-controls { display: flex; gap: 10px; }
+    .particle-panel, .atom-panel, .readout-panel { border: 4px solid var(--ink); background: var(--panel); box-shadow: var(--shadow); padding: 14px; }
+    .particle-panel { grid-area: particles; display: flex; flex-direction: column; gap: 12px; }
+    .atom-panel { grid-area: atom; display: flex; min-width: 0; flex-direction: column; align-items: center; }
+    .readout-panel { grid-area: readout; display: flex; flex-direction: column; gap: 6px; }
+    .panel-heading { width: 100%; display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: .72rem; }
+    .particle-control { display: grid; grid-template-columns: minmax(0, 1fr) 44px 46px 44px; align-items: center; gap: 7px; border: 3px solid var(--ink); padding: 8px; }
+    .particle-control span { min-width: 0; }
+    .particle-control small { display: block; color: var(--muted); font-size: .75rem; }
+    .particle-control output { text-align: center; font-size: 1.35rem; font-weight: 700; }
+    .proton-control { border-left-color: var(--proton); border-left-width: 8px; }
+    .electron-control { border-left-color: var(--electron); border-left-width: 8px; }
+    .preset-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    #atom-svg { width: min(100%, 520px); height: auto; max-height: min(520px, calc(100vh - 335px)); flex: 1; min-height: 330px; }
+    .shell-line { fill: none; stroke: var(--electron); stroke-width: 3; stroke-dasharray: 6 5; }
+    .nucleon, .electron-token { stroke: var(--ink); stroke-width: 3; }
+    .proton { fill: var(--proton); }
+    .neutron { fill: #b8b9b4; }
+    .electron-token { fill: var(--electron); }
+    .particle-label { fill: var(--panel); font-size: 14px; font-weight: 700; text-anchor: middle; dominant-baseline: central; pointer-events: none; user-select: none; }
+    .neutron + .particle-label { fill: var(--ink); }
+    .particle.is-latest { animation: particle-arrive 180ms steps(3, end); }
+    .count-strip { width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; font-size: .82rem; }
+    .proton-text { color: var(--proton); }
+    .electron-text { color: var(--electron); }
+    .notation-card { min-height: 120px; display: flex; align-items: center; justify-content: center; border: 4px solid var(--ink); font-size: 1.2rem; }
+    .notation-card strong { font-size: clamp(3rem, 6vw, 5rem); line-height: 1; }
+    .notation-left { display: inline-flex; flex-direction: column; align-items: flex-end; }
+    .notation-left sup, .notation-left sub, .notation-card > sup { font-size: 1rem; }
+    .result-content { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .result-empty { flex: 1; min-height: 260px; display: grid; place-content: center; gap: 12px; border: 3px dashed var(--grid); text-align: center; }
+    .empty-token { width: 54px; height: 54px; display: grid; place-items: center; margin: 0 auto; border: 3px solid var(--ink); border-radius: 50%; color: var(--panel); background: var(--proton); font-size: 2rem; font-weight: 700; }
+    .result-empty strong { display: block; margin-bottom: 6px; font-size: 1.05rem; letter-spacing: .08em; }
+    .result-empty p { margin: 0; color: var(--muted); line-height: 1.45; }
+    .result-empty[hidden], .result-content[hidden] { display: none; }
+    .science-readouts { margin: 0; border: 3px solid var(--ink); }
+    .science-readouts div { display: flex; justify-content: space-between; gap: 12px; padding: 8px 10px; border-bottom: 2px solid var(--grid); }
+    .science-readouts div:last-child { border-bottom: 0; }
+    .science-readouts dt { color: var(--muted); }
+    .science-readouts dd { margin: 0; text-align: right; font-weight: 700; }
+    .teaching-card { margin-top: auto; border: 3px solid var(--warning); padding: 12px; background: #fff2c7; }
+    .identity-strip { grid-area: identity; display: grid; grid-template-columns: repeat(10, 1fr); gap: 7px; margin: 0; padding: 12px; border: 4px solid var(--ink); background: var(--panel); box-shadow: var(--shadow); list-style: none; }
+    .identity-strip li { min-height: 42px; display: grid; place-items: center; border: 2px solid var(--grid); font-weight: 700; }
+    .identity-strip li[aria-current="true"] { border: 4px solid var(--proton); background: #f7ded9; }
+    .license-note { grid-area: license; color: var(--muted); text-align: center; font-size: .68rem; line-height: 1.4; }
+    .license-note a { color: var(--ink); text-underline-offset: 3px; }
+    .license-note a:focus-visible { outline: 3px solid #a66f00; outline-offset: 3px; }
+    .stability-stable { color: var(--stable); }
+    .stability-unstable { color: var(--warning); }
+
+    @keyframes particle-arrive {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1000px) {
+      .app-shell {
+        grid-template-columns: minmax(0, 1fr) minmax(260px, .8fr);
+        grid-template-areas:
+          "header header"
+          "atom readout"
+          "particles particles"
+          "identity identity"
+          "license license";
+      }
+      #atom-svg { min-height: 300px; }
+      .particle-panel { display: grid; grid-template-columns: repeat(3, 1fr); align-content: start; }
+      .particle-panel > h2, .preset-grid { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 680px) {
+      .app-shell {
+        padding: 9px;
+        grid-template-columns: 1fr;
+        grid-template-areas: "header" "atom" "particles" "readout" "identity" "license";
+      }
+      .app-header { align-items: flex-start; gap: 10px; }
+      .history-controls { flex-direction: column; }
+      .particle-panel { display: flex; }
+      .particle-control { grid-template-columns: minmax(0, 1fr) 44px 42px 44px; }
+      #atom-svg { min-height: 270px; }
+      .identity-strip { grid-template-columns: repeat(5, 1fr); }
+      .count-strip { justify-content: flex-start; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell" id="app">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">CHEM 305 / ATOMIC STRUCTURE</p>
+        <h1>BUILD AN ATOM</h1>
+      </div>
+      <div class="history-controls">
+        <button id="undo-button" type="button">UNDO</button>
+        <button id="reset-button" type="button">RESET</button>
+      </div>
+    </header>
+
+    <section class="particle-panel" aria-labelledby="particle-heading">
+      <h2 id="particle-heading">ADD OR REMOVE PARTICLES</h2>
+      <div class="particle-control proton-control">
+        <span><strong>PROTON</strong><small>changes the element</small></span>
+        <button type="button" data-particle="protons" data-delta="-1" aria-label="Remove proton">−</button>
+        <output id="proton-count">0</output>
+        <button type="button" data-particle="protons" data-delta="1" aria-label="Add proton">+</button>
+      </div>
+      <div class="particle-control">
+        <span><strong>NEUTRON</strong><small>changes the isotope</small></span>
+        <button type="button" data-particle="neutrons" data-delta="-1" aria-label="Remove neutron">−</button>
+        <output id="neutron-count">0</output>
+        <button type="button" data-particle="neutrons" data-delta="1" aria-label="Add neutron">+</button>
+      </div>
+      <div class="particle-control electron-control">
+        <span><strong>ELECTRON</strong><small>changes the charge</small></span>
+        <button type="button" data-particle="electrons" data-delta="-1" aria-label="Remove electron">−</button>
+        <output id="electron-count">0</output>
+        <button type="button" data-particle="electrons" data-delta="1" aria-label="Add electron">+</button>
+      </div>
+
+      <h2>QUICK PRESETS</h2>
+      <div class="preset-grid">
+        <button type="button" data-preset="hydrogen-1" aria-label="Load Hydrogen-1 preset">¹H</button>
+        <button type="button" data-preset="helium-4" aria-label="Load Helium-4 preset">⁴He</button>
+        <button type="button" data-preset="lithium-7-ion" aria-label="Load Lithium-7 ion preset">⁷Li⁺</button>
+        <button type="button" data-preset="carbon-12" aria-label="Load Carbon-12 preset">¹²C</button>
+        <button type="button" data-preset="carbon-14" aria-label="Load Carbon-14 preset">¹⁴C</button>
+        <button type="button" data-preset="oxygen-16-ion" aria-label="Load Oxygen-16 ion preset">¹⁶O²⁻</button>
+      </div>
+    </section>
+
+    <section class="atom-panel" aria-labelledby="atom-heading">
+      <div class="panel-heading">
+        <h2 id="atom-heading">ATOM VIEW</h2>
+        <span>SIMPLIFIED SHELL MODEL</span>
+      </div>
+      <svg id="atom-svg" viewBox="0 0 360 360" role="img" aria-labelledby="atom-title atom-description">
+        <title id="atom-title">Constructed atom</title>
+        <desc id="atom-description">Two electron shells surrounding a nucleus. Text readouts provide exact particle counts.</desc>
+        <circle class="shell-line" cx="180" cy="180" r="72"></circle>
+        <circle class="shell-line" cx="180" cy="180" r="136"></circle>
+        <g id="nucleus-layer"></g>
+        <g id="electron-layer"></g>
+      </svg>
+      <div class="count-strip" aria-label="Particle totals">
+        <span class="proton-text"><strong id="proton-total">0</strong> PROTONS</span>
+        <span><strong id="neutron-total">0</strong> NEUTRONS</span>
+        <span class="electron-text"><strong id="electron-total">0</strong> ELECTRONS</span>
+      </div>
+    </section>
+
+    <aside class="readout-panel" aria-labelledby="readout-heading">
+      <h2 id="readout-heading">YOUR RESULT</h2>
+      <div id="result-empty" class="result-empty">
+        <span class="empty-token" aria-hidden="true">+</span>
+        <p><strong>NO ELEMENT YET</strong>Add a proton to define the element.</p>
+      </div>
+      <div id="result-content" class="result-content" hidden>
+        <div class="notation-card" aria-label="Nuclear notation">
+          <span class="notation-left">
+            <sup id="notation-mass">0</sup>
+            <sub id="notation-atomic">0</sub>
+          </span>
+          <strong id="notation-symbol">—</strong>
+          <sup id="notation-charge">0</sup>
+        </div>
+        <dl class="science-readouts">
+          <div><dt>Element</dt><dd id="element-name">Not an element yet</dd></div>
+          <div><dt>Isotope</dt><dd id="isotope-name">Not an element yet</dd></div>
+          <div><dt>Mass number</dt><dd id="mass-number">0</dd></div>
+          <div><dt>Net charge</dt><dd id="net-charge">0</dd></div>
+          <div><dt>Nucleus</dt><dd id="stability">Not applicable</dd></div>
+        </dl>
+        <div class="teaching-card">
+          <p class="eyebrow">TEACHING CUE</p>
+          <p id="teaching-cue">Add a proton to create an element.</p>
+        </div>
+      </div>
+    </aside>
+
+    <ol id="identity-strip" class="identity-strip" aria-label="Hydrogen through neon element identity">
+      <li data-atomic-number="1">H</li><li data-atomic-number="2">He</li>
+      <li data-atomic-number="3">Li</li><li data-atomic-number="4">Be</li>
+      <li data-atomic-number="5">B</li><li data-atomic-number="6">C</li>
+      <li data-atomic-number="7">N</li><li data-atomic-number="8">O</li>
+      <li data-atomic-number="9">F</li><li data-atomic-number="10">Ne</li>
+    </ol>
+    <footer class="license-note">
+      <small>&copy; 2026 Duy Pham. Licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="license">Creative Commons BY-NC-SA 4.0</a>.</small>
+    </footer>
+    <p id="live-status" class="sr-only" aria-live="polite"></p>
+  </main>
+
+  <script id="build-atom-model">
+    window.buildAtomModel = (() => {
+      const LIMITS = { protons: 10, neutrons: 13, electrons: 10 };
+
+      const ELEMENTS = {
+        1: { atomicNumber: 1, symbol: 'H', name: 'Hydrogen' },
+        2: { atomicNumber: 2, symbol: 'He', name: 'Helium' },
+        3: { atomicNumber: 3, symbol: 'Li', name: 'Lithium' },
+        4: { atomicNumber: 4, symbol: 'Be', name: 'Beryllium' },
+        5: { atomicNumber: 5, symbol: 'B', name: 'Boron' },
+        6: { atomicNumber: 6, symbol: 'C', name: 'Carbon' },
+        7: { atomicNumber: 7, symbol: 'N', name: 'Nitrogen' },
+        8: { atomicNumber: 8, symbol: 'O', name: 'Oxygen' },
+        9: { atomicNumber: 9, symbol: 'F', name: 'Fluorine' },
+        10: { atomicNumber: 10, symbol: 'Ne', name: 'Neon' },
+      };
+
+      const STABLE_MASSES = {
+        H: [1, 2],
+        He: [3, 4],
+        Li: [6, 7],
+        Be: [9],
+        B: [10, 11],
+        C: [12, 13],
+        N: [14, 15],
+        O: [16, 17, 18],
+        F: [19],
+        Ne: [20, 21, 22],
+      };
+
+      const PRESETS = {
+        'hydrogen-1': { label: 'Hydrogen-1', protons: 1, neutrons: 0, electrons: 1 },
+        'helium-4': { label: 'Helium-4', protons: 2, neutrons: 2, electrons: 2 },
+        'lithium-7-ion': { label: 'Lithium-7 ion', protons: 3, neutrons: 4, electrons: 2 },
+        'carbon-12': { label: 'Carbon-12', protons: 6, neutrons: 6, electrons: 6 },
+        'carbon-14': { label: 'Carbon-14', protons: 6, neutrons: 8, electrons: 6 },
+        'oxygen-16-ion': { label: 'Oxygen-16 ion', protons: 8, neutrons: 8, electrons: 10 },
+      };
+
+      function countsOf(source) {
+        return {
+          protons: source.protons,
+          neutrons: source.neutrons,
+          electrons: source.electrons,
+        };
+      }
+
+      function createState(counts = {}) {
+        return {
+          protons: counts.protons || 0,
+          neutrons: counts.neutrons || 0,
+          electrons: counts.electrons || 0,
+          history: [],
+          lastAction: null,
+        };
+      }
+
+      function reduce(state, action) {
+        if (action.type === 'reset') return createState();
+
+        if (action.type === 'undo') {
+          const previous = state.history.at(-1);
+          if (!previous) return state;
+          return {
+            ...previous,
+            history: state.history.slice(0, -1),
+            lastAction: { type: 'undo' },
+          };
+        }
+
+        if (action.type === 'preset') {
+          const preset = PRESETS[action.preset];
+          if (!preset) return state;
+          return {
+            ...countsOf(preset),
+            history: [...state.history, countsOf(state)],
+            lastAction: action,
+          };
+        }
+
+        const delta = action.type === 'add' ? 1 : action.type === 'remove' ? -1 : 0;
+        if (!delta || !Object.hasOwn(LIMITS, action.particle)) return state;
+        const nextValue = state[action.particle] + delta;
+        if (nextValue < 0 || nextValue > LIMITS[action.particle]) return state;
+
+        return {
+          ...state,
+          [action.particle]: nextValue,
+          history: [...state.history, countsOf(state)],
+          lastAction: action,
+        };
+      }
+
+      function getTeachingCue(state) {
+        const snapshot = getSnapshot(state);
+        const action = state.lastAction;
+        if (!action) return 'Add a proton to create an element.';
+        if (action.type === 'undo') return 'The last change was undone.';
+        if (action.type === 'preset') return `${PRESETS[action.preset].label} loaded.`;
+        if (action.particle === 'protons') {
+          return snapshot.element
+            ? `Protons determine the element. This is ${snapshot.element.name}.`
+            : 'With no protons, this is not an element yet.';
+        }
+        if (action.particle === 'neutrons') {
+          return 'Neutrons change the isotope and mass number, not the element.';
+        }
+        return 'Electrons change the charge while the nucleus stays the same.';
+      }
+
+      function formatCharge(charge) {
+        if (charge === 0) return '0';
+        const sign = charge > 0 ? '+' : '−';
+        const magnitude = Math.abs(charge);
+        return magnitude === 1 ? sign : `${magnitude}${sign}`;
+      }
+
+      function getSnapshot({ protons, neutrons, electrons }) {
+        const element = ELEMENTS[protons] || null;
+        const massNumber = protons + neutrons;
+        const charge = protons - electrons;
+        const stableMasses = element ? STABLE_MASSES[element.symbol] : [];
+
+        return {
+          counts: { protons, neutrons, electrons },
+          atomicNumber: protons,
+          massNumber,
+          charge,
+          chargeText: formatCharge(charge),
+          element,
+          isotopeName: element ? `${element.name}-${massNumber}` : 'Not an element yet',
+          ionKind: !element ? 'not-element' : charge === 0 ? 'neutral' : charge > 0 ? 'cation' : 'anion',
+          stability: !element ? 'not-applicable' : stableMasses.includes(massNumber) ? 'stable' : 'unstable',
+          shells: [Math.min(electrons, 2), Math.max(0, electrons - 2)],
+        };
+      }
+
+      return {
+        LIMITS,
+        ELEMENTS,
+        STABLE_MASSES,
+        PRESETS,
+        formatCharge,
+        getSnapshot,
+        createState,
+        reduce,
+        getTeachingCue,
+      };
+    })();
+  </script>
+
+  <script id="build-atom-app">
+    (() => {
+      const model = window.buildAtomModel;
+      const svgNamespace = 'http://www.w3.org/2000/svg';
+      const electronPositions = [
+        [180, 108], [180, 252],
+        [180, 44], [276, 84], [316, 180], [276, 276],
+        [180, 316], [84, 276], [44, 180], [84, 84],
+      ];
+      let state = model.createState();
+
+      function setText(id, value) {
+        document.getElementById(id).textContent = value;
+      }
+
+      function makeParticle(className, cx, cy, radius, label, isLatest) {
+        const group = document.createElementNS(svgNamespace, 'g');
+        const circle = document.createElementNS(svgNamespace, 'circle');
+        const text = document.createElementNS(svgNamespace, 'text');
+        group.setAttribute('class', `particle${isLatest ? ' is-latest' : ''}`);
+        circle.setAttribute('class', className);
+        circle.setAttribute('cx', cx);
+        circle.setAttribute('cy', cy);
+        circle.setAttribute('r', radius);
+        text.setAttribute('class', 'particle-label');
+        text.setAttribute('x', cx);
+        text.setAttribute('y', cy);
+        text.setAttribute('aria-hidden', 'true');
+        text.textContent = label;
+        group.append(circle, text);
+        return group;
+      }
+
+      function nucleusTypes(protons, neutrons) {
+        const types = [];
+        for (let index = 0; index < Math.max(protons, neutrons); index += 1) {
+          if (index < protons) types.push('protons');
+          if (index < neutrons) types.push('neutrons');
+        }
+        return types;
+      }
+
+      function renderAtom(snapshot) {
+        const nucleus = document.getElementById('nucleus-layer');
+        const electrons = document.getElementById('electron-layer');
+        nucleus.replaceChildren();
+        electrons.replaceChildren();
+
+        const types = nucleusTypes(snapshot.counts.protons, snapshot.counts.neutrons);
+        const occurrence = { protons: 0, neutrons: 0 };
+        for (const [index, type] of types.entries()) {
+          const angle = index * 137.5 * Math.PI / 180;
+          const radius = 8 * Math.sqrt(index);
+          const isLatest = state.lastAction?.type === 'add'
+            && state.lastAction.particle === type
+            && occurrence[type] === snapshot.counts[type] - 1;
+          occurrence[type] += 1;
+          nucleus.append(makeParticle(
+            `nucleon ${type === 'protons' ? 'proton' : 'neutron'}`,
+            180 + Math.cos(angle) * radius,
+            180 + Math.sin(angle) * radius,
+            15,
+            type === 'protons' ? '+' : 'n',
+            isLatest,
+          ));
+        }
+
+        electronPositions.slice(0, snapshot.counts.electrons).forEach(([x, y], index) => {
+          const isLatest = state.lastAction?.type === 'add'
+            && state.lastAction.particle === 'electrons'
+            && index === snapshot.counts.electrons - 1;
+          electrons.append(makeParticle(
+            'electron-token',
+            x,
+            y,
+            10,
+            '−',
+            isLatest,
+          ));
+        });
+      }
+
+      function render() {
+        const snapshot = model.getSnapshot(state);
+        const hasElement = Boolean(snapshot.element);
+        const resultEmpty = document.getElementById('result-empty');
+        const resultContent = document.getElementById('result-content');
+        const elementName = snapshot.element?.name || 'Not an element yet';
+        const symbol = snapshot.element?.symbol || '—';
+        const stability = snapshot.stability === 'not-applicable'
+          ? 'Not applicable'
+          : snapshot.stability;
+        const cue = model.getTeachingCue(state);
+
+        for (const particle of ['proton', 'neutron', 'electron']) {
+          const key = `${particle}s`;
+          setText(`${particle}-count`, snapshot.counts[key]);
+          setText(`${particle}-total`, snapshot.counts[key]);
+        }
+        setText('notation-mass', snapshot.massNumber);
+        setText('notation-atomic', snapshot.atomicNumber);
+        setText('notation-symbol', symbol);
+        setText('notation-charge', snapshot.chargeText);
+        setText('element-name', elementName);
+        setText('isotope-name', snapshot.isotopeName);
+        setText('mass-number', snapshot.massNumber);
+        setText('net-charge', `${snapshot.chargeText} (${snapshot.ionKind.replace('-', ' ')})`);
+        setText('stability', stability);
+        setText('teaching-cue', cue);
+        setText('live-status', cue);
+        resultEmpty.hidden = hasElement;
+        resultContent.hidden = !hasElement;
+
+        const stabilityNode = document.getElementById('stability');
+        stabilityNode.className = snapshot.stability === 'stable'
+          ? 'stability-stable'
+          : snapshot.stability === 'unstable' ? 'stability-unstable' : '';
+
+        document.querySelectorAll('[data-atomic-number]').forEach((item) => {
+          const active = Number(item.dataset.atomicNumber) === snapshot.atomicNumber;
+          if (active) item.setAttribute('aria-current', 'true');
+          else item.removeAttribute('aria-current');
+        });
+
+        document.querySelectorAll('[data-particle]').forEach((button) => {
+          const particle = button.dataset.particle;
+          const delta = Number(button.dataset.delta);
+          button.disabled = delta < 0
+            ? state[particle] === 0
+            : state[particle] === model.LIMITS[particle];
+        });
+        document.getElementById('undo-button').disabled = state.history.length === 0;
+        document.getElementById('reset-button').disabled = state.history.length === 0
+          && state.protons === 0 && state.neutrons === 0 && state.electrons === 0;
+        renderAtom(snapshot);
+      }
+
+      document.querySelectorAll('[data-particle]').forEach((button) => {
+        button.addEventListener('click', () => {
+          state = model.reduce(state, {
+            type: Number(button.dataset.delta) > 0 ? 'add' : 'remove',
+            particle: button.dataset.particle,
+          });
+          render();
+        });
+      });
+      document.querySelectorAll('[data-preset]').forEach((button) => {
+        button.addEventListener('click', () => {
+          state = model.reduce(state, { type: 'preset', preset: button.dataset.preset });
+          render();
+        });
+      });
+      document.getElementById('undo-button').addEventListener('click', () => {
+        state = model.reduce(state, { type: 'undo' });
+        render();
+      });
+      document.getElementById('reset-button').addEventListener('click', () => {
+        state = model.reduce(state, { type: 'reset' });
+        render();
+      });
+      render();
+    })();
+  </script>
+</body>
+</html>

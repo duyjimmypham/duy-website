@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Duy Pham's personal projects: interactive chemistry tools for exploring gas laws, electron configurations, and atomic structure.">
+  <meta name="theme-color" content="#2548bd">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%232548bd' d='M0 0h32v32H0z'/%3E%3Ctext x='3' y='23' fill='white' font-family='serif' font-weight='bold' font-size='23'%3ED%3C/text%3E%3C/svg%3E">
+  <title>Duy Pham | Personal projects</title>
+  <style>
+    :root {
+      --ink: #170436;
+      --paper: #fff8dc;
+      --chrome: #c0c0c0;
+      --blue: #2548bd;
+      --pink: #b00063;
+      --yellow: #ffd700;
+    }
+
+    * { box-sizing: border-box; }
+    html { color-scheme: light; }
+    body { margin: 0; color: var(--ink); background: var(--ink); font: 18px/1.55 Georgia, "Times New Roman", serif; }
+    a { color: var(--blue); text-underline-offset: .18em; }
+    a:hover { color: var(--pink); }
+    a:focus-visible { outline: 3px solid currentColor; outline-offset: 4px; }
+    h1, h2, h3, p { margin: 0; }
+    h2, h3 { line-height: 1.2; }
+    p { max-width: 62ch; }
+
+    .skip-link { position: absolute; z-index: 1; left: 12px; top: 12px; padding: 10px 16px; color: var(--ink); background: var(--yellow); transform: translateY(-200%); }
+    .skip-link:focus { transform: none; }
+    .cabinet { max-width: 1080px; margin: 32px auto; border: 3px solid white; background: var(--paper); box-shadow: 8px 8px 0 black; }
+    .masthead { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px 28px; border-bottom: 5px solid var(--yellow); color: white; background: var(--blue); }
+    h1 { font: bold clamp(2.5rem, 6vw, 4.5rem)/1 Georgia, "Times New Roman", serif; }
+    .masthead p { margin-top: 8px; font: 1rem/1.5 Tahoma, Geneva, sans-serif; }
+    .monogram { display: grid; place-items: center; flex: 0 0 74px; height: 74px; border: 4px outset var(--chrome); color: var(--ink); background: var(--yellow); font: bold 1.75rem Georgia, serif; }
+    .layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); }
+    .sidebar { padding: 28px 22px; border-right: 2px solid var(--ink); }
+    .sidebar h2 { font-size: 1.35rem; }
+    .sidebar p { margin-top: 12px; }
+    .sidebar nav { margin-top: 28px; font: 1rem/1.5 Tahoma, Geneva, sans-serif; }
+    .sidebar nav a { display: block; padding: 12px 0; border-top: 1px solid var(--ink); }
+    main { min-width: 0; }
+    .shelf-title { padding: 13px 24px; border-bottom: 2px solid var(--ink); color: white; background: var(--pink); font: bold 1.1rem/1.4 Tahoma, Geneva, sans-serif; }
+    .project { padding: 24px; scroll-margin-top: 16px; }
+    .project + .project { border-top: 2px solid var(--ink); }
+    .project-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+    .project h3 { font-size: clamp(1.5rem, 3vw, 1.85rem); }
+    .project-symbol { flex-shrink: 0; color: var(--pink); font-weight: bold; }
+    .project p + p { margin-top: 10px; }
+    .project .detail { font-size: 1rem; }
+    .launch { display: inline-block; margin-top: 18px; padding: 10px 16px; border: 3px outset var(--chrome); color: var(--ink); background: var(--chrome); font: bold 1rem/1.5 Tahoma, Geneva, sans-serif; text-decoration: underline; }
+    .launch:hover { color: white; background: var(--blue); }
+    .launch:focus-visible { outline-color: var(--ink); }
+    .launch:active { border-style: inset; }
+    footer { padding: 14px 24px; border-top: 3px solid var(--ink); font: .875rem/1.5 Tahoma, Geneva, sans-serif; }
+
+    @media (max-width: 1130px) {
+      .cabinet { margin: 20px 20px 28px; }
+    }
+    @media (max-width: 760px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { padding: 22px 24px; border-right: 0; border-bottom: 2px solid var(--ink); }
+      .sidebar nav { margin-top: 16px; }
+      .sidebar nav a { display: inline-block; margin-right: 16px; border-top: 0; text-decoration-thickness: 2px; }
+      .sidebar p { max-width: 52ch; }
+    }
+    @media (max-width: 440px) {
+      .cabinet { margin: 8px 12px 20px 8px; box-shadow: 4px 4px 0 black; }
+      .masthead, .sidebar, .project { padding: 20px 16px; }
+      .monogram { display: none; }
+      .shelf-title, footer { padding-inline: 16px; }
+      .project-heading { flex-wrap: wrap; gap: 6px 16px; }
+      .sidebar nav a { display: block; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#projects">Skip to projects</a>
+  <div class="cabinet">
+    <header class="masthead">
+      <div>
+        <h1>Duy Pham</h1>
+        <p>Personal projects</p>
+      </div>
+      <span class="monogram" aria-hidden="true">DP</span>
+    </header>
+    <div class="layout">
+      <aside class="sidebar" aria-labelledby="about-title">
+        <h2 id="about-title">Hello, I'm Duy.</h2>
+        <p>I teach chemistry and build interactive tools for learning.</p>
+        <p>These simulations connect equations and symbols to changes you can see.</p>
+        <nav aria-label="Projects">
+          <a href="#ideal-gas">Ideal Gas Law</a>
+          <a href="#electron-configuration">Electron Configuration</a>
+          <a href="#build-an-atom">Build an Atom</a>
+        </nav>
+      </aside>
+      <main id="projects" tabindex="-1">
+        <h2 class="shelf-title">Chemistry simulations</h2>
+        <article class="project" id="ideal-gas" aria-labelledby="gas-title">
+          <div class="project-heading">
+            <h3 id="gas-title">Ideal Gas Law</h3>
+            <span class="project-symbol" aria-hidden="true">PV = nRT</span>
+          </div>
+          <p>Change pressure, volume, temperature, or the amount of gas. Watch the piston, particles, and graph respond.</p>
+          <p class="detail">Each gas-law view holds the appropriate variables constant, so you can examine one relationship at a time.</p>
+          <a class="launch" href="simulations/ideal-gas-law/index.html">Open Ideal Gas Law</a>
+        </article>
+        <article class="project" id="electron-configuration" aria-labelledby="electron-title">
+          <div class="project-heading">
+            <h3 id="electron-title">Electron Configuration</h3>
+            <span class="project-symbol" aria-hidden="true">1s²</span>
+          </div>
+          <p>Place electrons one at a time, from hydrogen through calcium. Compare the filling sequence with orbital boxes and configuration notation.</p>
+          <p class="detail">A grayscale tower gives each subshell a location while the orbital diagram shows occupancy and spin.</p>
+          <a class="launch" href="simulations/electron-configuration/index.html">Open Electron Configuration</a>
+        </article>
+        <article class="project" id="build-an-atom" aria-labelledby="atom-title">
+          <div class="project-heading">
+            <h3 id="atom-title">Build an Atom</h3>
+            <span class="project-symbol" aria-hidden="true">p⁺ n e⁻</span>
+          </div>
+          <p>Add protons, neutrons, and electrons to see what changes the element, isotope, and charge. Covers hydrogen through neon.</p>
+          <p class="detail">Particle counts sit beside nuclear notation. The two-shell view is a counting model, not a picture of electron paths.</p>
+          <a class="launch" href="simulations/build-an-atom/index.html">Open Build an Atom</a>
+        </article>
+      </main>
+    </div>
+    <footer>© 2026 Duy Pham</footer>
+  </div>
+</body>
+</html>

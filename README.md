@@ -1,0 +1,23 @@
+# Duy Pham's website
+
+Personal projects and interactive chemistry tools.
+
+Open `index.html` in a browser, or serve this directory with any static web server. The homepage and simulations work without an internet connection.
+
+## Projects
+
+- [Ideal Gas Law](simulations/ideal-gas-law/index.html): gas-law relationships, particle motion, and graphs.
+- [Electron Configuration](simulations/electron-configuration/index.html): ground-state filling from hydrogen through calcium.
+- [Build an Atom](simulations/build-an-atom/index.html): elements, isotopes, and ions from hydrogen through neon.
+
+## Publishing
+
+Pushing this repository does not publish a website. The included GitHub Pages workflow runs only when started manually. When ready to publish, set the repository's Pages source to **GitHub Actions**, then run **Publish website** from the Actions tab. It uploads only the homepage and the `simulations/` directory.
+
+## Checks
+
+With Node.js installed, run `node check.cjs` to check local links, representative atom actions, electron configurations, and gas-law relationships. Browser checks are also needed when changing layouts or controls.
+
+## Attribution
+
+Each simulation retains its own license notice. Ideal Gas Law uses CC BY 4.0; Electron Configuration and Build an Atom use CC BY-NC-SA 4.0. The embedded font and icon notices are included in the Electron Configuration file. These notices do not assign a license to the rest of this repository.
