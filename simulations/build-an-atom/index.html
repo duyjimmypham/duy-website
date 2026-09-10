@@ -74,6 +74,12 @@
     .electron-control { border-left-color: var(--electron); border-left-width: 8px; }
     .preset-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
     #atom-svg { width: min(100%, 520px); height: auto; max-height: min(520px, calc(100vh - 335px)); flex: 1; min-height: 330px; }
+    .view-controls { display: flex; gap: 10px; margin: 12px 0; }
+    .view-controls button { padding: 6px 14px; }
+    .view-controls button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
+    #view-note { margin: 10px 0; font-size: .78rem; text-align: center; }
+    #lewis-layer text { fill: var(--ink); text-anchor: middle; dominant-baseline: central; }
+    .lewis-dot { fill: var(--electron); }
     .shell-line { fill: none; stroke: var(--electron); stroke-width: 3; stroke-dasharray: 6 5; }
     .nucleon, .electron-token { stroke: var(--ink); stroke-width: 3; }
     .proton { fill: var(--proton); }
@@ -202,7 +208,11 @@
     <section class="atom-panel" aria-labelledby="atom-heading">
       <div class="panel-heading">
         <h2 id="atom-heading">ATOM VIEW</h2>
-        <span>SIMPLIFIED SHELL MODEL</span>
+        <span id="view-label">SIMPLIFIED SHELL MODEL</span>
+      </div>
+      <div class="view-controls" role="group" aria-label="Atom representation">
+        <button type="button" data-view="bohr" aria-pressed="true">Bohr</button>
+        <button type="button" data-view="lewis" aria-pressed="false">Lewis</button>
       </div>
       <svg id="atom-svg" viewBox="0 0 360 360" role="img" aria-labelledby="atom-title atom-description">
         <title id="atom-title">Constructed atom</title>
@@ -211,7 +221,9 @@
         <circle class="shell-line" cx="180" cy="180" r="136"></circle>
         <g id="nucleus-layer"></g>
         <g id="electron-layer"></g>
+        <g id="lewis-layer"></g>
       </svg>
+      <p id="view-note">Shells show all electrons in a simplified counting model.</p>
       <div class="count-strip" aria-label="Particle totals">
         <span class="proton-text"><strong id="proton-total">0</strong> PROTONS</span>
         <span><strong id="neutron-total">0</strong> NEUTRONS</span>
@@ -395,6 +407,9 @@
           ionKind: !element ? 'not-element' : charge === 0 ? 'neutral' : charge > 0 ? 'cation' : 'anion',
           stability: !element ? 'not-applicable' : stableMasses.includes(massNumber) ? 'stable' : 'unstable',
           shells: [Math.min(electrons, 2), Math.max(0, electrons - 2)],
+          lewisDots: !element ? null : protons <= 2
+            ? (electrons <= 2 ? electrons : null)
+            : (electrons >= 2 ? electrons - 2 : null),
         };
       }
 
@@ -422,6 +437,7 @@
         [180, 316], [84, 276], [44, 180], [84, 84],
       ];
       let state = model.createState();
+      let view = 'bohr';
 
       function setText(id, value) {
         document.getElementById(id).textContent = value;
@@ -452,6 +468,54 @@
           if (index < neutrons) types.push('neutrons');
         }
         return types;
+      }
+
+      function renderLewis(snapshot) {
+        const layer = document.getElementById('lewis-layer');
+        layer.replaceChildren();
+        if (view !== 'lewis') return;
+        const available = snapshot.lewisDots !== null;
+        const note = !snapshot.element ? 'Add a proton to define an element.'
+          : !available ? 'This electron count is outside the simple Lewis model. Use Bohr view.'
+          : snapshot.charge === 0 ? 'Dots show valence electrons only; inner electrons are omitted.'
+          : 'Brackets show an ion. Dots omit the inner core; Li+ has no dots.';
+        setText('view-note', note);
+        setText('atom-description', available
+          ? snapshot.element.name + ': ' + snapshot.lewisDots + ' Lewis dots; charge ' + snapshot.chargeText + '.'
+          : note);
+        if (!available) return;
+        const symbol = document.createElementNS(svgNamespace, 'text');
+        symbol.setAttribute('x', 180);
+        symbol.setAttribute('y', 180);
+        symbol.setAttribute('font-size', 64);
+        symbol.textContent = snapshot.element.symbol;
+        layer.append(symbol);
+        if (snapshot.charge !== 0) {
+          const brackets = document.createElementNS(svgNamespace, 'path');
+          brackets.setAttribute('d', 'M108 105 H95 V255 H108 M252 105 H265 V255 H252');
+          brackets.setAttribute('fill', 'none');
+          brackets.setAttribute('stroke', 'currentColor');
+          brackets.setAttribute('stroke-width', 3);
+          const charge = document.createElementNS(svgNamespace, 'text');
+          charge.setAttribute('x', 292);
+          charge.setAttribute('y', 103);
+          charge.setAttribute('font-size', 26);
+          charge.textContent = snapshot.chargeText;
+          layer.append(brackets, charge);
+        }
+        const sides = [[180,120], [240,180], [180,240], [120,180]];
+        for (let i = 0; i < snapshot.lewisDots; i += 1) {
+          const duet = snapshot.atomicNumber <= 2;
+          const side = duet ? 0 : i % 4;
+          const paired = duet ? snapshot.lewisDots === 2 : snapshot.lewisDots > side + 4;
+          const offset = paired ? (i < (duet ? 1 : 4) ? -9 : 9) : 0;
+          const dot = document.createElementNS(svgNamespace, 'circle');
+          dot.setAttribute('class', 'lewis-dot');
+          dot.setAttribute('cx', sides[side][0] + (side % 2 === 0 ? offset : 0));
+          dot.setAttribute('cy', sides[side][1] + (side % 2 === 1 ? offset : 0));
+          dot.setAttribute('r', 5);
+          layer.append(dot);
+        }
       }
 
       function renderAtom(snapshot) {
@@ -546,7 +610,18 @@
         document.getElementById('undo-button').disabled = state.history.length === 0;
         document.getElementById('reset-button').disabled = state.history.length === 0
           && state.protons === 0 && state.neutrons === 0 && state.electrons === 0;
+        const lewis = view === 'lewis';
+        document.querySelectorAll('.shell-line, #nucleus-layer, #electron-layer').forEach(node => {
+          node.style.display = lewis ? 'none' : '';
+        });
+        document.querySelectorAll('[data-view]').forEach(button => {
+          button.setAttribute('aria-pressed', String(button.dataset.view === view));
+        });
+        setText('view-label', lewis ? 'VALENCE ELECTRONS' : 'SIMPLIFIED SHELL MODEL');
+        setText('view-note', 'Shells show all electrons in a simplified counting model.');
+        setText('atom-description', 'Two electron shells surrounding a nucleus. Text readouts provide exact particle counts.');
         renderAtom(snapshot);
+        renderLewis(snapshot);
       }
 
       document.querySelectorAll('[data-particle]').forEach((button) => {
@@ -555,6 +630,12 @@
             type: Number(button.dataset.delta) > 0 ? 'add' : 'remove',
             particle: button.dataset.particle,
           });
+          render();
+        });
+      });
+      document.querySelectorAll('[data-view]').forEach(button => {
+        button.addEventListener('click', () => {
+          view = button.dataset.view;
           render();
         });
       });

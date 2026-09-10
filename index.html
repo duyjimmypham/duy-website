@@ -284,6 +284,7 @@
     .notes-content label { font: 700 12px var(--mono); }
     #notes-text { width: 100%; min-height: 190px; resize: none; padding: 9px; border: 0; color: #111; background: #fffef0; box-shadow: var(--sunken); font: 13px/1.55 var(--mono); user-select: text; }
 
+    #tasks-status:empty { display: none; }
     .task-tools { display: flex; gap: 7px; margin-bottom: 10px; }
     .task-tools input { flex: 1; min-width: 0; padding: 7px; border: 0; background: #fff; box-shadow: var(--sunken); }
     .task-columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -463,12 +464,11 @@ of the internet.</p>
         <details class="project-folder" open>
           <summary><span class="project-title"><strong>Chemistry Simulations</strong><small>Standalone browser tools for chemistry learning.</small></span><span class="project-status">active</span></summary>
           <div class="project-facts">
-            <p><strong>What's left:</strong> publish the portfolio site and connect its final URLs.</p>
             <time datetime="2026-09-04">Last touched: Sep 2026</time>
             <div class="simulation-list" aria-label="Chemistry simulations">
               <a class="project-link" href="simulations/ideal-gas-law/index.html"><span class="folder" aria-hidden="true">🧪</span><span><strong>Ideal Gas Law</strong><small>Pressure, volume, temperature, and amount.</small></span><span class="open-label">launch</span></a>
               <a class="project-link" href="simulations/electron-configuration/index.html"><span class="folder" aria-hidden="true">⚛️</span><span><strong>Electron Configuration</strong><small>Configurations and orbital diagrams.</small></span><span class="open-label">launch</span></a>
-              <a class="project-link" href="simulations/build-an-atom/index.html"><span class="folder" aria-hidden="true">🔬</span><span><strong>Build an Atom</strong><small>Identity, mass, charge, and shells.</small></span><span class="open-label">launch</span></a>
+              <a class="project-link" href="simulations/build-an-atom/index.html"><span class="folder" aria-hidden="true">🔬</span><span><strong>Build an Atom</strong><small>Elements, isotopes, ions, and Bohr/Lewis views.</small></span><span class="open-label">launch</span></a>
             </div>
           </div>
         </details>
@@ -509,6 +509,7 @@ type "help" for commands.
       <div class="window-titlebar"><span aria-hidden="true">📋</span><span class="window-title" id="title-tasks">tasks</span><span class="window-controls"><button class="window-control minimize" aria-label="Minimize tasks">_</button><button class="window-control maximize" aria-label="Maximize tasks">□</button><button class="window-control close" aria-label="Close tasks">×</button></span></div>
       <div class="window-content">
         <div class="task-tools"><label class="skip-link" for="task-input">New task</label><input id="task-input" placeholder="new task"><button class="pixel-button" id="task-add">add</button></div>
+        <p id="tasks-status" aria-live="polite"></p>
         <div class="task-columns"><section class="task-column"><h3>to do</h3><div class="task-list" id="tasks-todo"></div></section><section class="task-column"><h3>doing</h3><div class="task-list" id="tasks-doing"></div></section><section class="task-column"><h3>done</h3><div class="task-list" id="tasks-done"></div></section></div>
       </div>
     </section>
@@ -646,9 +647,19 @@ type "help" for commands.
       updateClocks();
       setInterval(updateClocks, 30000);
 
+      let storageReadable = true;
+      function readSaved(key) {
+        try { return localStorage.getItem(key); }
+        catch { storageReadable = false; return null; }
+      }
+      function writeSaved(key, value) {
+        try { localStorage.setItem(key, value); return true; }
+        catch { return false; }
+      }
+
       const petMessages = { deino: ['rawr!', 'terrible claw!', 'feed me!', 'sickle ready'], frog: ['ribbit', 'got any flies?', 'i like rain'], duck: ['quack!', 'where is the pond?', 'i am exploring'] };
       let selectedPet = 'frog';
-      let petsVisible = localStorage.getItem('duy-pets-visible') !== 'false';
+      let petsVisible = readSaved('duy-pets-visible') !== 'false';
 
       function say(pet, message) {
         const floating = document.querySelector(`[data-floating-pet="${pet}"]`);
@@ -677,7 +688,7 @@ type "help" for commands.
       }
       document.getElementById('pets-toggle').addEventListener('click', () => {
         petsVisible = !petsVisible;
-        localStorage.setItem('duy-pets-visible', petsVisible);
+        writeSaved('duy-pets-visible', petsVisible);
         showPets();
       });
       document.querySelectorAll('[data-floating-pet]').forEach(pet => pet.addEventListener('click', () => {
@@ -730,18 +741,25 @@ type "help" for commands.
 
       const notes = document.getElementById('notes-text');
       const notesStatus = document.getElementById('notes-status');
-      notes.value = localStorage.getItem('duy-notes') || '';
+      notes.value = readSaved('duy-notes') || '';
+      if (!storageReadable) notesStatus.textContent = 'Storage unavailable. Notes will not be saved.';
       notes.addEventListener('input', () => {
-        localStorage.setItem('duy-notes', notes.value);
-        notesStatus.textContent = 'Saved in this browser';
+        notesStatus.textContent = writeSaved('duy-notes', notes.value)
+          ? 'Saved in this browser' : 'Not saved. Keep a copy before leaving this page.';
       });
 
-      const defaultTasks = { todo: ['explore the desktop', 'feed the frog'], doing: ['choose a homepage direction'], done: ['build three chemistry simulations'] };
+      const defaultTasks = { todo: ['explore the desktop', 'feed the frog'], doing: ['explore the chemistry simulations'], done: ['build three chemistry simulations'] };
       let tasks;
-      try { tasks = JSON.parse(localStorage.getItem('duy-tasks')) || defaultTasks; }
+      try { tasks = JSON.parse(readSaved('duy-tasks')) || defaultTasks; }
       catch { tasks = defaultTasks; }
       const columns = ['todo', 'doing', 'done'];
-      const saveTasks = () => localStorage.setItem('duy-tasks', JSON.stringify(tasks));
+      tasks = Object.fromEntries(columns.map(column => [column,
+        Array.isArray(tasks[column]) ? tasks[column].filter(task => typeof task === 'string') : [...defaultTasks[column]],
+      ]));
+      const saveTasks = () => {
+        document.getElementById('tasks-status').textContent = writeSaved('duy-tasks', JSON.stringify(tasks))
+          ? '' : 'Not saved. Tasks will be lost when you leave this page.';
+      };
 
       function renderTasks() {
         columns.forEach(column => {

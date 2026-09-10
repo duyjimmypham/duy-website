@@ -126,6 +126,7 @@ header .intro{max-width:76ch;margin:5px 0 14px;color:var(--ink-soft);font-size:.
   <div class="law-bar" aria-live="polite">
     <span class="law-eq" id="lawEq">Kinetic Molecular Theory</span>
     <span class="law-desc" id="lawDesc">Kinetic molecular theory relates microscopic particle motion to the macroscopic variables P, V, T, and n.</span>
+    <button type="button" id="pauseBtn" class="reset-btn">Pause animation</button>
     <button type="button" id="resetBtn" class="reset-btn" aria-label="Reset the current gas law to its default values">Reset</button>
   </div>
 
@@ -283,7 +284,7 @@ function pressureBounds() {
   }
   // P computed here; fixed scale so the gauge and thumb move with P.
   if (state.mode === 'kinetic' || state.mode === 'ideal') {
-    return { min: 0, max: 10 };
+    return { min: 0, max: Math.ceil(LIMITS.n.max * R * LIMITS.T.max / LIMITS.V.min) };
   }
   if (state.mode === 'gaylussac') {
     return {
@@ -849,11 +850,25 @@ chamberCanvas.addEventListener('pointermove', event => {
 });
 
 let lastFrame = performance.now();
+let animationTime = 0;
+let paused = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const pauseButton = document.getElementById('pauseBtn');
+function updatePauseButton() {
+  pauseButton.textContent = paused ? 'Resume animation' : 'Pause animation';
+}
+pauseButton.addEventListener('click', () => {
+  paused = !paused;
+  updatePauseButton();
+});
+updatePauseButton();
 function animate(now) {
   const deltaTime = Math.min((now - lastFrame) / 1000, 0.05);
   lastFrame = now;
-  stepParticles(deltaTime);
-  drawChamber(now);
+  if (!paused) {
+    stepParticles(deltaTime);
+    animationTime += deltaTime * 1000;
+  }
+  drawChamber(animationTime);
   if (graphDirty) {
     drawGraph();
     graphDirty = false;
