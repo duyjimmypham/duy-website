@@ -5,6 +5,7 @@ const vm = require('node:vm');
 
 const root = path.resolve(process.argv[2] || __dirname);
 const homepage = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const simulationLicense = fs.readFileSync(path.join(root, 'simulations', 'LICENSE.md'), 'utf8');
 const links = [...homepage.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
 const launches = links.filter(link => link.startsWith('simulations/'));
 assert.equal(launches.length, 3);
@@ -12,6 +13,7 @@ assert.equal((homepage.match(/<style\b/g) || []).length, 1);
 for (const script of homepage.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)) new vm.Script(script[1]);
 assert(homepage.includes('id="homepage-project"'), 'Homepage must appear in Projects');
 assert(homepage.includes('id="boot-screen"'), 'Preserve the desktop boot sequence');
+assert(simulationLicense.includes('creativecommons.org/licenses/by-nc-sa/4.0/'), 'Missing shared simulation license');
 const jokes = homepage.match(/const trashJokes = (\[[^\n]+\]);/);
 assert(jokes, 'Preserve the original trash jokes');
 assert.equal(vm.runInNewContext(jokes[1]).length, 6);
@@ -60,6 +62,10 @@ for (const [symbol, element] of Object.entries(electrons.ELEMENTS)) {
 assert.equal(electrons.getSnapshot('Ca', 20).notation, '1s² 2s² 2p⁶ 3s² 3p⁶ 4s²');
 
 const gasHtml = fs.readFileSync(path.join(root, 'simulations/ideal-gas-law/index.html'), 'utf8');
+for (const slug of ['ideal-gas-law', 'electron-configuration', 'build-an-atom']) {
+  const html = fs.readFileSync(path.join(root, 'simulations', slug, 'index.html'), 'utf8');
+  assert(html.includes('creativecommons.org/licenses/by-nc-sa/4.0/'), `${slug} must use the shared simulation license`);
+}
 const gasScript = gasHtml.match(/<script>([\s\S]*?)<\/script>/)[1];
 const modelStart = gasScript.indexOf('const R =');
 const modelEnd = gasScript.indexOf('function controlNote');

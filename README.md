@@ -21,4 +21,4 @@ With Node.js installed, run `node check.cjs` to check local links, representativ
 
 ## Attribution
 
-Each simulation retains its own license notice. Ideal Gas Law uses CC BY 4.0; Electron Configuration and Build an Atom use CC BY-NC-SA 4.0. The embedded font and icon notices are included in the Electron Configuration file. These notices do not assign a license to the rest of this repository.
+The original educational content and interfaces in all three simulations use the shared [CC BY-NC-SA 4.0 license](simulations/LICENSE.md). The embedded font and icon notices in Electron Configuration retain their respective licenses. The simulation license does not apply to the rest of this repository.
