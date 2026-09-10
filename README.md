@@ -2,10 +2,11 @@
 
 Personal projects and interactive chemistry tools.
 
-Open `index.html` in a browser, or serve this directory with any static web server. The desktop includes movable windows, notes, tasks, pets, and Snake. It and the simulations work without an internet connection. About and project links remain available when JavaScript is disabled. Notes and tasks use browser storage when available; otherwise, the page explains that they will not persist.
+Open `index.html` in a browser, or serve this directory with any static web server. The homepage is a personal desktop with movable windows, notes, tasks, pets, Snake, a terminal, and trash jokes. It uses JavaScript and browser storage; the pixel font loads from Google Fonts.
 
 ## Projects
 
+- [Personal Homepage](index.html): the desktop website itself.
 - [Ideal Gas Law](simulations/ideal-gas-law/index.html): gas-law relationships, particle motion, and graphs.
 - [Electron Configuration](simulations/electron-configuration/index.html): ground-state filling from hydrogen through calcium.
 - [Build an Atom](simulations/build-an-atom/index.html): elements, isotopes, and ions from hydrogen through neon.
@@ -20,4 +21,4 @@ With Node.js installed, run `node check.cjs` to check local links, representativ
 
 ## Attribution
 
-The homepage embeds Ark Pixel Font under the SIL Open Font License 1.1; its notice is included in the HTML. Each simulation retains its own license notice. Ideal Gas Law uses CC BY 4.0; Electron Configuration and Build an Atom use CC BY-NC-SA 4.0. The embedded font and icon notices are included in the Electron Configuration file. These notices do not assign a license to the rest of this repository.
+Each simulation retains its own license notice. Ideal Gas Law uses CC BY 4.0; Electron Configuration and Build an Atom use CC BY-NC-SA 4.0. The embedded font and icon notices are included in the Electron Configuration file. These notices do not assign a license to the rest of this repository.

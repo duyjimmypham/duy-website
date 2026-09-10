@@ -9,26 +9,17 @@ const links = [...homepage.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
 const launches = links.filter(link => link.startsWith('simulations/'));
 assert.equal(launches.length, 3);
 assert.equal((homepage.match(/<style\b/g) || []).length, 1);
-assert(homepage.includes('class="no-script"'), 'Static content must be available before startup');
 for (const script of homepage.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)) new vm.Script(script[1]);
-const storageScript = homepage.match(/<script id="desktop-storage">([\s\S]*?)<\/script>/)[1];
-const blocked = { window: {} };
-Object.defineProperty(blocked, 'localStorage', { get() { throw Error('Unavailable'); } });
-vm.runInNewContext(storageScript, blocked);
-const storage = blocked.window.desktopStorage;
-assert.equal(storage.read('missing', 'fallback'), 'fallback');
-assert.equal(storage.write('duy-notes', 'A note'), false);
-assert.equal(storage.read('duy-notes'), 'A note');
-for (const malformed of ['null', '[]', '{bad', '{"todo":false,"doing":[null,4,"keep"],"done":{}}']) {
-  storage.write('duy-tasks', malformed);
-  const tasks = storage.readTasks();
-  for (const column of ['todo', 'doing', 'done']) assert(tasks[column].every(item => typeof item === 'string'));
-}
-assert.deepEqual(Array.from(storage.readTasks().doing), ['keep']);
+assert(homepage.includes('id="homepage-project"'), 'Homepage must appear in Projects');
+assert(homepage.includes('id="boot-screen"'), 'Preserve the desktop boot sequence');
+const jokes = homepage.match(/const trashJokes = (\[[^\n]+\]);/);
+assert(jokes, 'Preserve the original trash jokes');
+assert.equal(vm.runInNewContext(jokes[1]).length, 6);
 for (const href of links) {
+  if (!href) continue; // An empty link opens the current homepage.
   if (href.startsWith('#')) {
     assert(homepage.includes(`id="${href.slice(1)}"`), `Missing anchor: ${href}`);
-  } else if (!href.startsWith('data:')) {
+  } else if (!/^(data:|https?:)/.test(href)) {
     let directory = root;
     for (const part of href.split('/')) {
       assert(fs.readdirSync(directory).includes(part), `Missing or incorrectly cased path: ${href}`);
