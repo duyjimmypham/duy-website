@@ -9,7 +9,22 @@ const links = [...homepage.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
 const launches = links.filter(link => link.startsWith('simulations/'));
 assert.equal(launches.length, 3);
 assert.equal((homepage.match(/<style\b/g) || []).length, 1);
-assert(!/<script\b/.test(homepage), 'The homepage must remain usable without scripts');
+assert(homepage.includes('class="no-script"'), 'Static content must be available before startup');
+for (const script of homepage.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)) new vm.Script(script[1]);
+const storageScript = homepage.match(/<script id="desktop-storage">([\s\S]*?)<\/script>/)[1];
+const blocked = { window: {} };
+Object.defineProperty(blocked, 'localStorage', { get() { throw Error('Unavailable'); } });
+vm.runInNewContext(storageScript, blocked);
+const storage = blocked.window.desktopStorage;
+assert.equal(storage.read('missing', 'fallback'), 'fallback');
+assert.equal(storage.write('duy-notes', 'A note'), false);
+assert.equal(storage.read('duy-notes'), 'A note');
+for (const malformed of ['null', '[]', '{bad', '{"todo":false,"doing":[null,4,"keep"],"done":{}}']) {
+  storage.write('duy-tasks', malformed);
+  const tasks = storage.readTasks();
+  for (const column of ['todo', 'doing', 'done']) assert(tasks[column].every(item => typeof item === 'string'));
+}
+assert.deepEqual(Array.from(storage.readTasks().doing), ['keep']);
 for (const href of links) {
   if (href.startsWith('#')) {
     assert(homepage.includes(`id="${href.slice(1)}"`), `Missing anchor: ${href}`);

@@ -2,7 +2,7 @@
 
 Personal projects and interactive chemistry tools.
 
-Open `index.html` in a browser, or serve this directory with any static web server. The homepage and simulations work without an internet connection.
+Open `index.html` in a browser, or serve this directory with any static web server. The desktop includes movable windows, notes, tasks, pets, and Snake. It and the simulations work without an internet connection. About and project links remain available when JavaScript is disabled. Notes and tasks use browser storage when available; otherwise, the page explains that they will not persist.
 
 ## Projects
 
@@ -20,4 +20,4 @@ With Node.js installed, run `node check.cjs` to check local links, representativ
 
 ## Attribution
 
-Each simulation retains its own license notice. Ideal Gas Law uses CC BY 4.0; Electron Configuration and Build an Atom use CC BY-NC-SA 4.0. The embedded font and icon notices are included in the Electron Configuration file. These notices do not assign a license to the rest of this repository.
+The homepage embeds Ark Pixel Font under the SIL Open Font License 1.1; its notice is included in the HTML. Each simulation retains its own license notice. Ideal Gas Law uses CC BY 4.0; Electron Configuration and Build an Atom use CC BY-NC-SA 4.0. The embedded font and icon notices are included in the Electron Configuration file. These notices do not assign a license to the rest of this repository.
