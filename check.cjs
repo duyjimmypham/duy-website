@@ -8,7 +8,7 @@ const homepage = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const simulationLicense = fs.readFileSync(path.join(root, 'simulations', 'LICENSE.md'), 'utf8');
 const links = [...homepage.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
 const launches = links.filter(link => link.startsWith('simulations/'));
-assert.equal(launches.length, 3);
+assert.equal(launches.length, 4);
 assert.equal((homepage.match(/<style\b/g) || []).length, 1);
 for (const script of homepage.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)) new vm.Script(script[1]);
 assert(homepage.includes('id="homepage-project"'), 'Homepage must appear in Projects');
@@ -65,8 +65,9 @@ for (const [symbol, element] of Object.entries(electrons.ELEMENTS)) {
 assert.equal(electrons.getSnapshot('Ca', 20).notation, '1s² 2s² 2p⁶ 3s² 3p⁶ 4s²');
 
 const gasHtml = fs.readFileSync(path.join(root, 'simulations/ideal-gas-law/index.html'), 'utf8');
-for (const slug of ['ideal-gas-law', 'electron-configuration', 'build-an-atom']) {
+for (const slug of ['ideal-gas-law', 'electron-configuration', 'build-an-atom', 'molecular-shape-polarity']) {
   const html = fs.readFileSync(path.join(root, 'simulations', slug, 'index.html'), 'utf8');
+  assert(!/folsom|losrios|chem[ _-]*305/i.test(html), `${slug} has institutional branding`);
   assert(html.includes('creativecommons.org/licenses/by-nc-sa/4.0/'), `${slug} must use the shared simulation license`);
 }
 const gasScript = gasHtml.match(/<script>([\s\S]*?)<\/script>/)[1];
@@ -81,4 +82,17 @@ for (const [mode, variable, value] of [['boyle', 'V', 10], ['charles', 'T', 450]
   if (mode === 'charles' || mode === 'avogadro') assert.equal(result.P, 1, mode);
   if (mode === 'gaylussac') assert.equal(result.V, 20, mode);
 }
-console.log('Release checks passed: links, homepage, atom actions, H–Ca configurations, and gas-law relationships.');
+const molecularHtml = fs.readFileSync(path.join(root, 'simulations/molecular-shape-polarity/index.html'), 'utf8');
+const imports = JSON.parse(molecularHtml.match(/<script type="importmap">([\s\S]*?)<\/script>/)[1]).imports;
+assert.equal(Object.keys(imports).length, 5);
+assert(Object.values(imports).every(url => url.startsWith('data:text/javascript;base64,')), 'Molecular modules must be bundled');
+assert(molecularHtml.includes('Permission is hereby granted'), 'Preserve the Three.js MIT license');
+const molecularCode = Buffer.from(imports['molecule-model'].split(',')[1], 'base64').toString('utf8');
+const molecular = vm.runInNewContext(molecularCode.replace(/^export /gm, '') + '\n({molecules, netDipole})');
+assert.equal(Object.keys(molecular.molecules).length, 15);
+const polar = ['sulfur', 'ammonia', 'water', 'seesaw', 'tshape', 'squarePyramid', 'tshape6'];
+for (const [key, model] of Object.entries(molecular.molecules)) {
+  assert.equal(model.positions.length + model.lonePairs.length, model.electronDomains, key);
+  assert.equal(Math.hypot(...molecular.netDipole(model)) > 1e-8, polar.includes(key), key);
+}
+console.log('Release checks passed: links, homepage, atom actions, H–Ca configurations, gas-law relationships, and molecular geometry/polarity.');
