@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Explore covalent sharing, ionic electron transfer, and crystal lattices with interactive Lewis models.">
+<title>Covalent & ionic bonds</title>
+<link rel="icon" href="data:,">
+<style>
+:root { color-scheme: light; --paper: #f5f3ed; --surface: #fdfcf8; --ink: #252e2a; --muted: #59635d; --rule: #cfd3c8; --green: #266653; --rust: #a2462d; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.5 "Segoe UI", Arial, sans-serif; }
+button, input { font: inherit; }
+button, input[type="checkbox"] { cursor: pointer; }
+button { color: inherit; background: transparent; border: 1px solid var(--rule); border-radius: 3px; padding: 9px 15px; }
+button:hover { background: #e9ece4; }
+:focus-visible { outline: 3px solid var(--green); outline-offset: 4px; }
+[hidden] { display: none !important; }
+a { color: var(--green); text-underline-offset: 3px; }
+.page { max-width: 1280px; margin: auto; padding: 32px 44px 20px; }
+header { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; padding-bottom: 25px; }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+h1 { font: 38px/1.2 Georgia, serif; margin: 7px 0 0; letter-spacing: -.025em; }
+.header-note { color: var(--muted); font-size: 15px; }
+.modes { position: relative; display: flex; gap: 30px; border-bottom: 1px solid var(--rule); }
+.modes button { border: 0; border-radius: 0; border-bottom: 3px solid transparent; padding: 12px 0; font-size: 18px; }
+.modes button[aria-pressed="true"] { color: var(--green); font-weight: 600; }
+#mode-indicator { position: absolute; bottom: 0; left: 0; height: 3px; background: var(--green); pointer-events: none; }
+.workspace { display: grid; grid-template-columns: 238px minmax(0, 1fr); border-bottom: 1px solid var(--rule); }
+aside { padding: 28px 26px 25px 0; border-right: 1px solid var(--rule); }
+h2 { margin: 0 0 14px; font-size: 16px; font-weight: 600; }
+.examples { display: grid; gap: 7px; }
+.examples button { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: baseline; text-align: left; padding: 10px 12px; border-color: transparent; }
+.examples button[aria-pressed="true"] { background: #e5ebe1; border-color: #b5c5b7; }
+.examples strong { font: 27px Georgia, serif; }
+sub { font-size: .65em; line-height: 0; vertical-align: baseline; position: relative; bottom: -.3em; }
+.examples span { font-size: 15px; color: var(--muted); text-align: right; }
+.examples small { display: block; font-size: 14px; color: var(--ink); }
+.aside-note { margin: 24px 0; color: var(--muted); font-size: 16px; }
+.option { display: flex; align-items: center; gap: 9px; margin: 16px 0; font-size: 16px; }
+input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--green); }
+#lattice-button { width: 100%; font-size: 15px; }
+.model { min-width: 0; padding: 26px 0 24px 30px; }
+.model-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px; }
+.model-heading h2 { font: 28px Georgia, serif; margin-bottom: 0; }
+#stage-name { color: var(--muted); font-size: 15px; }
+.drawing { margin: 18px 0 0; background: var(--surface); border: 1px solid var(--rule); }
+svg { display: block; width: 100%; height: auto; max-height: 350px; }
+svg text { fill: var(--ink); font: 20px "Segoe UI", Arial, sans-serif; text-anchor: middle; }
+svg .symbol { font: 48px Georgia, serif; }
+svg .charge { font-size: 26px; }
+svg .annotation { fill: var(--muted); font-size: 19px; }
+svg .bracket { fill: none; stroke: var(--ink); stroke-width: 1.6; }
+svg .bond { stroke: var(--ink); stroke-width: 3; stroke-linecap: round; }
+svg [role="button"] { cursor: pointer; }
+svg [role="button"]:focus:not(:focus-visible) { outline: none; }
+svg .counted { stroke: var(--ink); stroke-width: 2; }
+svg .bond.counted { stroke-width: 6; }
+svg .atom-choice .atom-disc { stroke: var(--ink); stroke-width: 3; stroke-opacity: 0; transition: stroke-opacity 120ms ease-out; }
+svg .atom-choice:is(:hover, :focus-visible, [aria-pressed="true"]) .atom-disc { stroke-opacity: 1; }
+svg .selected .ion-disc { stroke: var(--ink); stroke-width: 3; }
+svg .neighbor .ion-disc { stroke: var(--ink); stroke-width: 3; stroke-dasharray: 4 3; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 24px; padding: 0 22px 17px; font-size: 15px; color: var(--muted); }
+.dot-key { color: var(--green); }
+.rust-key { color: var(--rust); }
+.inspection { margin: 0; padding: 0 22px 17px; font-size: 16px; }
+.transport { display: flex; gap: 9px; align-items: center; padding-top: 20px; }
+.primary { background: var(--green); color: #fff; border-color: var(--green); min-width: 145px; }
+.primary:hover { background: #1c503f; }
+.timeline { flex: 1; min-width: 0; margin-left: 10px; }
+.timeline label { display: block; font-size: 14px; color: var(--muted); }
+input[type="range"] { display: block; width: 100%; accent-color: var(--green); cursor: pointer; min-height: 26px; }
+.stages { display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); }
+.readouts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 25px 0 0; }
+.readouts div { border-top: 1px solid var(--rule); padding-top: 12px; }
+dt { color: var(--muted); font-size: 14px; }
+dd { margin: 3px 0 0; font-size: 24px; font-variant-numeric: tabular-nums; }
+footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-top: 23px; color: var(--muted); font-size: 12px; }
+@media (max-width: 850px) {
+  .page { padding: 24px; } header { padding-bottom: 18px; } .header-note { display: none; }
+  .workspace { grid-template-columns: 216px minmax(0, 1fr); } aside { padding-right: 18px; } .model { padding-left: 20px; }
+  .examples button { padding: 8px; } .examples span { font-size: 14px; } .transport { flex-wrap: wrap; }
+  .timeline { flex-basis: 100%; margin: 5px 0 0; } .readouts { gap: 8px; } dd { font-size: 21px; }
+}
+@media (max-width: 620px) {
+  .page { padding: 20px 16px; } h1 { font-size: 31px; } .modes { gap: 28px; }
+  .workspace { display: block; } aside { border: 0; padding: 20px 0 0; }
+  .examples { grid-template-columns: repeat(2, minmax(0, 1fr)); } .examples button { padding: 7px 10px; }
+  .aside-note { margin: 14px 0; } .option { margin: 10px 0; } #lattice-button { width: auto; }
+  .model { padding: 20px 0; } .model-heading { gap: 4px 12px; } .model-heading h2 { font-size: 25px; } #stage-name { font-size: 14px; }
+  svg text, svg .annotation { font-size: 27px; }
+  .drawing { margin-top: 14px; } .legend { padding: 0 12px 12px; gap: 6px 16px; font-size: 14px; }
+  .readouts { margin-top: 18px; } dd { font-size: 20px; }
+}
+@media (max-width: 420px) {
+  .examples button { grid-template-columns: 1fr; gap: 3px; }
+  .examples span { text-align: left; }
+}
+@media (prefers-reduced-motion: reduce) {
+  svg .atom-choice .atom-disc { transition: none; }
+}
+@media print {
+  .page { padding: 0; } button, .transport, aside, .modes, footer { display: none; }
+  .workspace { display: block; } .model { padding-left: 0; } .drawing { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <header>
+    <div><div class="eyebrow">Chemistry / Lewis models</div><h1>Covalent & ionic bonds</h1></div>
+    <span class="header-note">Follow the valence electrons.</span>
+  </header>
+  <nav class="modes" aria-label="Bond type">
+    <button type="button" data-mode="covalent" aria-pressed="true">Covalent <span aria-hidden="true">/ sharing</span></button>
+    <button type="button" data-mode="ionic" aria-pressed="false">Ionic <span aria-hidden="true">/ transfer</span></button>
+    <span id="mode-indicator" aria-hidden="true"></span>
+  </nav>
+  <div class="workspace">
+    <aside aria-label="Model controls">
+      <h2>Choose an example</h2>
+      <div id="examples" class="examples"></div>
+      <p class="aside-note" id="example-note"></p>
+      <label class="option" id="lines-option"><input type="checkbox" id="bond-lines"> Use bond lines</label>
+      <button type="button" id="lattice-button" aria-pressed="false" hidden>View crystal lattice</button>
+    </aside>
+    <section class="model" aria-labelledby="model-title">
+      <div class="model-heading"><h2 id="model-title"></h2><span id="stage-name"></span></div>
+      <figure class="drawing">
+        <svg id="scene" viewBox="0 0 800 350" role="group" aria-labelledby="scene-title" aria-describedby="scene-desc">
+          <title id="scene-title"></title><desc id="scene-desc"></desc><g id="diagram"></g>
+        </svg>
+        <figcaption><div class="legend" id="legend"></div><p class="inspection" id="inspection" aria-live="polite" hidden></p></figcaption>
+      </figure>
+      <div class="transport" id="transport">
+        <button type="button" id="play" class="primary">Share electrons</button>
+        <button type="button" id="reset">Reset</button>
+        <div class="timeline">
+          <label for="progress">Model sequence</label>
+          <input type="range" id="progress" min="0" max="100" value="0" step="1" aria-valuetext="Separate atoms">
+          <div class="stages"><span>Separate atoms</span><span id="end-label">Molecule</span></div>
+        </div>
+      </div>
+      <dl class="readouts" id="readouts"></dl>
+    </section>
+  </div>
+  <footer><span>Duy Pham</span><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a></footer>
+</main>
+<script id="bond-model">
+'use strict';
+const examples = [
+  { id: 'h2', mode: 'covalent', formula: 'H₂', name: 'Hydrogen', atoms: ['H', 'H'], valence: [1, 1], pairs: 1,
+    note: 'A single bond. Two electrons fill each hydrogen shell.' },
+  { id: 'cl2', mode: 'covalent', formula: 'Cl₂', name: 'Chlorine', atoms: ['Cl', 'Cl'], valence: [7, 7], pairs: 1,
+    note: 'One shared pair and three lone pairs on each atom.' },
+  { id: 'o2', mode: 'covalent', formula: 'O₂', name: 'Oxygen', atoms: ['O', 'O'], valence: [6, 6], pairs: 2,
+    note: 'A double bond. Two pairs of electrons are shared.' },
+  { id: 'n2', mode: 'covalent', formula: 'N₂', name: 'Nitrogen', atoms: ['N', 'N'], valence: [5, 5], pairs: 3,
+    note: 'A triple bond. Three pairs of electrons are shared.' },
+  { id: 'nacl', mode: 'ionic', formula: 'NaCl', name: 'Sodium chloride', atoms: ['Na', 'Cl'], valence: [1, 7], transfer: 1,
+    note: 'One electron moves from sodium to chlorine.' },
+  { id: 'mgo', mode: 'ionic', formula: 'MgO', name: 'Magnesium oxide', atoms: ['Mg', 'O'], valence: [2, 6], transfer: 2,
+    note: 'Magnesium supplies two electrons to oxygen.' },
+  { id: 'cacl2', mode: 'ionic', formula: 'CaCl₂', name: 'Calcium chloride', atoms: ['Ca', 'Cl', 'Cl'], valence: [2, 7, 7], transfer: 2,
+    note: 'Calcium supplies one electron to each of two chlorines.' }
+];
+function tally(example, complete) {
+  const total = example.valence.reduce((sum, n) => sum + n, 0);
+  if (example.mode === 'covalent') return { total, shared: complete ? 2 * example.pairs : 0,
+    counts: example.valence.map(n => n + (complete ? example.pairs : 0)), charges: example.atoms.map(() => 0) };
+  const charges = example.atoms.map((_, i) => complete ? (i === 0 ? example.transfer : -example.transfer / (example.atoms.length - 1)) : 0);
+  return { total, shared: 0, counts: example.valence.map((n, i) => n - charges[i]), charges };
+}
+</script>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+let current = examples[0], progress = 0, lattice = false, frame = 0;
+let selectedAtom = null, selectedIon = null;
+const bondOrders = ['', 'Single', 'Double', 'Triple'];
+const green = '#266653', rust = '#a2462d';
+const lerp = (a, b, t) => a + (b - a) * t;
+const formulaHtml = formula => formula.replaceAll('₂', '<sub>2</sub>');
+function text(x, y, value, cls = '') { return `<text x="${x}" y="${y}" class="${cls}">${value}</text>`; }
+function electron(x, y, origin, counted = false) {
+  return `<circle data-electron="${origin}" cx="${x}" cy="${y}" r="5" fill="${origin === 0 ? green : rust}" class="${counted ? 'counted' : ''}"/>`;
+}
+function atom(x, y, symbol, origin, charge = 0) {
+  let out = `<circle class="atom-disc" cx="${x}" cy="${y}" r="43" fill="${origin === 0 ? '#e7eee4' : '#f3e8df'}"/>` + text(x, y + 16, symbol, 'symbol');
+  if (charge) out += `<path class="bracket" d="M${x-70},${y-73}h-10v146h10m140,0h10v-146h-10"/>` + text(x + 92, y - 60, `${Math.abs(charge) === 1 ? '' : Math.abs(charge)}${charge > 0 ? '+' : '−'}`, 'charge');
+  return out;
+}
+function covalentDiagram(done) {
+  const p = progress / 100, b = current.pairs, y = 171;
+  let out = '';
+  const positions = [lerp(205, 300, p), lerp(595, 500, p)];
+  if (done && !$('bond-lines').checked) out += `<rect class="pair-region" x="378" y="${y-b*13-8}" width="44" height="${b*26+16}" rx="20" fill="#e9ede1"/>`;
+  current.atoms.forEach((symbol, i) => {
+    const x = positions[i], facing = i === 0 ? 1 : -1;
+    out += done ? `<g class="atom-choice" data-atom="${i}" role="button" tabindex="0" aria-pressed="${selectedAtom === i}" aria-label="Count electrons around ${i === 0 ? 'left' : 'right'} ${symbol}">${atom(x, y, symbol, i)}</g>` : atom(x, y, symbol, i);
+    const loneDirections = [[-facing, 0], [0, -1], [0, 1]];
+    for (let pair = 0; pair < (current.valence[i] - b) / 2; pair++) {
+      const [dx, dy] = loneDirections[pair];
+      for (const offset of [-8, 8]) out += electron(x + dx * 65 + (dy ? offset : 0), y + dy * 65 + (dx ? offset : 0), i, done && selectedAtom === i);
+    }
+    const singleDirections = b === 2 ? [[facing, 0], [0, 1]] : [[facing, 0], [0, -1], [0, 1]];
+    for (let j = 0; j < b; j++) {
+      if (done && $('bond-lines').checked) continue;
+      const [dx, dy] = singleDirections[j];
+      out += electron(lerp(x + dx * 65, 400 + (i === 0 ? -8 : 8), p), lerp(y + dy * 65, y + (j - (b-1)/2) * 25, p), i, done && selectedAtom !== null);
+    }
+    out += text(x, 293, done ? `Shell: ${current.valence[i] + b} e⁻` : `Valence: ${current.valence[i]} e⁻`, 'annotation');
+  });
+  if (done && $('bond-lines').checked) for (let j = 0; j < b; j++) {
+    const by = y + (j - (b-1)/2) * 15;
+    out += `<line class="bond${selectedAtom !== null ? ' counted' : ''}" data-bond="pair" pathLength="1" x1="355" y1="${by}" x2="445" y2="${by}"/>`;
+  }
+  out += text(400, 48, done ? ['', 'One shared pair', 'Two shared pairs', 'Three shared pairs'][b] : progress ? 'Bring the unpaired electrons together' : 'Atoms with their valence electrons', 'annotation');
+  return out;
+}
+function ionicDiagram(done) {
+  const triple = current.atoms.length === 3, y = 173, p = progress / 100;
+  const xs = triple ? [400, 155, 645] : [220, 570];
+  const state = tally(current, done);
+  let out = text(400, 43, done ? 'Opposite charges attract throughout the solid' : progress ? 'Follow the electron transfer' : 'Start with electrically neutral atoms', 'annotation');
+  current.atoms.forEach((symbol, i) => {
+    out += atom(xs[i], y, symbol, i === 0 ? 0 : 1, state.charges[i]);
+    if (i > 0) {
+      // Fill one position on each side before pairing; leave transfer destinations vacant.
+      const slots = [[-8,-65],[65,-8],[8,65],[-65,8],[8,-65],[65,8],[-8,65],[-65,-8]];
+      for (let j = 0; j < current.valence[i]; j++) out += electron(xs[i]+slots[j][0], y+slots[j][1], 1);
+    }
+    out += text(xs[i], 302, done ? `${state.counts[i]} Lewis dots` : `${current.valence[i]} valence electron${current.valence[i] === 1 ? '' : 's'}`, 'annotation');
+  });
+  for (let j = 0; j < current.transfer; j++) {
+    const receiver = triple ? j + 1 : 1;
+    const startX = xs[0] + (triple && j === 0 ? -65 : !triple && j === 1 ? 0 : 65);
+    const startY = y + (!triple && j === 1 ? 65 : 0);
+    const slot = current.valence[receiver] + (triple ? 0 : j);
+    const endX = xs[receiver] + (slot === 6 ? -8 : -65), endY = y + (slot === 6 ? 65 : -8);
+    out += electron(lerp(startX, endX, p), lerp(startY, endY, p) - 65 * Math.sin(Math.PI*p), 0);
+  }
+  return out;
+}
+function latticeDiagram() {
+  let out = text(400, 35, 'A slice through a three-dimensional crystal', 'annotation');
+  const neighbors = selectedIon === null ? [] : [selectedIon - 6, selectedIon - 1, selectedIon + 1, selectedIon + 6];
+  for (let row = 0; row < 4; row++) for (let col = 0; col < 6; col++) {
+    const positive = (row + col) % 2 === 0, x = 225 + col*70, y = 83 + row*70;
+    const sign = current.transfer === 2 ? (positive ? '²⁺' : '²⁻') : (positive ? '⁺' : '⁻');
+    const index = row * 6 + col, interior = row > 0 && row < 3 && col > 0 && col < 5;
+    const label = current.atoms[positive ? 0 : 1] + sign;
+    const relation = index === selectedIon ? ' selected' : neighbors.includes(index) ? ' neighbor' : '';
+    out += `<g class="lattice-ion${relation}" data-ion="${index}"${interior ? ` role="button" tabindex="0" aria-pressed="${index === selectedIon}" aria-label="Select ${label}, row ${row + 1}, column ${col + 1}"` : ''}>`;
+    if (interior) out += `<circle cx="${x}" cy="${y}" r="34" fill="transparent"/>`;
+    out += `<circle class="ion-disc" cx="${x}" cy="${y}" r="${positive ? 23 : 30}" fill="${positive ? '#e7eee4' : '#f3e8df'}" stroke="${positive ? green : rust}"/>` + text(x, y+6, label) + '</g>';
+  }
+  return out;
+}
+function stop() { cancelAnimationFrame(frame); frame = 0; }
+function animateElements(selector, keyframes, duration) {
+  if (reducedMotion.matches) return;
+  document.querySelectorAll(selector).forEach(element => element.animate(keyframes, { duration, easing: 'ease-out' }));
+}
+function syncModeIndicator(animate = false) {
+  const indicator = $('mode-indicator'), active = document.querySelector('[data-mode][aria-pressed="true"]');
+  const previous = { transform: getComputedStyle(indicator).transform, width: getComputedStyle(indicator).width };
+  indicator.getAnimations().forEach(animation => animation.cancel());
+  const next = { transform: `translateX(${active.offsetLeft}px)`, width: `${active.offsetWidth}px` };
+  Object.assign(indicator.style, next);
+  if (animate) animateElements('#mode-indicator', [previous, next], 180);
+}
+function render() {
+  const done = progress === 100, ionic = current.mode === 'ionic', state = tally(current, done);
+  const stage = lattice ? 'Crystal lattice' : done ? ionic ? 'Ions formed' : 'Shared electrons' : progress ? ionic ? 'Transferring electrons' : 'Sharing electrons' : 'Separate atoms';
+  $('model-title').innerHTML = `${current.name}, ${formulaHtml(current.formula)}`;
+  $('stage-name').textContent = stage;
+  $('scene-title').textContent = `${current.formula}: ${stage}`;
+  $('diagram').innerHTML = lattice ? latticeDiagram() : ionic ? ionicDiagram(done) : covalentDiagram(done);
+  $('legend').innerHTML = lattice ? '<span>+ cation</span><span>− anion</span><span>Sizes are schematic.</span>' : `<span><span class="dot-key" aria-hidden="true">●</span> Teal: from ${current.atoms[0]}${ionic ? '' : ' on the left'}</span><span><span class="rust-key" aria-hidden="true">●</span> Rust: from ${current.atoms[1]}${ionic ? '' : ' on the right'}</span><span>Valence electrons only</span>`;
+  let inspection = '';
+  if (lattice) inspection = selectedIon === null ? 'Select an interior ion to see its nearest neighbors.' : 'Solid outline: selected ion. Four dashed outlines: opposite neighbors in this plane. One more lies above and one below, giving six in 3D.';
+  else if (done && !ionic) inspection = selectedAtom === null ? 'Select either atom to count its electrons.' : `${selectedAtom === 0 ? 'Left' : 'Right'} ${current.atoms[selectedAtom]}: ${current.valence[selectedAtom] - current.pairs} nonbonding + ${state.shared} shared = ${state.counts[selectedAtom]} electrons. Both atoms count the same shared electrons.${$('bond-lines').checked ? ' Each bold line represents two shared electrons.' : ' Outlined dots count toward the selected atom.'}`;
+  $('inspection').hidden = !inspection;
+  if ($('inspection').textContent !== inspection) $('inspection').textContent = inspection;
+  $('progress').value = progress;
+  $('progress').setAttribute('aria-valuetext', `${stage}, ${progress}% of model sequence`);
+  $('play').textContent = frame ? 'Pause' : done ? 'Replay' : ionic ? 'Transfer electrons' : 'Share electrons';
+  $('end-label').textContent = ionic ? 'Ions' : 'Molecule';
+  $('lines-option').hidden = ionic;
+  $('lattice-button').hidden = !ionic || current.atoms.length === 3;
+  $('lattice-button').textContent = lattice ? 'Return to electron model' : 'View crystal lattice';
+  $('lattice-button').setAttribute('aria-pressed', lattice);
+  $('transport').hidden = lattice;
+  const label = ionic ? 'Electrons transferred' : 'Shared pairs';
+  const value = progress > 0 && !done ? 'In progress' : done ? ionic ? current.transfer : current.pairs : 0;
+  const thirdLabel = ionic ? 'Net charge' : 'Bond type';
+  const thirdValue = ionic ? '0' : done ? bondOrders[current.pairs] : 'No bond yet';
+  $('readouts').innerHTML = lattice ? '<div><dt>Ion ratio</dt><dd>1 : 1</dd></div><div><dt>Neighbors per ion in 3D</dt><dd>6 opposite ions</dd></div><div><dt>Net charge</dt><dd>0</dd></div>' : `<div><dt>Total valence electrons</dt><dd>${state.total}</dd></div><div><dt>${label}</dt><dd>${value}</dd></div><div><dt>${thirdLabel}</dt><dd>${thirdValue}</dd></div>`;
+  let observation;
+  if (lattice) observation = `${current.formula} gives a 1:1 ion ratio, not a discrete molecule. Each ion has six nearest neighbors of opposite charge: four in this plane, one above, and one below.`;
+  else if (!progress) observation = ionic ? 'Count the valence electrons before transfer. Electrons move between atoms; the total number stays the same.' : 'Count the unpaired electrons. Play the model, or move the slider to follow them into shared pairs.';
+  else if (!done) observation = 'This is a symbolic sequence. Moving dots track electron bookkeeping, not actual electron paths or intermediate chemical species.';
+  else if (!ionic) observation = `${current.pairs * 2} shared electrons form ${current.pairs === 1 ? 'one pair' : `${current.pairs} pairs`}. Each ${current.atoms[0]} counts ${state.counts[0]} electrons in its outer shell. The molecule still contains ${state.total} valence electrons in total.`;
+  else observation = current.id === 'cacl2' ? 'One Ca²⁺ and two Cl⁻ ions balance: (+2) + 2(−1) = 0. CaCl₂ is an ion ratio in an extended solid. Calcium’s inner electrons are not shown.' : `${current.atoms[0]} loses ${current.transfer} electron${current.transfer > 1 ? 's' : ''}; ${current.atoms[1]} gains ${current.transfer}. The charges balance in a 1:1 ratio. The cation’s inner electrons are not shown.`;
+  $('scene-desc').textContent = observation + (lattice ? '' : ` Total tracked electrons: ${state.total}. ${done ? current.atoms.map((a, i) => `${a}: ${state.counts[i]} ${ionic ? 'Lewis dots' : 'electrons counting shared pairs'}, charge ${state.charges[i]}`).join('; ') : ''}`);
+}
+function choose(id) {
+  const previousMode = current.mode;
+  stop(); current = examples.find(example => example.id === id); progress = 0; lattice = false;
+  selectedAtom = null; selectedIon = null;
+  $('bond-lines').checked = false;
+  document.querySelectorAll('[data-mode]').forEach(button => button.setAttribute('aria-pressed', button.dataset.mode === current.mode));
+  syncModeIndicator(previousMode !== current.mode);
+  const available = examples.filter(example => example.mode === current.mode);
+  if ($('examples').dataset.bondType !== current.mode) {
+    $('examples').innerHTML = available.map(example => `<button type="button" data-example="${example.id}" aria-pressed="false"><strong>${formulaHtml(example.formula)}</strong><span>${example.name}${example.pairs ? `<small>${bondOrders[example.pairs]} bond</small>` : ''}</span></button>`).join('');
+    $('examples').dataset.bondType = current.mode;
+  }
+  document.querySelectorAll('[data-example]').forEach(button => button.setAttribute('aria-pressed', button.dataset.example === id));
+  $('example-note').textContent = current.note;
+  render();
+}
+document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => choose(examples.find(example => example.mode === button.dataset.mode).id)));
+$('examples').addEventListener('click', event => { const button = event.target.closest('[data-example]'); if (button) choose(button.dataset.example); });
+$('progress').addEventListener('input', event => { stop(); selectedAtom = null; progress = Number(event.target.value); render(); });
+$('reset').addEventListener('click', () => { stop(); selectedAtom = null; progress = 0; render(); });
+$('bond-lines').addEventListener('change', () => {
+  render();
+  if ($('bond-lines').checked) animateElements('.bond', [{ strokeDasharray: '1', strokeDashoffset: '1' }, { strokeDasharray: '1', strokeDashoffset: '0' }], 180);
+});
+$('lattice-button').addEventListener('click', () => { stop(); selectedIon = null; lattice = !lattice; render(); });
+function selectInDiagram(event) {
+  const button = event.target.closest('[role="button"]');
+  if (!button || (event.type === 'keydown' && !['Enter', ' '].includes(event.key))) return;
+  event.preventDefault();
+  const kind = button.hasAttribute('data-atom') ? 'atom' : 'ion', index = Number(button.dataset[kind]);
+  if (kind === 'atom') selectedAtom = selectedAtom === index ? null : index;
+  else selectedIon = selectedIon === index ? null : index;
+  render();
+  $('diagram').querySelector(`[data-${kind}="${index}"]`).focus({ preventScroll: true });
+  if (kind === 'atom' && selectedAtom !== null) animateElements('.atom-choice[aria-pressed="true"] .atom-disc', [{ strokeOpacity: 0 }, { strokeOpacity: 1 }], 120);
+}
+$('diagram').addEventListener('click', selectInDiagram);
+$('diagram').addEventListener('keydown', selectInDiagram);
+$('play').addEventListener('click', () => {
+  if (frame) { stop(); render(); return; }
+  selectedAtom = null;
+  if (reducedMotion.matches) { progress = 100; render(); return; }
+  if (progress === 100) progress = 0;
+  const start = performance.now() - progress * 32;
+  function tick(now) {
+    progress = Math.min(100, Math.floor((now - start) / 32));
+    frame = progress < 100 ? requestAnimationFrame(tick) : 0;
+    render();
+    if (progress === 100) animateElements('.pair-region', [{ opacity: 0 }, { opacity: 1 }], 220);
+  }
+  frame = requestAnimationFrame(tick); render();
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden) { stop(); render(); } });
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+reducedMotion.addEventListener('change', () => {
+  if (!reducedMotion.matches) return;
+  document.getAnimations().forEach(animation => animation.cancel());
+  if (frame) { stop(); progress = 100; render(); }
+});
+choose('h2');
+new ResizeObserver(() => syncModeIndicator()).observe(document.querySelector('.modes'));
+</script>
+</body>
+</html>

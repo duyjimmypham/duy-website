@@ -8,7 +8,7 @@ const homepage = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const simulationLicense = fs.readFileSync(path.join(root, 'simulations', 'LICENSE.md'), 'utf8');
 const links = [...homepage.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
 const launches = links.filter(link => link.startsWith('simulations/'));
-assert.equal(launches.length, 4);
+assert.equal(launches.length, 5);
 assert.equal((homepage.match(/<style\b/g) || []).length, 1);
 for (const script of homepage.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)) new vm.Script(script[1]);
 assert(homepage.includes('id="homepage-project"'), 'Homepage must appear in Projects');
@@ -65,7 +65,7 @@ for (const [symbol, element] of Object.entries(electrons.ELEMENTS)) {
 assert.equal(electrons.getSnapshot('Ca', 20).notation, '1s² 2s² 2p⁶ 3s² 3p⁶ 4s²');
 
 const gasHtml = fs.readFileSync(path.join(root, 'simulations/ideal-gas-law/index.html'), 'utf8');
-for (const slug of ['ideal-gas-law', 'electron-configuration', 'build-an-atom', 'molecular-shape-polarity']) {
+for (const slug of ['ideal-gas-law', 'electron-configuration', 'build-an-atom', 'molecular-shape-polarity', 'bond-models']) {
   const html = fs.readFileSync(path.join(root, 'simulations', slug, 'index.html'), 'utf8');
   assert(!/folsom|losrios|chem[ _-]*305/i.test(html), `${slug} has institutional branding`);
   assert(html.includes('creativecommons.org/licenses/by-nc-sa/4.0/'), `${slug} must use the shared simulation license`);
@@ -95,4 +95,22 @@ for (const [key, model] of Object.entries(molecular.molecules)) {
   assert.equal(model.positions.length + model.lonePairs.length, model.electronDomains, key);
   assert.equal(Math.hypot(...molecular.netDipole(model)) > 1e-8, polar.includes(key), key);
 }
-console.log('Release checks passed: links, homepage, atom actions, H–Ca configurations, gas-law relationships, and molecular geometry/polarity.');
+const bondHtml = fs.readFileSync(path.join(root, 'simulations/bond-models/index.html'), 'utf8');
+const bondScripts = [...bondHtml.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(match => match[1]);
+for (const script of bondScripts) new vm.Script(script);
+const bonds = vm.runInNewContext(bondScripts[0] + '; ({ examples, tally })');
+const bondExpected = {
+  h2: [2, 2, [2, 2], [0, 0]], cl2: [14, 2, [8, 8], [0, 0]],
+  o2: [12, 4, [8, 8], [0, 0]], n2: [10, 6, [8, 8], [0, 0]],
+  nacl: [8, 0, [0, 8], [1, -1]], mgo: [8, 0, [0, 8], [2, -2]],
+  cacl2: [16, 0, [0, 8, 8], [2, -1, -1]],
+};
+assert.deepEqual(Array.from(bonds.examples, example => example.id).sort(), Object.keys(bondExpected).sort());
+for (const example of bonds.examples) {
+  const before = bonds.tally(example, false), after = bonds.tally(example, true);
+  assert.deepEqual(JSON.parse(JSON.stringify([after.total, after.shared, after.counts, after.charges])), bondExpected[example.id], example.id);
+  assert.equal(before.total, after.total, example.id + ': electrons conserved');
+}
+assert.equal((bondHtml.match(/<style>/g) || []).length, 1);
+assert(!/<script[^>]+src=|<link[^>]+rel="stylesheet"/.test(bondHtml), 'Bond models must remain standalone');
+console.log('Release checks passed: links, homepage, atom actions, H–Ca configurations, gas-law relationships, molecular geometry/polarity, and covalent/ionic bonds.');
