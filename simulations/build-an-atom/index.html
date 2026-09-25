@@ -64,6 +64,10 @@
     }
     .app-header { grid-area: header; display: flex; align-items: center; justify-content: space-between; border: 4px solid var(--ink); padding: 12px 16px; background: var(--ink); color: var(--panel); }
     .app-header .eyebrow { color: #d5d4cc; }
+    .site-nav { display: flex; margin-bottom: 8px; }
+    .site-nav a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 10px; border: 2px solid currentColor; color: var(--panel); font-size: .8rem; font-weight: 700; text-decoration: none; }
+    .site-nav a:is(:hover, :focus-visible) { background: var(--panel); color: var(--ink); }
+    .site-nav a:focus-visible { outline: 3px solid var(--panel); outline-offset: 3px; }
     .history-controls { display: flex; gap: 10px; }
     .particle-panel, .atom-panel, .readout-panel { border: 4px solid var(--ink); background: var(--panel); box-shadow: var(--shadow); padding: 14px; }
     .particle-panel { grid-area: particles; display: flex; flex-direction: column; gap: 12px; }
@@ -168,6 +172,7 @@
   <main class="app-shell" id="app">
     <header class="app-header">
       <div>
+        <nav class="site-nav" aria-label="Site navigation"><a href="../../index.html#teaching"><span aria-hidden="true">←</span> HOME</a></nav>
         <p class="eyebrow">ATOMIC STRUCTURE</p>
         <h1>BUILD AN ATOM</h1>
       </div>

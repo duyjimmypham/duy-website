@@ -22,6 +22,9 @@ button:hover { background: #e9ece4; }
 [hidden] { display: none !important; }
 a { color: var(--green); text-underline-offset: 3px; }
 .page { max-width: 1280px; margin: auto; padding: 32px 44px 20px; }
+.site-nav { display: flex; margin-bottom: 12px; }
+.site-nav a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 7px 12px; border: 1px solid var(--rule); border-radius: 3px; font-size: 14px; text-decoration: none; }
+.site-nav a:is(:hover, :focus-visible) { background: #e5ebe1; border-color: #b5c5b7; }
 header { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; padding-bottom: 25px; }
 .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 h1 { font: 38px/1.2 Georgia, serif; margin: 7px 0 0; letter-spacing: -.025em; }
@@ -111,6 +114,7 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8p
 </head>
 <body>
 <main class="page">
+  <nav class="site-nav" aria-label="Site navigation"><a href="../../index.html#teaching"><span aria-hidden="true">←</span> Home</a></nav>
   <header>
     <div><div class="eyebrow">Chemistry / Lewis models</div><h1>Covalent & ionic bonds</h1></div>
     <span class="header-note">Follow the valence electrons.</span>

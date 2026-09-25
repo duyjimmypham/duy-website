@@ -202,6 +202,10 @@ button:disabled {
   border-inline: var(--pixel) solid var(--ink);
 }
 
+.site-nav { display: flex; margin-bottom: 8px; }
+.site-nav a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 12px; border: 2px solid var(--ink); color: var(--ink); background: var(--paper); font: 400 12px/1 var(--mono); text-decoration: none; }
+.site-nav a:is(:hover, :focus-visible) { background: var(--ink); color: var(--paper); }
+.site-nav a:focus-visible { outline: var(--pixel) dashed var(--ink); outline-offset: 3px; }
 .masthead {
   display: grid;
   grid-template-columns: minmax(360px, 1fr) auto;
@@ -1193,6 +1197,7 @@ from {
   <main class="app">
     <header class="masthead">
       <div>
+        <nav class="site-nav" aria-label="Site navigation"><a href="../../index.html#teaching"><span aria-hidden="true">←</span> HOME</a></nav>
         <p class="kicker">Instructor demonstration</p>
         <h1>Electron Configuration Tower</h1>
         <p class="subtitle">Follow each electron from the energy elevator into its shell, subshell, and orbital.</p>

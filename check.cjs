@@ -80,6 +80,8 @@ for (const slug of ['ideal-gas-law', 'electron-configuration', 'build-an-atom', 
   const html = fs.readFileSync(path.join(root, 'simulations', slug, 'index.html'), 'utf8');
   assert(!/folsom|losrios|chem[ _-]*305/i.test(html), `${slug} has institutional branding`);
   assert(html.includes('creativecommons.org/licenses/by-nc-sa/4.0/'), `${slug} must use the shared simulation license`);
+  assert(html.includes('aria-label="Site navigation"'), `${slug} must have site navigation`);
+  assert(html.includes('href="../../index.html#teaching"'), `${slug} must link back to the homepage`);
 }
 const gasScript = gasHtml.match(/<script>([\s\S]*?)<\/script>/)[1];
 const modelStart = gasScript.indexOf('const R =');
