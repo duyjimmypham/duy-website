@@ -17,6 +17,10 @@
 }
 </style>
   <style id="electron-tower-styles">
+@media(prefers-reduced-motion:no-preference){
+  @view-transition{navigation:auto}
+  ::view-transition-group(root),::view-transition-old(root),::view-transition-new(root){animation-duration:220ms;animation-timing-function:ease}
+}
 /* Electron Configuration Tower
    Final grayscale pixel interface.
    Layout, component styling, responsive behavior, and accessibility are consolidated here. */

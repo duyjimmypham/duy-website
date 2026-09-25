@@ -26,8 +26,8 @@ jobs:
       - name: Select public files
         run: |
           mkdir _site
-          cp index.html _site/
-          cp -R simulations _site/
+          cp index.html retro-desktop.html _site/
+          cp -R simulations previews _site/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

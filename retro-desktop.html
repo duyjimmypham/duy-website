@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Duy Pham's personal project desktop and chemistry simulations.">
+  <link rel="icon" href="data:,">
+  <title>Duy's Computer — Personal Projects</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+@media(prefers-reduced-motion:no-preference){
+  @view-transition{navigation:auto}
+  ::view-transition-group(root),::view-transition-old(root),::view-transition-new(root){animation-duration:220ms;animation-timing-function:ease}
+}
+    :root {
+      --desktop: #2a7a8a;
+      --desktop-deep: #1e5a6a;
+      --topbar: #173f4b;
+      --chrome: #c0c0c0;
+      --paper: #f5e6c8;
+      --white: #fff;
+      --ink: #171717;
+      --navy: #000080;
+      --blue: #1084d0;
+      --green: #33ff33;
+      --red: #c93636;
+      --yellow: #fff36b;
+      --ui: "Press Start 2P", "Lucida Console", monospace;
+      --mono: "Press Start 2P", "Lucida Console", monospace;
+      --raised: inset 2px 2px 0 #fff, inset -2px -2px 0 #404040;
+      --sunken: inset 2px 2px 0 #404040, inset -2px -2px 0 #fff;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      min-width: 280px;
+      margin: 0;
+      overflow: hidden;
+      color: var(--ink);
+      background: var(--desktop);
+      font: 10px/1.6 var(--ui);
+      image-rendering: pixelated;
+    }
+
+    button, input, textarea { font: inherit; }
+    button { color: inherit; }
+    a { color: #0000ee; }
+    a:visited { color: #551a8b; }
+
+    :focus-visible {
+      outline: 3px solid var(--yellow);
+      outline-offset: 2px;
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 5000;
+      top: 4px;
+      left: 4px;
+      padding: 7px 10px;
+      color: #000;
+      background: var(--yellow);
+      transform: translateY(-150%);
+    }
+
+    .skip-link:focus { transform: translateY(0); }
+
+    #desktop {
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(180deg, var(--desktop), var(--desktop-deep));
+      background-size: 16px 16px, 16px 16px, auto;
+    }
+
+    .system-bar {
+      position: absolute;
+      z-index: 2000;
+      inset: 0 0 auto;
+      display: flex;
+      height: 29px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 11px;
+      border-bottom: 2px solid #0a2a3a;
+      color: var(--white);
+      background: var(--topbar);
+      font: 11px/1 var(--mono);
+    }
+
+    .system-id, .system-clock { display: flex; gap: 8px; align-items: center; }
+    .system-id strong { letter-spacing: .02em; }
+    .system-clock { gap: 13px; }
+
+    .desktop-icons {
+      position: absolute;
+      z-index: 20;
+      top: 42px;
+      left: 13px;
+      display: grid;
+      gap: 9px;
+    }
+
+    .desktop-icon {
+      display: grid;
+      width: 76px;
+      min-height: 66px;
+      justify-items: center;
+      align-content: start;
+      gap: 3px;
+      padding: 2px;
+      border: 1px solid transparent;
+      color: var(--white);
+      background: transparent;
+      text-align: center;
+      text-shadow: 1px 1px #000;
+      cursor: default;
+    }
+
+    .desktop-icon:hover, .desktop-icon:focus-visible { border-color: rgba(255,255,255,.75); background: rgba(0,0,128,.3); }
+    .desktop-icon:active { transform: translate(1px, 1px); }
+    .icon-art {
+      display: grid;
+      width: 40px;
+      height: 40px;
+      place-items: center;
+      border: 2px solid rgba(255,255,255,.3);
+      border-radius: 4px;
+      background: rgba(255,255,255,.1);
+      font-size: 27px;
+      line-height: 1;
+      filter: drop-shadow(2px 2px rgba(0,0,0,.38));
+    }
+    .icon-label { font: 8px/1.3 var(--mono); }
+
+    .window {
+      position: absolute;
+      z-index: 100;
+      display: none;
+      min-width: 280px;
+      min-height: 170px;
+      overflow: hidden;
+      border: 2px solid #101010;
+      background: var(--paper);
+      box-shadow: 5px 5px rgba(0,0,0,.42);
+    }
+
+    .window.open { display: flex; flex-direction: column; }
+    .window.minimized { display: none; }
+    .window.maximized { inset: 30px 2px 46px !important; width: auto !important; height: auto !important; }
+
+    .window-titlebar {
+      display: flex;
+      min-height: 28px;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 4px 3px 7px;
+      border-bottom: 2px solid #000;
+      color: var(--white);
+      background: #777;
+      font: 700 11px/1 var(--mono);
+      user-select: none;
+      cursor: grab;
+    }
+
+    .window.active .window-titlebar { background: linear-gradient(90deg, var(--navy), var(--blue)); }
+    .window-title { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .window-controls { display: flex; gap: 3px; }
+
+    .window-control, .pixel-button, .task-button, .start-button {
+      border: 0;
+      background: var(--chrome);
+      box-shadow: var(--raised);
+      cursor: default;
+    }
+
+    .window-control {
+      display: grid;
+      width: 20px;
+      height: 19px;
+      place-items: center;
+      padding: 0;
+      font: 700 11px/1 var(--ui);
+    }
+
+    .window-control:active, .pixel-button:active, .task-button.active, .start-button[aria-expanded="true"] { box-shadow: var(--sunken); }
+    .window-control.close:hover { color: #fff; background: var(--red); }
+
+    .window-content {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 12px;
+    }
+
+    .status-bar { display: flex; gap: 4px; padding: 3px; background: var(--chrome); font-size: 11px; }
+    .status-bar span { flex: 1; padding: 2px 5px; box-shadow: var(--sunken); }
+
+    #win-about { top: 48px; left: 90px; width: 440px; height: 300px; }
+    #win-pets { top: 42px; left: 560px; width: 420px; height: 220px; }
+    #win-projects { top: 280px; left: 560px; width: 410px; height: 390px; }
+    #win-terminal { top: 360px; left: 90px; width: 420px; height: 250px; }
+    #win-notes { top: 115px; left: 250px; width: 480px; height: 330px; }
+    #win-tasks { top: 92px; left: 190px; width: 650px; height: 390px; }
+    #win-games { top: 125px; left: 310px; width: 330px; height: 360px; }
+    #win-trash { top: 180px; left: 320px; width: 340px; height: 210px; }
+
+    .about-layout { display: grid; grid-template-columns: 1fr 94px; gap: 14px; }
+    .about-copy { margin: 0; white-space: pre-line; font: 9px/1.8 var(--mono); }
+    .speech-stack { display: grid; justify-items: center; align-content: start; gap: 8px; }
+    .speech { position: relative; padding: 5px 8px; border: 2px solid #000; border-radius: 4px; background: #fff; font: 10px/1.2 var(--mono); }
+    .speech::after { content: ""; position: absolute; bottom: -10px; left: 40%; border: 5px solid transparent; border-top-color: #000; }
+    .big-pet { border: 0; background: transparent; filter: drop-shadow(2px 2px #777); }
+
+    .project-list { display: grid; align-content: start; gap: 8px; }
+    .project-group-title {
+      display: flex;
+      justify-content: space-between;
+      margin: 0;
+      padding: 5px 7px;
+      color: #fff;
+      background: var(--navy);
+      font: 8px/1.4 var(--pixel);
+    }
+    .project-folder { border: 2px solid #000; background: #fff; }
+    .project-folder summary {
+      display: grid;
+      grid-template-columns: 29px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 8px;
+      cursor: pointer;
+      list-style: none;
+    }
+    .project-folder summary::-webkit-details-marker { display: none; }
+    .project-folder summary::before { content: "📁"; font-size: 23px; }
+    .project-folder[open] summary::before { content: "📂"; }
+    .project-title { display: grid; gap: 4px; }
+    .project-title small { color: #444; font-size: 8px; }
+    .project-status { padding: 4px 5px; border: 1px solid #000; color: #fff; background: var(--navy); font: 7px var(--pixel); }
+    .project-facts { display: grid; gap: 5px; padding: 0 9px 9px; border-top: 1px dotted #777; font-size: 8px; }
+    .project-facts p { margin: 7px 0 0; }
+    .project-facts time { color: #444; }
+    .simulation-list { display: grid; gap: 5px; }
+    .project-link {
+      display: grid;
+      grid-template-columns: 22px 1fr auto;
+      gap: 7px;
+      align-items: center;
+      padding: 6px;
+      border: 1px solid #777;
+      color: #111;
+      background: #f3f3f3;
+      text-decoration: none;
+    }
+    .project-link:visited { color: #111; }
+    .project-link:hover { background: #d8edf2; }
+    .project-link strong, .project-link small { display: block; }
+    .project-link small { margin-top: 3px; color: #444; font-size: 8px; }
+    .folder { font-size: 17px; }
+    .open-label { color: #0000ee; text-decoration: underline; font: 10px var(--mono); }
+
+    .pets-layout { display: grid; grid-template-columns: 1fr 86px; gap: 10px; }
+    .pet-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+    .pet-card { display: grid; min-width: 0; justify-items: center; gap: 5px; padding: 8px 4px; border: 2px solid #000; background: #fff; }
+    .pet-card[aria-pressed="true"] { outline: 3px solid var(--navy); outline-offset: -5px; background: #d0e8f0; }
+    .pet-name { font: 9px var(--mono); }
+    .pet-status { width: 100%; padding: 3px 2px; border: 1px solid #999; background: #e5e5e5; font-size: 7px; }
+    .pet-actions { display: grid; align-content: center; gap: 7px; }
+
+    .pixel-button { min-height: 29px; padding: 6px 9px; font: 11px/1 var(--mono); }
+    .pixel-button:hover { background: #ddd; }
+
+    .terminal-content { padding: 9px; color: var(--green); background: #080808; font: 11px/1.55 var(--mono); cursor: text; }
+    #terminal-output { min-height: 145px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .terminal-command { display: flex; align-items: center; gap: 5px; }
+    .terminal-command:focus-within { box-shadow: inset 0 -1px var(--green); }
+    .terminal-command input { flex: 1; min-width: 0; border: 0; outline: 0; color: var(--green); background: transparent; font: inherit; }
+
+    .notes-content { display: grid; grid-template-rows: auto 1fr auto; gap: 9px; }
+    .notes-content label { font: 700 12px var(--mono); }
+    #notes-text { width: 100%; min-height: 190px; resize: none; padding: 9px; border: 0; color: #111; background: #fffef0; box-shadow: var(--sunken); font: 13px/1.55 var(--mono); user-select: text; }
+
+    #tasks-status:empty { display: none; }
+    .task-tools { display: flex; gap: 7px; margin-bottom: 10px; }
+    .task-tools input { flex: 1; min-width: 0; padding: 7px; border: 0; background: #fff; box-shadow: var(--sunken); }
+    .task-columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .task-column { min-width: 0; padding: 7px; border: 2px solid #555; background: rgba(255,255,255,.55); }
+    .task-column h3 { margin: 0 0 7px; color: var(--navy); font: 700 11px var(--mono); }
+    .task-list { display: grid; gap: 6px; }
+    .task-card { position: relative; padding: 8px 24px 7px 7px; border: 1px solid #777; background: #fff; overflow-wrap: anywhere; }
+    .task-delete { position: absolute; top: 3px; right: 3px; width: 18px; border: 0; color: #700; background: transparent; }
+    .task-moves { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+    .task-moves button { border: 1px solid #555; background: #ddd; font-size: 10px; }
+
+    .game-panel { display: grid; justify-items: center; gap: 10px; }
+    #snake-canvas { width: 240px; max-width: 100%; height: auto; border: 3px solid #000; background: #080808; image-rendering: pixelated; }
+    .game-help { margin: 0; text-align: center; font: 11px/1.5 var(--mono); }
+    .game-controls { display: none; grid-template-columns: repeat(3, 42px); gap: 4px; }
+    .game-controls button { min-height: 38px; }
+    .game-controls .up { grid-column: 2; }
+    .game-controls .left { grid-column: 1; }
+
+    .trash-content { display: grid; place-items: center; text-align: center; }
+    #trash-joke { white-space: pre-line; font: 12px/1.6 var(--mono); }
+
+    .sprite-sheet { position: absolute; width: 0; height: 0; overflow: hidden; }
+    .px-pet { display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+    .icon-art .px-pet { width: 28px; height: 28px; }
+    .pet-sprite { display: grid; min-height: 40px; place-items: center; }
+    .pet-sprite .px-pet { width: 40px; height: 40px; }
+    .big-pet .px-pet { width: 64px; height: 52px; }
+    .float-sprite .px-pet { width: 32px; height: 32px; }
+
+    .floating-pet {
+      position: absolute;
+      z-index: 45;
+      bottom: 58px;
+      display: grid;
+      justify-items: center;
+      border: 0;
+      background: transparent;
+      filter: drop-shadow(2px 2px rgba(0,0,0,.45));
+      will-change: left, bottom;
+    }
+    .floating-pet[data-floating-pet="frog"] { left: 35%; }
+    .floating-pet[data-floating-pet="duck"] { left: 48%; }
+    .floating-pet[data-floating-pet="deino"] { left: 62%; }
+    .floating-pet[hidden] { display: none; }
+    .pet-bubble { min-height: 15px; margin-bottom: 2px; padding: 2px 4px; border: 1px solid #000; background: #fff; font: 9px var(--mono); opacity: 0; }
+    .pet-bubble.show { opacity: 1; }
+
+    #boot-screen {
+      position: fixed;
+      z-index: 9999;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: var(--green);
+      background: #080808;
+      transition: opacity .5s;
+    }
+    #boot-screen.fade-out { opacity: 0; pointer-events: none; }
+    #desktop.hidden-boot { visibility: hidden; }
+    .boot-inner { display: grid; justify-items: center; text-align: center; }
+    .boot-logo { margin-bottom: 16px; font-size: 48px; animation: boot-pulse 1s steps(1, end) infinite; }
+    .boot-title { margin-bottom: 24px; font-size: 14px; }
+    .boot-bar { width: 200px; height: 12px; margin-bottom: 12px; padding: 2px; border: 2px solid var(--green); }
+    .boot-bar-fill { width: 0; height: 100%; background: var(--green); transition: width .1s linear; }
+    .boot-message { min-height: 15px; opacity: .8; font-size: 8px; }
+    .boot-skip { margin-top: 18px; padding: 7px 10px; border: 2px solid var(--green); color: var(--green); background: #080808; font: 8px var(--mono); }
+    @keyframes boot-pulse { 50% { opacity: .4; } }
+
+    .taskbar { position: absolute; z-index: 3000; inset: auto 0 0; display: flex; height: 44px; align-items: center; gap: 5px; padding: 4px; border-top: 2px solid #fff; background: var(--chrome); }
+    .start-button { flex: 0 0 auto; height: 34px; padding: 5px 10px; font-weight: 700; }
+    .start-button::before { content: "◆"; margin-right: 6px; color: var(--desktop-deep); }
+    .taskbar-windows { display: flex; flex: 1; min-width: 0; gap: 4px; overflow-x: auto; }
+    .task-button { width: 138px; min-width: 84px; height: 32px; padding: 5px 8px; overflow: hidden; white-space: nowrap; text-align: left; text-overflow: ellipsis; }
+    .tray { flex: 0 0 auto; min-width: 78px; padding: 7px 9px; box-shadow: var(--sunken); text-align: center; font: 11px var(--mono); }
+
+    .start-menu { position: absolute; z-index: 3100; bottom: 43px; left: 3px; display: none; width: 215px; padding: 3px; border: 2px solid #111; background: var(--chrome); box-shadow: 4px 4px rgba(0,0,0,.4); }
+    .start-menu.open { display: grid; grid-template-columns: 28px 1fr; }
+    .start-brand { display: grid; place-items: center; color: #fff; background: var(--navy); font: 700 12px var(--mono); writing-mode: vertical-rl; transform: rotate(180deg); }
+    .start-items { display: grid; }
+    .start-item { padding: 8px; border: 0; background: transparent; text-align: left; }
+    .start-item:hover { color: #fff; background: var(--navy); }
+
+    @media (max-width: 900px) {
+      .system-bar { font-size: 10px; }
+      .desktop-icons { inset: 36px 7px auto; display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; }
+      .desktop-icon { width: 63px; min-width: 63px; min-height: 58px; }
+      .icon-art { font-size: 25px; }
+      .icon-label { font-size: 7px; }
+      .window, .window.maximized { inset: 104px 7px 49px !important; width: auto !important; height: auto !important; min-width: 0; min-height: 0; }
+      .window.open:not(.active) { display: none; }
+      .window-titlebar { cursor: default; }
+      .window-control.maximize { display: none; }
+      .task-button { width: 110px; }
+      .floating-pet { display: none; }
+      .game-controls { display: grid; }
+    }
+
+    @media (max-width: 480px) {
+      .system-id strong { display: none; }
+      .window-content { padding: 9px; }
+      .about-layout { grid-template-columns: 1fr 72px; }
+      .big-pet .px-pet { width: 52px; height: 44px; }
+      .project-link { grid-template-columns: 30px 1fr; }
+      .open-label { grid-column: 2; }
+      .pets-layout { grid-template-columns: 1fr; }
+      .pet-grid { gap: 4px; }
+      .pet-actions { grid-template-columns: repeat(4, 1fr); width: auto; }
+      .task-columns { grid-template-columns: 1fr; }
+      .task-column { min-height: 76px; }
+      .tray { min-width: 62px; padding-inline: 5px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <svg class="sprite-sheet" aria-hidden="true">
+    <defs>
+      <symbol id="pet-deino" viewBox="0 0 20 16"><rect x="0" y="6" width="2" height="2" fill="#c0392b"/><rect x="2" y="5" width="2" height="3" fill="#d35400"/><rect x="4" y="5" width="2" height="3" fill="#d35400"/><rect x="6" y="4" width="5" height="5" fill="#d35400"/><rect x="6" y="5" width="5" height="1" fill="#e67e22"/><rect x="11" y="3" width="2" height="3" fill="#d35400"/><rect x="13" y="2" width="4" height="3" fill="#d35400"/><rect x="16" y="3" width="2" height="1" fill="#a93226"/><rect x="14" y="2" width="1" height="1" fill="#1a1a1a"/><rect x="10" y="7" width="2" height="1" fill="#e67e22"/><rect x="11" y="8" width="1" height="1" fill="#e67e22"/><rect x="7" y="9" width="2" height="3" fill="#d35400"/><rect x="10" y="9" width="2" height="2" fill="#d35400"/><rect x="12" y="10" width="1" height="2" fill="#7f8c8d"/><rect x="13" y="10" width="2" height="1" fill="#95a5a6"/><rect x="6" y="12" width="3" height="1" fill="#a93226"/><rect x="10" y="11" width="2" height="1" fill="#a93226"/><rect x="1" y="5" width="1" height="1" fill="#e67e22"/><rect x="3" y="4" width="1" height="1" fill="#e67e22"/><rect x="9" y="3" width="1" height="1" fill="#e67e22"/></symbol>
+      <symbol id="pet-frog" viewBox="0 0 16 16"><rect x="3" y="5" width="10" height="6" fill="#27ae60"/><rect x="4" y="6" width="8" height="4" fill="#2ecc71"/><rect x="4" y="3" width="3" height="3" fill="#27ae60"/><rect x="9" y="3" width="3" height="3" fill="#27ae60"/><rect x="5" y="3" width="1" height="1" fill="#fff"/><rect x="10" y="3" width="1" height="1" fill="#fff"/><rect x="5" y="4" width="1" height="1" fill="#1a1a1a"/><rect x="10" y="4" width="1" height="1" fill="#1a1a1a"/><rect x="6" y="8" width="4" height="1" fill="#1e8449"/><rect x="2" y="10" width="3" height="2" fill="#27ae60"/><rect x="11" y="10" width="3" height="2" fill="#27ae60"/><rect x="1" y="11" width="2" height="1" fill="#1e8449"/><rect x="13" y="11" width="2" height="1" fill="#1e8449"/><rect x="5" y="9" width="6" height="1" fill="#58d68d"/></symbol>
+      <symbol id="pet-duck" viewBox="0 0 16 16"><rect x="3" y="6" width="9" height="5" fill="#f4d03f"/><rect x="4" y="7" width="7" height="3" fill="#f7dc6f"/><rect x="10" y="3" width="4" height="4" fill="#f4d03f"/><rect x="13" y="5" width="3" height="1" fill="#e67e22"/><rect x="14" y="4" width="1" height="1" fill="#e67e22"/><rect x="11" y="4" width="1" height="1" fill="#1a1a1a"/><rect x="5" y="7" width="4" height="2" fill="#d4ac0d"/><rect x="5" y="11" width="2" height="1" fill="#e67e22"/><rect x="9" y="11" width="2" height="1" fill="#e67e22"/><rect x="2" y="7" width="1" height="2" fill="#d4ac0d"/></symbol>
+    </defs>
+  </svg>
+
+  <div id="boot-screen" role="dialog" aria-labelledby="boot-title" aria-describedby="boot-message">
+    <div class="boot-inner">
+      <div class="boot-logo" aria-hidden="true">▣</div>
+      <div class="boot-title" id="boot-title">Duy's Computer</div>
+      <div class="boot-bar" aria-hidden="true"><div class="boot-bar-fill"></div></div>
+      <div class="boot-message" id="boot-message">starting up...</div>
+      <button class="boot-skip" type="button">press enter to start</button>
+    </div>
+  </div>
+
+  <main id="desktop" class="hidden-boot">
+    <a class="skip-link" href="#win-projects" data-open="projects">Skip to projects</a>
+    <header class="system-bar">
+      <span class="system-id"><span aria-hidden="true">▣</span><strong>Duy's Computer</strong></span>
+      <span class="system-clock"><span aria-hidden="true">🔊</span><time id="top-clock"></time></span>
+    </header>
+
+    <nav class="desktop-icons" aria-label="Desktop applications">
+      <button class="desktop-icon" data-open="about"><span class="icon-art" aria-hidden="true">📄</span><span class="icon-label">Home</span></button>
+      <button class="desktop-icon" data-open="projects"><span class="icon-art" aria-hidden="true">📁</span><span class="icon-label">Projects</span></button>
+      <button class="desktop-icon" data-open="notes"><span class="icon-art" aria-hidden="true">📝</span><span class="icon-label">Notes</span></button>
+      <button class="desktop-icon" data-open="tasks"><span class="icon-art" aria-hidden="true">📋</span><span class="icon-label">Tasks</span></button>
+      <button class="desktop-icon" data-open="games"><span class="icon-art" aria-hidden="true">🎮</span><span class="icon-label">Games</span></button>
+      <button class="desktop-icon" data-open="pets"><span class="icon-art" aria-hidden="true"><svg class="px-pet" viewBox="0 0 16 16"><use href="#pet-frog"/></svg></span><span class="icon-label">Pets</span></button>
+      <button class="desktop-icon" data-open="terminal"><span class="icon-art" aria-hidden="true">💻</span><span class="icon-label">Terminal</span></button>
+      <button class="desktop-icon" data-action="trash"><span class="icon-art" aria-hidden="true">🗑️</span><span class="icon-label">Trash</span></button>
+    </nav>
+
+    <section class="window" id="win-about" data-title="about.txt" aria-labelledby="title-about">
+      <div class="window-titlebar"><span aria-hidden="true">📄</span><span class="window-title" id="title-about">about.txt</span><span class="window-controls"><button class="window-control minimize" aria-label="Minimize about">_</button><button class="window-control maximize" aria-label="Maximize about">□</button><button class="window-control close" aria-label="Close about">×</button></span></div>
+      <div class="window-content about-layout">
+        <p class="about-copy">hi, i'm duy.
+
+i study chemistry
+i teach
+i build software
+i like making things.
+
+this is my little corner
+of the internet.</p>
+        <div class="speech-stack"><span class="speech" id="dino-speech">hi!</span><button class="big-pet" id="about-dino" aria-label="Talk to the deinonychus"><svg class="px-pet" viewBox="0 0 20 16" aria-hidden="true"><use href="#pet-deino"/></svg></button></div>
+      </div>
+      <div class="status-bar"><span>Personal homepage</span><span>Ready</span></div>
+    </section>
+
+    <section class="window" id="win-projects" data-title="projects" aria-labelledby="title-projects">
+      <div class="window-titlebar"><span aria-hidden="true">📁</span><span class="window-title" id="title-projects">projects</span><span class="window-controls"><button class="window-control minimize" aria-label="Minimize projects">_</button><button class="window-control maximize" aria-label="Maximize projects">□</button><button class="window-control close" aria-label="Close projects">×</button></span></div>
+      <div class="window-content project-list">
+        <h3 class="project-group-title"><span>Active desktop</span><span>2 projects</span></h3>
+        <details class="project-folder" open>
+          <summary><span class="project-title"><strong>Chemistry Simulations</strong><small>Standalone browser tools for chemistry learning.</small></span><span class="project-status">active</span></summary>
+          <div class="project-facts">
+            <time datetime="2026-09-04">Last touched: Sep 2026</time>
+            <div class="simulation-list" aria-label="Chemistry simulations">
+              <a class="project-link" href="simulations/ideal-gas-law/index.html"><span class="folder" aria-hidden="true">🧪</span><span><strong>Ideal Gas Law</strong><small>Pressure, volume, temperature, and amount.</small></span><span class="open-label">launch</span></a>
+              <a class="project-link" href="simulations/electron-configuration/index.html"><span class="folder" aria-hidden="true">⚛️</span><span><strong>Electron Configuration</strong><small>Configurations and orbital diagrams.</small></span><span class="open-label">launch</span></a>
+              <a class="project-link" href="simulations/build-an-atom/index.html"><span class="folder" aria-hidden="true">🔬</span><span><strong>Build an Atom</strong><small>Elements, isotopes, ions, and Bohr/Lewis views.</small></span><span class="open-label">launch</span></a>
+              <a class="project-link" href="simulations/molecular-shape-polarity/index.html"><span class="folder" aria-hidden="true">🔗</span><span><strong>Molecular Shape and Polarity</strong><small>3D shapes, lone pairs, and dipole addition.</small></span><span class="open-label">launch</span></a>
+              <a class="project-link" href="simulations/bond-models/index.html"><span class="folder" aria-hidden="true">⚗️</span><span><strong>Covalent &amp; Ionic Bonds</strong><small>Shared electrons, ion formation, and crystal lattices.</small></span><span class="open-label">launch</span></a>
+            </div>
+          </div>
+        </details>
+        <a class="project-link" id="homepage-project" href="index.html"><span class="folder" aria-hidden="true">💻</span><span><strong>Personal Homepage</strong><small>Research, teaching, and personal projects.</small></span><span class="open-label">open</span></a>
+      </div>
+      <div class="status-bar"><span>2 active projects</span><span>5 simulations</span></div>
+    </section>
+
+    <section class="window" id="win-pets" data-title="pets.exe" aria-labelledby="title-pets">
+      <div class="window-titlebar"><span aria-hidden="true">🐸</span><span class="window-title" id="title-pets">pets.exe</span><span class="window-controls"><button class="window-control minimize" aria-label="Minimize pets">_</button><button class="window-control maximize" aria-label="Maximize pets">□</button><button class="window-control close" aria-label="Close pets">×</button></span></div>
+      <div class="window-content pets-layout">
+        <div class="pet-grid">
+          <button class="pet-card" data-pet="deino" aria-pressed="false"><span class="pet-sprite" aria-hidden="true"><svg class="px-pet" viewBox="0 0 20 16"><use href="#pet-deino"/></svg></span><span class="pet-name">deino</span><span class="pet-status" id="status-deino">hungry</span></button>
+          <button class="pet-card" data-pet="frog" aria-pressed="true"><span class="pet-sprite" aria-hidden="true"><svg class="px-pet" viewBox="0 0 16 16"><use href="#pet-frog"/></svg></span><span class="pet-name">frog</span><span class="pet-status" id="status-frog">chilling</span></button>
+          <button class="pet-card" data-pet="duck" aria-pressed="false"><span class="pet-sprite" aria-hidden="true"><svg class="px-pet" viewBox="0 0 16 16"><use href="#pet-duck"/></svg></span><span class="pet-name">duck</span><span class="pet-status" id="status-duck">exploring</span></button>
+        </div>
+        <div class="pet-actions"><button class="pixel-button" data-pet-action="feed">feed</button><button class="pixel-button" data-pet-action="pet">pet</button><button class="pixel-button" data-pet-action="talk">talk</button><button class="pixel-button" id="pets-toggle">pets: on</button></div>
+      </div>
+    </section>
+
+    <section class="window" id="win-terminal" data-title="terminal" aria-labelledby="title-terminal">
+      <div class="window-titlebar"><span aria-hidden="true">💻</span><span class="window-title" id="title-terminal">terminal</span><span class="window-controls"><button class="window-control minimize" aria-label="Minimize terminal">_</button><button class="window-control maximize" aria-label="Maximize terminal">□</button><button class="window-control close" aria-label="Close terminal">×</button></span></div>
+      <div class="window-content terminal-content" id="terminal-content">
+        <div id="terminal-output" aria-live="polite">DuyShell 98 [Version 1.0]
+type "help" for commands.
+
+<div id="terminal-history"></div></div>
+        <label class="terminal-command"><span>duy@desktop:~$</span><input id="terminal-input" aria-label="Terminal command" autocomplete="off"></label>
+      </div>
+    </section>
+
+    <section class="window" id="win-notes" data-title="notes" aria-labelledby="title-notes">
+      <div class="window-titlebar"><span aria-hidden="true">📝</span><span class="window-title" id="title-notes">notes</span><span class="window-controls"><button class="window-control minimize" aria-label="Minimize notes">_</button><button class="window-control maximize" aria-label="Maximize notes">□</button><button class="window-control close" aria-label="Close notes">×</button></span></div>
+      <div class="window-content notes-content"><label for="notes-text">notes.txt</label><textarea id="notes-text" spellcheck="true" placeholder="Write something. Notes stay in this browser."></textarea><span id="notes-status" aria-live="polite">Ready</span></div>
+    </section>
+
+    <section class="window" id="win-tasks" data-title="tasks" aria-labelledby="title-tasks">
+      <div class="window-titlebar"><span aria-hidden="true">📋</span><span class="window-title" id="title-tasks">tasks</span><span class="window-controls"><button class="window-control minimize" aria-label="Minimize tasks">_</button><button class="window-control maximize" aria-label="Maximize tasks">□</button><button class="window-control close" aria-label="Close tasks">×</button></span></div>
+      <div class="window-content">
+        <div class="task-tools"><label class="skip-link" for="task-input">New task</label><input id="task-input" placeholder="new task"><button class="pixel-button" id="task-add">add</button></div>
+        <p id="tasks-status" aria-live="polite"></p>
+        <div class="task-columns"><section class="task-column"><h3>to do</h3><div class="task-list" id="tasks-todo"></div></section><section class="task-column"><h3>doing</h3><div class="task-list" id="tasks-doing"></div></section><section class="task-column"><h3>done</h3><div class="task-list" id="tasks-done"></div></section></div>
+      </div>
+    </section>
+
+    <section class="window" id="win-games" data-title="snake.exe" aria-labelledby="title-games">
+      <div class="window-titlebar"><span aria-hidden="true">🎮</span><span class="window-title" id="title-games">snake.exe</span><span class="window-controls"><button class="window-control minimize" aria-label="Minimize snake">_</button><button class="window-control maximize" aria-label="Maximize snake">□</button><button class="window-control close" aria-label="Close snake">×</button></span></div>
+      <div class="window-content game-panel"><canvas id="snake-canvas" width="240" height="240" aria-label="Snake game board"></canvas><p class="game-help"><span id="snake-score">score: 0</span><br>arrow keys or WASD</p><button class="pixel-button" id="snake-start">start / restart</button><div class="game-controls" aria-label="Snake direction controls"><button class="pixel-button up" data-direction="up">↑</button><button class="pixel-button left" data-direction="left">←</button><button class="pixel-button" data-direction="down">↓</button><button class="pixel-button" data-direction="right">→</button></div></div>
+    </section>
+
+    <section class="window" id="win-trash" data-title="trash" aria-labelledby="title-trash">
+      <div class="window-titlebar"><span aria-hidden="true">🗑️</span><span class="window-title" id="title-trash">trash</span><span class="window-controls"><button class="window-control minimize" aria-label="Minimize trash">_</button><button class="window-control maximize" aria-label="Maximize trash">□</button><button class="window-control close" aria-label="Close trash">×</button></span></div>
+      <div class="window-content trash-content"><p id="trash-joke"></p></div>
+    </section>
+
+    <button class="floating-pet" data-floating-pet="frog" aria-label="Talk to the roaming frog"><span class="pet-bubble"></span><span class="float-sprite" aria-hidden="true"><svg class="px-pet" viewBox="0 0 16 16"><use href="#pet-frog"/></svg></span></button>
+    <button class="floating-pet" data-floating-pet="duck" aria-label="Talk to the roaming duck"><span class="pet-bubble"></span><span class="float-sprite" aria-hidden="true"><svg class="px-pet" viewBox="0 0 16 16"><use href="#pet-duck"/></svg></span></button>
+    <button class="floating-pet" data-floating-pet="deino" aria-label="Talk to the roaming deinonychus"><span class="pet-bubble"></span><span class="float-sprite" aria-hidden="true"><svg class="px-pet" viewBox="0 0 20 16"><use href="#pet-deino"/></svg></span></button>
+
+    <div class="start-menu" id="start-menu"><div class="start-brand">DUY98</div><div class="start-items"><button class="start-item" data-open="about">📄 about.txt</button><button class="start-item" data-open="projects">📁 projects</button><button class="start-item" data-open="pets">🐸 pets.exe</button><button class="start-item" data-open="terminal">💻 terminal</button><button class="start-item" data-open="notes">📝 notes</button><button class="start-item" data-open="tasks">📋 tasks</button><button class="start-item" data-open="games">🎮 snake.exe</button></div></div>
+
+    <footer class="taskbar"><button class="start-button" id="start-button" aria-expanded="false" aria-controls="start-menu">Start</button><div class="taskbar-windows" id="taskbar-windows" aria-label="Open windows"></div><time class="tray" id="tray-clock"></time></footer>
+  </main>
+
+  <script>
+    (() => {
+      const desktop = document.getElementById('desktop');
+      const allWindows = [...document.querySelectorAll('.window')];
+      const startButton = document.getElementById('start-button');
+      const startMenu = document.getElementById('start-menu');
+      const taskbarWindows = document.getElementById('taskbar-windows');
+      let z = 100;
+      const windowFor = id => document.getElementById(`win-${id}`);
+      const windowId = win => win.id.replace('win-', '');
+      const isMobile = () => matchMedia('(max-width: 900px)').matches;
+
+      function focusWindow(id) {
+        const win = windowFor(id);
+        if (!win) return;
+        allWindows.forEach(item => item.classList.remove('active'));
+        win.classList.add('active');
+        win.setAttribute('aria-hidden', 'false');
+        win.style.zIndex = ++z;
+        updateTaskbar();
+      }
+
+      function openWindow(id) {
+        const win = windowFor(id);
+        if (!win) return;
+        win.classList.add('open');
+        win.classList.remove('minimized');
+        focusWindow(id);
+        startMenu.classList.remove('open');
+        startButton.setAttribute('aria-expanded', 'false');
+      }
+
+      function hideWindow(id, close = false) {
+        const win = windowFor(id);
+        if (!win) return;
+        win.classList.remove('active');
+        if (close) win.classList.remove('open', 'minimized');
+        else win.classList.add('minimized');
+        win.setAttribute('aria-hidden', 'true');
+        const remaining = allWindows.filter(item => item.classList.contains('open') && !item.classList.contains('minimized') && item !== win);
+        if (isMobile() && remaining.length) focusWindow(windowId(remaining.at(-1)));
+        updateTaskbar();
+      }
+
+      function updateTaskbar() {
+        taskbarWindows.replaceChildren(...allWindows.filter(win => win.classList.contains('open')).map(win => {
+          const button = document.createElement('button');
+          button.className = `task-button${win.classList.contains('active') ? ' active' : ''}`;
+          button.dataset.taskWindow = windowId(win);
+          button.textContent = win.dataset.title;
+          button.setAttribute('aria-pressed', String(win.classList.contains('active')));
+          return button;
+        }));
+      }
+
+      desktop.addEventListener('click', event => {
+        const open = event.target.closest('[data-open]');
+        const task = event.target.closest('[data-task-window]');
+        const win = event.target.closest('.window');
+        if (open) openWindow(open.dataset.open);
+        if (task) {
+          const target = windowFor(task.dataset.taskWindow);
+          target.classList.contains('active') && !isMobile() ? hideWindow(task.dataset.taskWindow) : openWindow(task.dataset.taskWindow);
+        }
+        if (win && !event.target.closest('.window-control')) focusWindow(windowId(win));
+        if (event.target.closest('.window-control')) {
+          const id = windowId(win);
+          if (event.target.closest('.close')) hideWindow(id, true);
+          else if (event.target.closest('.minimize')) hideWindow(id);
+          else if (event.target.closest('.maximize')) win.classList.toggle('maximized');
+        }
+        if (event.target.closest('[data-action="trash"]')) openTrash();
+      });
+
+      startButton.addEventListener('click', () => {
+        const open = startMenu.classList.toggle('open');
+        startButton.setAttribute('aria-expanded', String(open));
+      });
+
+      document.addEventListener('click', event => {
+        if (!event.target.closest('.start-menu, .start-button')) {
+          startMenu.classList.remove('open');
+          startButton.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      allWindows.forEach(win => {
+        const bar = win.querySelector('.window-titlebar');
+        let drag;
+        bar.addEventListener('pointerdown', event => {
+          if (isMobile() || event.target.closest('button') || win.classList.contains('maximized')) return;
+          drag = { x: event.clientX, y: event.clientY, left: win.offsetLeft, top: win.offsetTop };
+          bar.setPointerCapture(event.pointerId);
+          focusWindow(windowId(win));
+        });
+        bar.addEventListener('pointermove', event => {
+          if (!drag) return;
+          const left = Math.max(82, Math.min(innerWidth - win.offsetWidth, drag.left + event.clientX - drag.x));
+          const top = Math.max(30, Math.min(innerHeight - 80, drag.top + event.clientY - drag.y));
+          win.style.left = `${left}px`;
+          win.style.top = `${top}px`;
+        });
+        bar.addEventListener('pointerup', () => { drag = null; });
+        bar.addEventListener('pointercancel', () => { drag = null; });
+      });
+
+      function updateClocks() {
+        const now = new Date();
+        document.getElementById('top-clock').textContent = now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+        document.getElementById('tray-clock').textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      }
+      updateClocks();
+      setInterval(updateClocks, 30000);
+
+      let storageReadable = true;
+      function readSaved(key) {
+        try { return localStorage.getItem(key); }
+        catch { storageReadable = false; return null; }
+      }
+      function writeSaved(key, value) {
+        try { localStorage.setItem(key, value); return true; }
+        catch { return false; }
+      }
+
+      const petMessages = { deino: ['rawr!', 'terrible claw!', 'feed me!', 'sickle ready'], frog: ['ribbit', 'got any flies?', 'i like rain'], duck: ['quack!', 'where is the pond?', 'i am exploring'] };
+      let selectedPet = 'frog';
+      let petsVisible = readSaved('duy-pets-visible') !== 'false';
+
+      function say(pet, message) {
+        const floating = document.querySelector(`[data-floating-pet="${pet}"]`);
+        if (!floating) return;
+        const bubble = floating.querySelector('.pet-bubble');
+        bubble.textContent = message;
+        bubble.classList.add('show');
+        clearTimeout(bubble.hideTimer);
+        bubble.hideTimer = setTimeout(() => bubble.classList.remove('show'), 1800);
+      }
+
+      document.querySelectorAll('[data-pet]').forEach(button => button.addEventListener('click', () => {
+        selectedPet = button.dataset.pet;
+        document.querySelectorAll('[data-pet]').forEach(card => card.setAttribute('aria-pressed', String(card === button)));
+      }));
+      document.querySelectorAll('[data-pet-action]').forEach(button => button.addEventListener('click', () => {
+        const action = button.dataset.petAction;
+        document.getElementById(`status-${selectedPet}`).textContent = action === 'feed' ? 'well fed' : action === 'pet' ? 'loved' : 'chatty';
+        const messages = petMessages[selectedPet];
+        say(selectedPet, action === 'feed' ? 'yum!' : action === 'pet' ? '♥' : messages[Math.floor(Math.random() * messages.length)]);
+      }));
+
+      function showPets() {
+        document.querySelectorAll('[data-floating-pet]').forEach(pet => pet.hidden = !petsVisible);
+        document.getElementById('pets-toggle').textContent = `pets: ${petsVisible ? 'on' : 'off'}`;
+      }
+      document.getElementById('pets-toggle').addEventListener('click', () => {
+        petsVisible = !petsVisible;
+        writeSaved('duy-pets-visible', petsVisible);
+        showPets();
+      });
+      document.querySelectorAll('[data-floating-pet]').forEach(pet => pet.addEventListener('click', () => {
+        const messages = petMessages[pet.dataset.floatingPet];
+        say(pet.dataset.floatingPet, messages[Math.floor(Math.random() * messages.length)]);
+      }));
+      document.getElementById('about-dino').addEventListener('click', () => {
+        const lines = ['hi!', 'rawr', 'chemistry!', 'that tickles'];
+        document.getElementById('dino-speech').textContent = lines[Math.floor(Math.random() * lines.length)];
+      });
+      showPets();
+
+      const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+      const roamers = {
+        frog: { x: 35, y: 80, tx: 40, ty: 90, speed: .35 },
+        duck: { x: 60, y: 70, tx: 55, ty: 85, speed: .4 },
+        deino: { x: 20, y: 90, tx: 25, ty: 100, speed: .28 }
+      };
+
+      function chooseRoamTarget(pet) {
+        pet.tx = 12 + Math.random() * 70;
+        pet.ty = 50 + Math.random() * 90;
+      }
+
+      Object.entries(roamers).forEach(([name, pet]) => {
+        pet.element = document.querySelector(`[data-floating-pet="${name}"]`);
+        pet.element.style.left = `${pet.x}%`;
+        pet.element.style.bottom = `${pet.y}px`;
+        chooseRoamTarget(pet);
+      });
+
+      function roam() {
+        if (petsVisible && !reducedMotion.matches) {
+          Object.values(roamers).forEach(pet => {
+            const dx = pet.tx - pet.x;
+            const dy = pet.ty - pet.y;
+            const distance = Math.hypot(dx, dy);
+            if (distance < 1.5) chooseRoamTarget(pet);
+            else {
+              pet.x += dx / distance * pet.speed;
+              pet.y += dy / distance * pet.speed * 1.2;
+              pet.element.style.left = `${pet.x}%`;
+              pet.element.style.bottom = `${pet.y}px`;
+            }
+          });
+        }
+        requestAnimationFrame(roam);
+      }
+      requestAnimationFrame(roam);
+
+      const notes = document.getElementById('notes-text');
+      const notesStatus = document.getElementById('notes-status');
+      notes.value = readSaved('duy-notes') || '';
+      if (!storageReadable) notesStatus.textContent = 'Storage unavailable. Notes will not be saved.';
+      notes.addEventListener('input', () => {
+        notesStatus.textContent = writeSaved('duy-notes', notes.value)
+          ? 'Saved in this browser' : 'Not saved. Keep a copy before leaving this page.';
+      });
+
+      const defaultTasks = { todo: ['explore the desktop', 'feed the frog'], doing: ['explore the chemistry simulations'], done: ['build five chemistry simulations'] };
+      let tasks;
+      try { tasks = JSON.parse(readSaved('duy-tasks')) || defaultTasks; }
+      catch { tasks = defaultTasks; }
+      const columns = ['todo', 'doing', 'done'];
+      tasks = Object.fromEntries(columns.map(column => [column,
+        Array.isArray(tasks[column]) ? tasks[column].filter(task => typeof task === 'string') : [...defaultTasks[column]],
+      ]));
+      const saveTasks = () => {
+        document.getElementById('tasks-status').textContent = writeSaved('duy-tasks', JSON.stringify(tasks))
+          ? '' : 'Not saved. Tasks will be lost when you leave this page.';
+      };
+
+      function renderTasks() {
+        columns.forEach(column => {
+          const list = document.getElementById(`tasks-${column}`);
+          list.replaceChildren(...tasks[column].map((text, index) => {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            const label = document.createElement('span');
+            label.textContent = text;
+            const remove = document.createElement('button');
+            remove.className = 'task-delete';
+            remove.textContent = '×';
+            remove.setAttribute('aria-label', `Delete ${text}`);
+            remove.addEventListener('click', () => { tasks[column].splice(index, 1); saveTasks(); renderTasks(); });
+            const moves = document.createElement('div');
+            moves.className = 'task-moves';
+            columns.filter(target => target !== column).forEach(target => {
+              const move = document.createElement('button');
+              move.textContent = `to ${target}`;
+              move.addEventListener('click', () => { tasks[target].push(tasks[column].splice(index, 1)[0]); saveTasks(); renderTasks(); });
+              moves.append(move);
+            });
+            card.append(label, remove, moves);
+            return card;
+          }));
+        });
+      }
+
+      function addTask() {
+        const input = document.getElementById('task-input');
+        const value = input.value.trim();
+        if (!value) return;
+        tasks.todo.push(value);
+        input.value = '';
+        saveTasks();
+        renderTasks();
+      }
+      document.getElementById('task-add').addEventListener('click', addTask);
+      document.getElementById('task-input').addEventListener('keydown', event => { if (event.key === 'Enter') addTask(); });
+      renderTasks();
+
+      const trashJokes = ['trash is empty.\n\njust like my motivation\non a monday morning.', '404: garbage not found.\n\nyou already cleaned up.\nimpressive.', 'nothing here but\ndusted dreams and\none broken CSS rule.', 'the trash called.\nit wants its jokes back.', 'empty.\n\n(unlike my inbox)', 'there is no trash.\nonly vibes.'];
+      let trashIndex = 0;
+      function openTrash() {
+        document.getElementById('trash-joke').textContent = trashJokes[trashIndex++ % trashJokes.length];
+        openWindow('trash');
+      }
+
+      const terminalOutput = document.getElementById('terminal-output');
+      const terminalHistory = document.getElementById('terminal-history');
+      const terminalInput = document.getElementById('terminal-input');
+      const commands = { help: 'commands: about, projects, pets, notes, tasks, snake, trash, clear, whoami, date, ls', whoami: 'duy — chemistry educator and browser-tool builder', date: () => new Date().toString(), ls: 'about.txt  projects/  pets.exe  notes.txt  tasks/  snake.exe  trash.bin' };
+
+      function terminalLine(command, result) {
+        const line = document.createElement('div');
+        line.textContent = `duy@desktop:~$ ${command}\n${result}`;
+        terminalHistory.append(line);
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+      }
+
+      function runCommand(raw) {
+        const command = raw.trim().toLowerCase();
+        if (!command) return;
+        if (command === 'clear') terminalHistory.replaceChildren();
+        else if (['about', 'projects', 'pets', 'notes', 'tasks'].includes(command)) { openWindow(command); terminalLine(command, `opened ${command}`); }
+        else if (command === 'snake') { openWindow('games'); terminalLine(command, 'opened snake.exe'); }
+        else if (command === 'trash') { openTrash(); terminalLine(command, 'opened trash.bin'); }
+        else {
+          const result = commands[command];
+          terminalLine(command, result ? (typeof result === 'function' ? result() : result) : `command not found: ${command}`);
+        }
+      }
+      document.getElementById('terminal-content').addEventListener('click', () => terminalInput.focus());
+      terminalInput.addEventListener('keydown', event => {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        const value = terminalInput.value;
+        terminalInput.value = '';
+        runCommand(value);
+      });
+
+      const canvas = document.getElementById('snake-canvas');
+      const context = canvas.getContext('2d');
+      let snakeTimer, snake = [], direction = { x: 1, y: 0 }, nextDirection = direction, food, score = 0;
+      const grid = 12;
+      const cells = canvas.width / grid;
+
+      function drawSnake(message = '') {
+        context.fillStyle = '#080808';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        if (food) { context.fillStyle = '#ff5555'; context.fillRect(food.x * grid, food.y * grid, grid - 1, grid - 1); }
+        snake.forEach((part, index) => { context.fillStyle = index ? '#2aba2a' : '#66ff66'; context.fillRect(part.x * grid, part.y * grid, grid - 1, grid - 1); });
+        if (message) { context.fillStyle = '#fff'; context.font = '16px monospace'; context.textAlign = 'center'; context.fillText(message, canvas.width / 2, canvas.height / 2); }
+      }
+
+      function placeFood() {
+        do { food = { x: Math.floor(Math.random() * cells), y: Math.floor(Math.random() * cells) }; }
+        while (snake.some(part => part.x === food.x && part.y === food.y));
+      }
+
+      function snakeStep() {
+        direction = nextDirection;
+        const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+        if (head.x < 0 || head.y < 0 || head.x >= cells || head.y >= cells || snake.some(part => part.x === head.x && part.y === head.y)) { clearInterval(snakeTimer); drawSnake('game over'); return; }
+        snake.unshift(head);
+        if (head.x === food.x && head.y === food.y) { score++; placeFood(); }
+        else snake.pop();
+        document.getElementById('snake-score').textContent = `score: ${score}`;
+        drawSnake();
+      }
+
+      function startSnake() {
+        clearInterval(snakeTimer);
+        snake = [{ x: 6, y: 6 }, { x: 5, y: 6 }, { x: 4, y: 6 }];
+        direction = nextDirection = { x: 1, y: 0 };
+        score = 0;
+        placeFood();
+        drawSnake();
+        document.getElementById('snake-score').textContent = 'score: 0';
+        snakeTimer = setInterval(snakeStep, 125);
+      }
+
+      function steer(name) {
+        const vectors = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } };
+        const next = vectors[name];
+        if (next && !(next.x === -direction.x && next.y === -direction.y)) nextDirection = next;
+      }
+      document.getElementById('snake-start').addEventListener('click', startSnake);
+      document.querySelectorAll('[data-direction]').forEach(button => button.addEventListener('click', () => steer(button.dataset.direction)));
+      document.addEventListener('keydown', event => {
+        if (!windowFor('games').classList.contains('active')) return;
+        const keys = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right' };
+        if (keys[event.key]) { event.preventDefault(); steer(keys[event.key]); }
+      });
+      drawSnake('press start');
+
+      ['about', 'pets', 'projects', 'terminal'].forEach(openWindow);
+      focusWindow('about');
+
+      const bootScreen = document.getElementById('boot-screen');
+      const bootFill = document.querySelector('.boot-bar-fill');
+      const bootMessage = document.getElementById('boot-message');
+      let bootProgress = 0;
+      let bootTimer;
+      let bootFinished = false;
+
+      function finishBoot() {
+        if (bootFinished) return;
+        bootFinished = true;
+        clearInterval(bootTimer);
+        bootFill.style.width = '100%';
+        bootMessage.textContent = 'welcome back.';
+        const delay = reducedMotion.matches ? 0 : 350;
+        setTimeout(() => {
+          document.getElementById('desktop').classList.remove('hidden-boot');
+          bootScreen.classList.add('fade-out');
+          setTimeout(() => bootScreen.remove(), reducedMotion.matches ? 0 : 500);
+        }, delay);
+      }
+
+      document.querySelector('.boot-skip').addEventListener('click', finishBoot);
+      if (reducedMotion.matches) finishBoot();
+      else {
+        const messages = ['loading kernel...', 'feeding the frog...', 'calibrating orbitals...', 'mounting /home/duy...', 'almost there...'];
+        bootTimer = setInterval(() => {
+          bootProgress = Math.min(100, bootProgress + 4 + Math.random() * 8);
+          bootFill.style.width = `${bootProgress}%`;
+          bootMessage.textContent = messages[Math.min(messages.length - 1, Math.floor(bootProgress / 20))];
+          if (bootProgress === 100) finishBoot();
+        }, 80);
+      }
+    })();
+  </script>
+</body>
+</html>

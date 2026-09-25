@@ -7,6 +7,10 @@
   <title>Build an Atom</title>
   <link rel="icon" href="data:,">
   <style id="build-atom-styles">
+@media(prefers-reduced-motion:no-preference){
+  @view-transition{navigation:auto}
+  ::view-transition-group(root),::view-transition-old(root),::view-transition-new(root){animation-duration:220ms;animation-timing-function:ease}
+}
     :root {
       --paper: #f3f2eb;
       --panel: #fffef8;

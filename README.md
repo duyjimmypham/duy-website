@@ -4,7 +4,8 @@ A personal website and collection of interactive chemistry simulations.
 
 ## Projects
 
-- [Personal Homepage](index.html) — A desktop-inspired home for my projects.
+- [Personal Homepage](index.html) — Research, teaching, and personal projects.
+- [Retro Desktop](retro-desktop.html) — A Windows-style desktop with pets, games, and trash jokes.
 - [Ideal Gas Law](simulations/ideal-gas-law/index.html) — Explore pressure, volume, temperature, and amount of gas.
 - [Electron Configuration](simulations/electron-configuration/index.html) — Build electron configurations from hydrogen through calcium.
 - [Build an Atom](simulations/build-an-atom/index.html) — Explore elements, isotopes, and ions using Bohr and Lewis views.

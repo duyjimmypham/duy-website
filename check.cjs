@@ -5,27 +5,38 @@ const vm = require('node:vm');
 
 const root = path.resolve(process.argv[2] || __dirname);
 const homepage = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const desktop = fs.readFileSync(path.join(root, 'retro-desktop.html'), 'utf8');
 const simulationLicense = fs.readFileSync(path.join(root, 'simulations', 'LICENSE.md'), 'utf8');
 const links = [...homepage.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
 const launches = links.filter(link => link.startsWith('simulations/'));
 assert.equal(launches.length, 5);
 assert.equal((homepage.match(/<style\b/g) || []).length, 1);
-for (const script of homepage.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)) new vm.Script(script[1]);
-assert(homepage.includes('id="homepage-project"'), 'Homepage must appear in Projects');
-assert(homepage.includes('id="boot-screen"'), 'Preserve the desktop boot sequence');
+for (const html of [homepage, desktop]) {
+  for (const script of html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)) new vm.Script(script[1]);
+  assert(html.includes('@view-transition{navigation:auto}'), 'Preserve page transitions');
+}
+assert.equal((homepage.match(/class="project"/g) || []).length, 6);
+for (const id of ['about', 'research', 'teaching', 'for-fun', 'typed-name', 'typed-description']) {
+  assert(homepage.includes(`id="${id}"`), `Missing homepage section: ${id}`);
+}
+assert(homepage.includes('href="retro-desktop.html"'), 'Homepage must link to the desktop');
+assert(!homepage.includes('Compare the first version'), 'Do not publish mockup comparison links');
+assert(desktop.includes('id="homepage-project" href="index.html"'), 'Desktop must link back to the homepage');
+assert(desktop.includes('id="boot-screen"'), 'Preserve the desktop boot sequence');
 assert(simulationLicense.includes('creativecommons.org/licenses/by-nc-sa/4.0/'), 'Missing shared simulation license');
-const jokes = homepage.match(/const trashJokes = (\[[^\n]+\]);/);
+const jokes = desktop.match(/const trashJokes = (\[[^\n]+\]);/);
 assert(jokes, 'Preserve the original trash jokes');
 assert.equal(vm.runInNewContext(jokes[1]).length, 6);
-for (const href of links) {
-  if (!href) continue; // An empty link opens the current homepage.
-  if (href.startsWith('#')) {
-    assert(homepage.includes(`id="${href.slice(1)}"`), `Missing anchor: ${href}`);
-  } else if (!/^(data:|https?:)/.test(href)) {
-    let directory = root;
-    for (const part of href.split('/')) {
-      assert(fs.readdirSync(directory).includes(part), `Missing or incorrectly cased path: ${href}`);
-      directory = path.join(directory, part);
+for (const html of [homepage, desktop]) {
+  for (const [, href] of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
+    if (href.startsWith('#')) {
+      assert(html.includes(`id="${href.slice(1)}"`), `Missing anchor: ${href}`);
+    } else if (!/^(data:|https?:)/.test(href)) {
+      let directory = root;
+      for (const part of href.split('/')) {
+        assert(fs.readdirSync(directory).includes(part), `Missing or incorrectly cased path: ${href}`);
+        directory = path.join(directory, part);
+      }
     }
   }
 }
