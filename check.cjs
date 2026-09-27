@@ -16,9 +16,10 @@ for (const html of [homepage, desktop]) {
   assert(html.includes('@view-transition{navigation:auto}'), 'Preserve page transitions');
 }
 assert.equal((homepage.match(/class="project"/g) || []).length, 6);
-for (const id of ['about', 'research', 'teaching', 'for-fun', 'typed-name', 'typed-description']) {
+for (const id of ['about', 'research', 'teaching', 'for-fun', 'arrival', 'mascotImage', 'typed-description']) {
   assert(homepage.includes(`id="${id}"`), `Missing homepage section: ${id}`);
 }
+assert(homepage.includes('<h1>Duy Pham</h1>'), 'Homepage name must be immediately readable');
 assert(homepage.includes('href="retro-desktop.html"'), 'Homepage must link to the desktop');
 assert(!homepage.includes('Compare the first version'), 'Do not publish mockup comparison links');
 assert(desktop.includes('id="homepage-project" href="index.html"'), 'Desktop must link back to the homepage');
@@ -31,7 +32,7 @@ for (const html of [homepage, desktop]) {
   for (const [, href] of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
     if (href.startsWith('#')) {
       assert(html.includes(`id="${href.slice(1)}"`), `Missing anchor: ${href}`);
-    } else if (!/^(data:|https?:)/.test(href)) {
+    } else if (!/^(data:|https?:|mailto:)/.test(href)) {
       let directory = root;
       for (const part of href.split('/')) {
         assert(fs.readdirSync(directory).includes(part), `Missing or incorrectly cased path: ${href}`);
