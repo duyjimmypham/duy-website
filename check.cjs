@@ -16,10 +16,11 @@ for (const html of [homepage, desktop]) {
   assert(html.includes('@view-transition{navigation:auto}'), 'Preserve page transitions');
 }
 assert.equal((homepage.match(/class="project"/g) || []).length, 6);
-for (const id of ['about', 'research', 'teaching', 'for-fun', 'arrival', 'mascotImage', 'typed-description']) {
+for (const id of ['about', 'research', 'teaching', 'for-fun', 'arrival', 'typed-description']) {
   assert(homepage.includes(`id="${id}"`), `Missing homepage section: ${id}`);
 }
 assert(homepage.includes('<h1>Duy Pham</h1>'), 'Homepage name must be immediately readable');
+assert(!/mascot|·|&middot;|&#(?:183|x0*b7);/i.test(homepage), 'Homepage must omit mascots and middle-dot separators');
 assert(homepage.includes('href="retro-desktop.html"'), 'Homepage must link to the desktop');
 assert(!homepage.includes('Compare the first version'), 'Do not publish mockup comparison links');
 assert(desktop.includes('id="homepage-project" href="index.html"'), 'Desktop must link back to the homepage');
