@@ -158,6 +158,14 @@ const root = document.documentElement;
 const hero = document.querySelector('.editorial-hero');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
+const accents = ['#31594d','#a34f37','#744463','#68713d','#831d24','#b27a27','#c66f68','#2d302d'];
+let previousAccent;
+try { previousAccent = localStorage.getItem('last-accent'); } catch {}
+const choices = accents.filter(accent => accent !== previousAccent);
+const accent = choices[Math.floor(Math.random() * choices.length)];
+root.style.setProperty('--accent', accent);
+try { localStorage.setItem('last-accent', accent); } catch {}
+
 // Selected effect 1: a very soft pointer spotlight that never changes layout.
 if (matchMedia('(hover:hover) and (pointer:fine)').matches && !reducedMotion.matches){
   hero.addEventListener('pointerenter', () => hero.style.setProperty('--spot-opacity','.72'));
