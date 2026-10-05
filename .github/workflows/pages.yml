@@ -27,7 +27,7 @@ jobs:
         run: |
           mkdir _site
           cp index.html retro-desktop.html _site/
-          cp -R simulations previews _site/
+          cp -R simulations previews molecule _site/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

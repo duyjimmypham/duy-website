@@ -12,7 +12,10 @@ const launches = links.filter(link => link.startsWith('simulations/'));
 assert.equal(launches.length, 5);
 assert.equal((homepage.match(/<style\b/g) || []).length, 1);
 for (const html of [homepage, desktop]) {
-  for (const script of html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)) new vm.Script(script[1]);
+  for (const [, attributes, contents] of html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)) {
+    if (/type="importmap"/.test(attributes)) JSON.parse(contents);
+    else new vm.Script(contents);
+  }
   assert(html.includes('@view-transition{navigation:auto}'), 'Preserve page transitions');
 }
 assert.equal((homepage.match(/class="project"/g) || []).length, 6);

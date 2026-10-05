@@ -7,6 +7,13 @@
 <meta name="description" content="Chemistry, teaching, research, and projects by Duy Pham.">
 <title>Duy Pham — About &amp; projects</title>
 <link rel="icon" href="data:,">
+<script type="importmap">{"imports":{"three":"./molecule/vendor/three.module.min.js"}}</script>
+<link rel="preload" href="molecule/assets/methane.glb" as="fetch" crossorigin>
+<link rel="modulepreload" href="molecule/viewer.js">
+<link rel="modulepreload" href="molecule/vendor/three.module.min.js">
+<link rel="modulepreload" href="molecule/vendor/three.core.min.js">
+<link rel="modulepreload" href="molecule/vendor/loaders/GLTFLoader.js">
+<link rel="modulepreload" href="molecule/vendor/utils/BufferGeometryUtils.js">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -16,7 +23,7 @@
   @view-transition{navigation:auto}
   ::view-transition-group(root),::view-transition-old(root),::view-transition-new(root){animation-duration:220ms;animation-timing-function:ease}
 }
-:root{color-scheme:light;--ink:#242624;--muted:#6d6f69;--line:#dedfd9;--accent:#31594d;--paper:#fafaf7;--panel:#f4f3ee;--display:"Cormorant Garamond",Georgia,"Times New Roman",serif;--body:"Source Serif 4",Georgia,"Times New Roman",serif;--ui:Inter,Arial,sans-serif}
+:root{color-scheme:light;--ink:#242624;--muted:#6d6f69;--line:#dedfd9;--accent:#31594d;--paper:#fafaf7;--display:"Cormorant Garamond",Georgia,"Times New Roman",serif;--body:"Source Serif 4",Georgia,"Times New Roman",serif;--ui:Inter,Arial,sans-serif}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:40px;background:var(--paper)}
 body{margin:0;background:var(--paper);color:var(--ink);font:16.5px/1.68 var(--body);-webkit-font-smoothing:antialiased;position:relative}
@@ -38,18 +45,15 @@ button{font:inherit;color:inherit}
 .nav-label,.eyebrow,.number,.section-label,.preview-label{font:500 11px/1.5 var(--ui);letter-spacing:.105em;text-transform:uppercase;color:var(--muted)}
 .nav-tools{display:block;margin:0 0 12px}.nav-label{margin:0}
 .sidebar nav{position:relative;isolation:isolate;display:grid;border-left:1px solid var(--line)}
-.sidebar nav:before{content:"";position:absolute;z-index:-1;pointer-events:none;left:0;top:0;width:var(--nav-width,100%);height:var(--nav-height,46px);transform:translate(var(--nav-x,-1px),var(--nav-y,0px));border-left:2px solid var(--accent);background:var(--panel);transition:transform .2s,width .2s,height .2s,border-color .25s}
-.sidebar nav a{display:flex;gap:12px;align-items:center;min-height:46px;padding:8px 12px;margin-left:-1px;border-left:2px solid transparent;color:var(--muted);text-decoration:none;transition:color .18s,background .18s,border-color .18s}
+.sidebar nav:before{content:"";position:absolute;z-index:-1;pointer-events:none;left:0;top:0;width:var(--nav-width,100%);height:var(--nav-height,46px);transform:translate(var(--nav-x,-1px),var(--nav-y,0px));border-left:2px solid var(--accent);transition:transform .2s,width .2s,height .2s,border-color .25s}
+.sidebar nav a{display:flex;gap:12px;align-items:center;min-height:46px;padding:8px 12px;margin-left:-1px;border-left:2px solid transparent;color:var(--muted);text-decoration:none;transition:color .18s,border-color .18s}
 .sidebar nav a:is(:hover,[aria-current]){color:var(--ink)}
-.sidebar nav a:is(:hover,:focus-visible):not([aria-current]){background:var(--panel)}
 .sidebar nav span{font:500 10px/1 var(--ui);letter-spacing:.08em;color:var(--muted)}
 
 
 main{min-width:0}
 .reading{position:relative;isolation:isolate;width:100%}
-.reading.row-glow:before{content:"";position:absolute;z-index:-1;pointer-events:none;top:0;left:-13px;width:calc(100% + 26px);height:var(--row-height,0px);transform:translateY(var(--row-y,0px));background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 7%,transparent),color-mix(in srgb,var(--accent) 2%,transparent) 72%,transparent);box-shadow:0 10px 34px color-mix(in srgb,var(--accent) 5%,transparent);border-radius:5px;opacity:var(--row-visible,0);transition:transform var(--row-duration,0s),height var(--row-duration,0s),opacity .18s}
-header.editorial-hero{position:relative;isolation:isolate;padding:10px 0 48px;--spot-x:72%;--spot-y:42%;--spot-opacity:0}
-header.editorial-hero.hero-spotlight:before{content:"";position:absolute;z-index:-1;inset:-42px -20px -28px;pointer-events:none;background:radial-gradient(340px circle at var(--spot-x) var(--spot-y),color-mix(in srgb,var(--accent) 8%,transparent),color-mix(in srgb,var(--accent) 2%,transparent) 44%,transparent 72%);opacity:var(--spot-opacity);transition:opacity .35s ease}
+header.editorial-hero{position:relative;padding:10px 0 48px}
 .eyebrow{margin:0 0 18px;letter-spacing:.12em}
 h1{font:500 clamp(45px,4.4vw,62px)/.96 var(--display);letter-spacing:-.045em;margin:0 0 17px}
 .hero-statement{margin:0 0 20px;max-width:520px;font:500 clamp(38px,4.2vw,58px)/.98 var(--display);letter-spacing:-.047em;text-wrap:balance}
@@ -65,6 +69,13 @@ h1{font:500 clamp(45px,4.4vw,62px)/.96 var(--display);letter-spacing:-.045em;mar
 .wordmark:is(:hover,:focus-visible),.profile-links a:is(:hover,:focus-visible){color:var(--accent)}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 .typing:after{content:"";display:inline-block;height:.85em;border-right:1px solid currentColor;margin-left:3px;vertical-align:-.04em;animation:blink 1s steps(1) infinite}@keyframes blink{50%{opacity:0}}
+
+.molecule-stage{position:absolute;left:520px;top:0;width:360px;height:100%}
+.molecule-viewer{position:relative;display:block;width:100%;height:100%;border:0;padding:0;background:none;touch-action:none;-webkit-tap-highlight-color:transparent}
+.molecule-viewer[data-hover="true"]{cursor:grab}.molecule-viewer[data-state="held"]{cursor:grabbing}.molecule-viewer:disabled{touch-action:pan-y}
+.molecule-viewer:focus-visible{outline:1px solid var(--accent);outline-offset:-12px;border-radius:12px}
+.molecule-viewer canvas,.molecule-poster{position:absolute;inset:0;width:100%;height:100%}.molecule-poster{object-fit:contain}
+.molecule-viewer canvas{opacity:0}.molecule-viewer[data-ready="true"] canvas{opacity:1}.molecule-viewer[data-ready="true"] .molecule-poster{visibility:hidden}
 
 @media(prefers-reduced-motion:no-preference){
   .js-effects .reveal-item{opacity:0;filter:blur(4px);transform:translateY(12px);transition:opacity .56s ease,filter .56s ease,transform .56s cubic-bezier(.2,.8,.2,1)}
@@ -94,15 +105,17 @@ footer{margin-top:45px;padding-top:18px;border-top:1px solid var(--line);display
 @media(max-width:1180px){
   html{scroll-padding-top:100px}.layout{display:block;max-width:840px;padding:0 24px 32px}.sidebar{top:0;z-index:20;width:100%;background:var(--paper);padding:13px 0 0;border-bottom:1px solid var(--line)}
   .wordmark-line{margin:0 0 5px}.wordmark{font-size:20px}.nav-label,.sidebar nav span{display:none}
-  .sidebar nav{display:flex;gap:18px;border:0}.sidebar nav a{padding:8px 0;min-height:44px;margin:0;border-left:0;border-bottom:2px solid transparent;font:500 11px/1.3 var(--ui);letter-spacing:.03em}.sidebar nav:before{background:none;border-left:0;border-bottom:2px solid var(--accent)}
+  .sidebar nav{display:flex;gap:18px;border:0}.sidebar nav a{padding:8px 0;min-height:44px;margin:0;border-left:0;border-bottom:2px solid transparent;font:500 11px/1.3 var(--ui);letter-spacing:.03em}.sidebar nav:before{border-left:0;border-bottom:2px solid var(--accent)}
   main{padding-top:34px}.preview{display:none}
+  .molecule-stage{left:auto;right:0;width:calc(100% - 520px)}
 }
+@media(max-width:900px){.molecule-stage{position:relative;right:auto;width:min(100%,340px);height:300px;margin:8px auto 0}}
 @media(max-width:700px){
   .layout{padding:0 23px 26px}.eyebrow{font-size:10px}header.editorial-hero{padding:0 0 28px}.hero-statement{font-size:clamp(34px,9vw,42px);margin-bottom:14px}.intro{font-size:16px;min-height:3.36em}.profile-links{margin-top:12px}.section-heading{gap:12px;flex-wrap:wrap}h2{font-size:22px}.section-label{font-size:10px}
   .project{grid-template-columns:19px minmax(0,1fr) 14px;gap:9px;min-height:108px}.research-entry{grid-template-columns:19px minmax(0,1fr);gap:9px}.title{font-size:20px}.project:is(:hover,:focus-visible) .project-copy{transform:translateX(2px)}footer{margin-top:35px}
 }
 @media(hover:none){.preview{display:none}}
-@media(prefers-reduced-motion:reduce){.arrival{display:none}html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}.typing:after{display:none}.project:is(:hover,:focus-visible) .project-copy,.project:is(:hover,:focus-visible) .arrow,.research-entry:hover>div{transform:none}.hero-spotlight:before{display:none}.reveal-item{opacity:1!important;filter:none!important;transform:none!important}.preview{transform:translateY(-50%)}}
+@media(prefers-reduced-motion:reduce){.arrival{display:none}html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}.typing:after{display:none}.project:is(:hover,:focus-visible) .project-copy,.project:is(:hover,:focus-visible) .arrow,.research-entry:hover>div{transform:none}.reveal-item{opacity:1!important;filter:none!important;transform:none!important}.preview{transform:translateY(-50%)}}
 </style>
 </head>
 <body>
@@ -117,8 +130,8 @@ footer{margin-top:45px;padding-top:18px;border-top:1px solid var(--line);display
 <nav aria-label="Sections"><a href="#about" aria-current="location"><span aria-hidden="true">01</span>About</a><a href="#research"><span aria-hidden="true">02</span>Research</a><a href="#teaching"><span aria-hidden="true">03</span>Teaching</a><a href="#for-fun"><span aria-hidden="true">04</span>For fun</a></nav>
 </aside>
 <main>
-<div class="reading row-glow">
-<header id="about" class="editorial-hero hero-spotlight">
+<div class="reading">
+<header id="about" class="editorial-hero">
     <p class="eyebrow">CHEMISTRY / TEACHING / RESEARCH / SOFTWARE</p>
     <h1>Duy Pham</h1>
     <p class="hero-statement">Chemistry, teaching,<br>and things I’m <em>working on.</em></p>
@@ -127,6 +140,14 @@ footer{margin-top:45px;padding-top:18px;border-top:1px solid var(--line);display
       <a class="link-underline" href="https://github.com/duyjimmypham">GITHUB</a>
       <a class="link-underline" href="mailto:duyphambao.career@gmail.com" aria-label="Email Duy Pham">EMAIL</a>
     </nav>
+    <div class="molecule-stage">
+      <button class="molecule-viewer" id="molecule-viewer" type="button" aria-label="Pick up and turn the methane model" aria-describedby="molecule-instructions" aria-pressed="false" disabled>
+        <img class="molecule-poster" data-src="molecule/assets/methane-poster.png" alt="A graphite and ivory molecular object resting on a white table" width="976" height="1240" hidden>
+        <noscript><img class="molecule-poster" src="molecule/assets/methane-poster.png" alt="A graphite and ivory molecular object resting on a white table" width="976" height="1240"></noscript>
+      </button>
+    </div>
+    <p id="molecule-instructions" class="sr-only">Press and hold the object to pick it up. Drag to rotate, then release to place it on the table. With the object focused, hold Space or Enter to lift, use the arrow keys to turn, and release Space or Enter to place. Home also returns it to the table.</p>
+    <p id="molecule-status" class="sr-only" aria-live="polite"></p>
 </header>
 <section class="project-group reveal-item" id="research" aria-labelledby="research-title">
 <div class="section-heading"><h2 id="research-title">Research &amp; Professional Work</h2></div>
@@ -155,7 +176,6 @@ footer{margin-top:45px;padding-top:18px;border-top:1px solid var(--line);display
 </div>
 <script>
 const root = document.documentElement;
-const hero = document.querySelector('.editorial-hero');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
 const accents = ['#31594d','#a34f37','#744463','#68713d','#831d24','#b27a27','#c66f68','#2d302d'];
@@ -166,22 +186,7 @@ const accent = choices[Math.floor(Math.random() * choices.length)];
 root.style.setProperty('--accent', accent);
 try { localStorage.setItem('last-accent', accent); } catch {}
 
-// Selected effect 1: a very soft pointer spotlight that never changes layout.
-if (matchMedia('(hover:hover) and (pointer:fine)').matches && !reducedMotion.matches){
-  hero.addEventListener('pointerenter', () => hero.style.setProperty('--spot-opacity','.72'));
-  hero.addEventListener('pointerleave', () => {
-    hero.style.setProperty('--spot-opacity','0');
-  });
-  hero.addEventListener('pointermove', event => {
-    const rect = hero.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width;
-    const y = (event.clientY - rect.top) / rect.height;
-    hero.style.setProperty('--spot-x', `${(x * 100).toFixed(1)}%`);
-    hero.style.setProperty('--spot-y', `${(y * 100).toFixed(1)}%`);
-  });
-}
-
-// Selected effect 2: one-time blur-fade entrances for major sections only.
+// One-time blur-fade entrances for major sections only.
 root.classList.add('js-effects');
 const revealItems = [...document.querySelectorAll('.reveal-item')];
 if (reducedMotion.matches || !('IntersectionObserver' in window)) {
@@ -201,21 +206,6 @@ if (reducedMotion.matches || !('IntersectionObserver' in window)) {
 const links = [...document.querySelectorAll('.sidebar nav a')];
 const sections = links.map(link => document.querySelector(link.hash));
 const navigation = document.querySelector('.sidebar nav');
-const reading = document.querySelector('.reading');
-let hoveredRow;
-function highlightRow(){
-  const row = hoveredRow || reading.querySelector('.project:focus-visible');
-  reading.style.setProperty('--row-visible', row ? 1 : 0);
-  if(!row)return;
-  if(reading.style.getPropertyValue('--row-y')) reading.style.setProperty('--row-duration','.2s');
-  reading.style.setProperty('--row-y', row.getBoundingClientRect().top - reading.getBoundingClientRect().top + 5 + 'px');
-  reading.style.setProperty('--row-height', row.offsetHeight - 10 + 'px');
-}
-reading.querySelectorAll('.project,.research-entry').forEach(row => {
-  row.addEventListener('pointerenter', event => { if(event.pointerType === 'touch') return; hoveredRow=row; highlightRow(); });
-  row.addEventListener('pointerleave', () => { hoveredRow=null; highlightRow(); });
-});
-reading.addEventListener('focusin', highlightRow); reading.addEventListener('focusout', () => requestAnimationFrame(highlightRow)); addEventListener('resize', highlightRow);
 function markSection(){
   let active=0; sections.forEach((section,index)=>{ if(section.getBoundingClientRect().top<=108)active=index; });
   if(scrollY>0 && innerHeight+scrollY>=document.documentElement.scrollHeight-2)active=links.length-1;
@@ -270,6 +260,30 @@ if (!reducedMotion.matches && !location.hash && performance.getEntriesByType('na
 document.addEventListener('visibilitychange',()=>{clearTimeout(timer);if(!document.hidden)typeStep()});
 reducedMotion.addEventListener('change',resetTyping);
 resetTyping();
+</script>
+<script>
+(() => {
+  const viewer = document.querySelector('#molecule-viewer');
+  const poster = document.querySelector('.molecule-poster');
+  const status = document.querySelector('#molecule-status');
+  viewer.setAttribute('aria-busy', 'true');
+
+  function showFallback(message) {
+    poster.src = poster.dataset.src;
+    poster.hidden = false;
+    status.textContent = message;
+    viewer.setAttribute('aria-busy', 'false');
+  }
+  viewer.addEventListener('webglcontextlost', () => showFallback('Still view. Reload to interact with the model.'), true);
+  import('./molecule/viewer.js').then(module => module.start()).then(() => {
+    poster.hidden = true;
+    status.textContent = '';
+    viewer.setAttribute('aria-busy', 'false');
+  }).catch(error => {
+    showFallback('Still view. The interactive model is unavailable.');
+    console.error('Molecular model:', error);
+  });
+})();
 </script>
 </body>
 </html>
