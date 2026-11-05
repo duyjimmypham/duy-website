@@ -25,10 +25,8 @@ a { color: var(--green); text-underline-offset: 3px; }
 .site-nav { display: flex; margin-bottom: 12px; }
 .site-nav a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 7px 12px; border: 1px solid var(--rule); border-radius: 3px; font-size: 14px; text-decoration: none; }
 .site-nav a:is(:hover, :focus-visible) { background: #e5ebe1; border-color: #b5c5b7; }
-header { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; padding-bottom: 25px; }
-.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-h1 { font: 38px/1.2 Georgia, serif; margin: 7px 0 0; letter-spacing: -.025em; }
-.header-note { color: var(--muted); font-size: 15px; }
+header { padding-bottom: 25px; }
+h1 { font: 38px/1.2 Georgia, serif; margin: 0; letter-spacing: -.025em; }
 .modes { position: relative; display: flex; gap: 30px; border-bottom: 1px solid var(--rule); }
 .modes button { border: 0; border-radius: 0; border-bottom: 3px solid transparent; padding: 12px 0; font-size: 18px; }
 .modes button[aria-pressed="true"] { color: var(--green); font-weight: 600; }
@@ -42,15 +40,12 @@ h2 { margin: 0 0 14px; font-size: 16px; font-weight: 600; }
 .examples strong { font: 27px Georgia, serif; }
 sub { font-size: .65em; line-height: 0; vertical-align: baseline; position: relative; bottom: -.3em; }
 .examples span { font-size: 15px; color: var(--muted); text-align: right; }
-.examples small { display: block; font-size: 14px; color: var(--ink); }
 .aside-note { margin: 24px 0; color: var(--muted); font-size: 16px; }
 .option { display: flex; align-items: center; gap: 9px; margin: 16px 0; font-size: 16px; }
 input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--green); }
 #lattice-button { width: 100%; font-size: 15px; }
 .model { min-width: 0; padding: 26px 0 24px 30px; }
-.model-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px; }
 .model-heading h2 { font: 28px Georgia, serif; margin-bottom: 0; }
-#stage-name { color: var(--muted); font-size: 15px; }
 .drawing { margin: 18px 0 0; background: var(--surface); border: 1px solid var(--rule); }
 svg { display: block; width: 100%; height: auto; max-height: 350px; }
 svg text { fill: var(--ink); font: 20px "Segoe UI", Arial, sans-serif; text-anchor: middle; }
@@ -84,7 +79,7 @@ dt { color: var(--muted); font-size: 14px; }
 dd { margin: 3px 0 0; font-size: 24px; font-variant-numeric: tabular-nums; }
 footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-top: 23px; color: var(--muted); font-size: 12px; }
 @media (max-width: 850px) {
-  .page { padding: 24px; } header { padding-bottom: 18px; } .header-note { display: none; }
+  .page { padding: 24px; } header { padding-bottom: 18px; }
   .workspace { grid-template-columns: 216px minmax(0, 1fr); } aside { padding-right: 18px; } .model { padding-left: 20px; }
   .examples button { padding: 8px; } .examples span { font-size: 14px; } .transport { flex-wrap: wrap; }
   .timeline { flex-basis: 100%; margin: 5px 0 0; } .readouts { gap: 8px; } dd { font-size: 21px; }
@@ -94,7 +89,7 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8p
   .workspace { display: block; } aside { border: 0; padding: 20px 0 0; }
   .examples { grid-template-columns: repeat(2, minmax(0, 1fr)); } .examples button { padding: 7px 10px; }
   .aside-note { margin: 14px 0; } .option { margin: 10px 0; } #lattice-button { width: auto; }
-  .model { padding: 20px 0; } .model-heading { gap: 4px 12px; } .model-heading h2 { font-size: 25px; } #stage-name { font-size: 14px; }
+  .model { padding: 20px 0; } .model-heading h2 { font-size: 25px; }
   svg text, svg .annotation { font-size: 27px; }
   .drawing { margin-top: 14px; } .legend { padding: 0 12px 12px; gap: 6px 16px; font-size: 14px; }
   .readouts { margin-top: 18px; } dd { font-size: 20px; }
@@ -116,8 +111,7 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8p
 <main class="page">
   <nav class="site-nav" aria-label="Site navigation"><a href="../../index.html#teaching"><span aria-hidden="true">←</span> Home</a></nav>
   <header>
-    <div><div class="eyebrow">Chemistry / Lewis models</div><h1>Covalent & ionic bonds</h1></div>
-    <span class="header-note">Follow the valence electrons.</span>
+    <h1>Covalent & ionic bonds</h1>
   </header>
   <nav class="modes" aria-label="Bond type">
     <button type="button" data-mode="covalent" aria-pressed="true">Covalent <span aria-hidden="true">/ sharing</span></button>
@@ -126,14 +120,13 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8p
   </nav>
   <div class="workspace">
     <aside aria-label="Model controls">
-      <h2>Choose an example</h2>
       <div id="examples" class="examples"></div>
       <p class="aside-note" id="example-note"></p>
       <label class="option" id="lines-option"><input type="checkbox" id="bond-lines"> Use bond lines</label>
       <button type="button" id="lattice-button" aria-pressed="false" hidden>View crystal lattice</button>
     </aside>
     <section class="model" aria-labelledby="model-title">
-      <div class="model-heading"><h2 id="model-title"></h2><span id="stage-name"></span></div>
+      <div class="model-heading"><h2 id="model-title"></h2></div>
       <figure class="drawing">
         <svg id="scene" viewBox="0 0 800 350" role="group" aria-labelledby="scene-title" aria-describedby="scene-desc">
           <title id="scene-title"></title><desc id="scene-desc"></desc><g id="diagram"></g>
@@ -282,7 +275,6 @@ function render() {
   const done = progress === 100, ionic = current.mode === 'ionic', state = tally(current, done);
   const stage = lattice ? 'Crystal lattice' : done ? ionic ? 'Ions formed' : 'Shared electrons' : progress ? ionic ? 'Transferring electrons' : 'Sharing electrons' : 'Separate atoms';
   $('model-title').innerHTML = `${current.name}, ${formulaHtml(current.formula)}`;
-  $('stage-name').textContent = stage;
   $('scene-title').textContent = `${current.formula}: ${stage}`;
   $('diagram').innerHTML = lattice ? latticeDiagram() : ionic ? ionicDiagram(done) : covalentDiagram(done);
   $('legend').innerHTML = lattice ? '<span>+ cation</span><span>− anion</span><span>Sizes are schematic.</span>' : `<span><span class="dot-key" aria-hidden="true">●</span> Teal: from ${current.atoms[0]}${ionic ? '' : ' on the left'}</span><span><span class="rust-key" aria-hidden="true">●</span> Rust: from ${current.atoms[1]}${ionic ? '' : ' on the right'}</span><span>Valence electrons only</span>`;
@@ -322,7 +314,7 @@ function choose(id) {
   syncModeIndicator(previousMode !== current.mode);
   const available = examples.filter(example => example.mode === current.mode);
   if ($('examples').dataset.bondType !== current.mode) {
-    $('examples').innerHTML = available.map(example => `<button type="button" data-example="${example.id}" aria-pressed="false"><strong>${formulaHtml(example.formula)}</strong><span>${example.name}${example.pairs ? `<small>${bondOrders[example.pairs]} bond</small>` : ''}</span></button>`).join('');
+    $('examples').innerHTML = available.map(example => `<button type="button" data-example="${example.id}" aria-pressed="false"><strong>${formulaHtml(example.formula)}</strong><span>${example.name}</span></button>`).join('');
     $('examples').dataset.bondType = current.mode;
   }
   document.querySelectorAll('[data-example]').forEach(button => button.setAttribute('aria-pressed', button.dataset.example === id));

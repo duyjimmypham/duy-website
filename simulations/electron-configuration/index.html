@@ -217,25 +217,8 @@ button:disabled {
   background: var(--paper);
 }
 
-.kicker,
-h1,
-.subtitle {
-  font-family: var(--mono);
-  font-weight: 400;
-}
-
-.kicker {
-  font-family: var(--mono);
-  font-weight: 800;
-  text-transform: uppercase;
-  display: inline;
-  margin: 0 12px 0 0;
-  color: var(--dark);
-  font-size: 12px;
-  letter-spacing: 0.12em;
-}
-
 h1 {
+  font-family: var(--mono);
   font-weight: 720;
   letter-spacing: 0;
   display: inline;
@@ -243,14 +226,6 @@ h1 {
   font-size: 24px;
   line-height: 1;
   text-transform: uppercase;
-}
-
-.subtitle {
-  max-width: 680px;
-  margin: 8px 0 0;
-  color: var(--ink);
-  font-size: 12px;
-  line-height: 1.5;
 }
 
 .element-picker {
@@ -345,37 +320,10 @@ h1 {
   margin: 0;
   padding: 12px 20px 10px;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 8px;
+  grid-template-rows: minmax(0, 1fr);
   border: 0;
   border-right: var(--pixel) solid var(--ink);
   background: var(--paper);
-}
-
-.panel-heading {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--ink);
-}
-
-.panel-heading h2 {
-  margin: 0;
-  text-transform: uppercase;
-  font: 400 12px/1 var(--mono);
-  letter-spacing: 0.1em;
-}
-
-.panel-heading h2::before {
-  content: "FIG 01 / ";
-  color: var(--dark);
-}
-
-.drawing-ref {
-  color: var(--dark);
-  font: 400 12px/1 var(--mono);
 }
 
 .building-wrap {
@@ -489,13 +437,6 @@ h1 {
 .apartment[data-type="p"] .apartment-header {
   color: var(--ink);
   background: var(--light);
-}
-
-.capacity {
-  color: inherit;
-  font: 400 12px/1 var(--mono);
-  transform: scale(0.78);
-  transform-origin: right center;
 }
 
 .rooms {
@@ -615,23 +556,6 @@ h1 {
   transition: top 420ms steps(5, end);
 }
 
-.metaphor-note {
-  margin: 0;
-  color: var(--ink);
-  font: 400 12px/1.5 var(--mono);
-  text-align: left;
-}
-
-.metaphor-note::before {
-  content: "NOTE 01 / ";
-  color: var(--dark);
-}
-
-.metaphor-note strong {
-  color: var(--ink);
-  font-weight: 400;
-}
-
 .information-panel {
   min-width: 0;
   min-height: 0;
@@ -688,12 +612,6 @@ h1 {
   margin: 0;
   font: 400 24px/1 var(--mono);
   text-transform: uppercase;
-}
-
-.identity-detail {
-  margin: 3px 0 0;
-  color: var(--ink);
-  font: 400 12px/1.4 var(--mono);
 }
 
 .info-card {
@@ -1022,11 +940,6 @@ from {
     padding: 12px 10px;
   }
 
-  .kicker {
-    display: block;
-    margin: 0 0 8px;
-  }
-
   h1 {
     display: block;
     font-size: 24px;
@@ -1049,15 +962,6 @@ from {
   .building-panel {
     min-height: 560px;
     padding: 10px 8px;
-  }
-
-  .panel-heading {
-    align-items: flex-start;
-  }
-
-  .drawing-ref {
-    max-width: 110px;
-    text-align: right;
   }
 
   .building {
@@ -1095,10 +999,6 @@ from {
     padding-inline: 4px;
   }
 
-  .capacity {
-    display: none;
-  }
-
   .rooms {
     grid-template-columns: repeat(var(--room-count), minmax(28px, 1fr));
     gap: 2px;
@@ -1115,10 +1015,6 @@ from {
     width: 22px;
     height: 22px;
     font-size: 12px;
-  }
-
-  .metaphor-note {
-    line-height: 1.4;
   }
 
   .information-panel {
@@ -1198,9 +1094,7 @@ from {
     <header class="masthead">
       <div>
         <nav class="site-nav" aria-label="Site navigation"><a href="../../index.html#teaching"><span aria-hidden="true">←</span> HOME</a></nav>
-        <p class="kicker">Instructor demonstration</p>
         <h1>Electron Configuration Tower</h1>
-        <p class="subtitle">Follow each electron from the energy elevator into its shell, subshell, and orbital.</p>
       </div>
 
       <fieldset class="element-picker" aria-label="Select an element">
@@ -1289,22 +1183,13 @@ from {
     </header>
 
     <section class="workspace" aria-label="Electron configuration demonstration">
-      <section class="building-panel" aria-labelledby="building-title">
-        <div class="panel-heading">
-          <h2 id="building-title">Atomic residence plan</h2>
-          <span class="drawing-ref">Shell and orbital map</span>
-        </div>
-
+      <section class="building-panel" aria-label="Atomic residence plan">
         <div class="building-wrap">
           <div class="elevator-shaft" aria-hidden="true">
             <div class="elevator-car" id="elevator-car">LOBBY</div>
           </div>
           <div class="building" id="building" aria-live="polite"></div>
         </div>
-
-        <p class="metaphor-note">
-          <strong>Higher floors represent larger principal quantum number, n.</strong> Subshells are represented as apartments. Orbitals are represented as rooms.
-        </p>
       </section>
 
       <aside class="information-panel" aria-label="Current electron configuration">
@@ -1315,7 +1200,6 @@ from {
           </div>
           <div>
             <h2 class="identity-name" id="identity-name">Hydrogen</h2>
-            <p class="identity-detail" id="identity-detail">Neutral atom with 1 electron</p>
           </div>
         </section>
 
@@ -1331,7 +1215,6 @@ from {
         </section>
 
         <section class="info-card rule-card" aria-live="polite">
-          <span class="info-label">What is happening</span>
           <h3 class="rule-name" id="rule-name">Ready at the lobby</h3>
           <p class="rule-message" id="rule-message">Add the first electron to begin the filling sequence.</p>
         </section>
@@ -1678,7 +1561,6 @@ from {
         identityNumber: document.querySelector('#identity-number'),
         identitySymbol: document.querySelector('#identity-symbol'),
         identityName: document.querySelector('#identity-name'),
-        identityDetail: document.querySelector('#identity-detail'),
         configuration: document.querySelector('#configuration'),
         targetConfiguration: document.querySelector('#target-configuration'),
         orbitalDiagram: document.querySelector('#orbital-diagram'),
@@ -1750,7 +1632,6 @@ from {
               <span class="apartment-title">
                 <strong>${subshell} apartment</strong>
               </span>
-              <span class="capacity">${definition.orbitalLabels.length} ${definition.orbitalLabels.length === 1 ? 'room' : 'rooms'}</span>
             </header>
             <div class="rooms" style="--room-count: ${definition.orbitalLabels.length}">${rooms}</div>
           </section>
@@ -1848,7 +1729,6 @@ from {
         elements.identityNumber.textContent = element.atomicNumber;
         elements.identitySymbol.textContent = element.symbol;
         elements.identityName.textContent = element.name;
-        elements.identityDetail.textContent = `Neutral atom with ${element.atomicNumber} ${element.atomicNumber === 1 ? 'electron' : 'electrons'}`;
         elements.configuration.innerHTML = renderConfiguration(snapshot);
         elements.targetConfiguration.textContent = `Target: ${element.notation}`;
         elements.progressFill.style.width = `${percent}%`;

@@ -45,7 +45,6 @@
     h1, h2, p { margin-top: 0; }
     h1 { margin-bottom: 0; font-size: clamp(1.65rem, 3vw, 2.7rem); letter-spacing: .06em; }
     h2 { margin-bottom: 0; font-size: .88rem; letter-spacing: .08em; }
-    .eyebrow { margin-bottom: .35rem; color: var(--muted); font-size: .75rem; font-weight: 700; letter-spacing: .09em; }
     .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 
     .app-shell {
@@ -63,7 +62,6 @@
       gap: 8px 14px;
     }
     .app-header { grid-area: header; display: flex; align-items: center; justify-content: space-between; border: 4px solid var(--ink); padding: 12px 16px; background: var(--ink); color: var(--panel); }
-    .app-header .eyebrow { color: #d5d4cc; }
     .site-nav { display: flex; margin-bottom: 8px; }
     .site-nav a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 10px; border: 2px solid currentColor; color: var(--panel); font-size: .8rem; font-weight: 700; text-decoration: none; }
     .site-nav a:is(:hover, :focus-visible) { background: var(--panel); color: var(--ink); }
@@ -73,10 +71,9 @@
     .particle-panel { grid-area: particles; display: flex; flex-direction: column; gap: 12px; }
     .atom-panel { grid-area: atom; display: flex; min-width: 0; flex-direction: column; align-items: center; }
     .readout-panel { grid-area: readout; display: flex; flex-direction: column; gap: 6px; }
-    .panel-heading { width: 100%; display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: .72rem; }
+    .panel-heading { width: 100%; color: var(--muted); }
     .particle-control { display: grid; grid-template-columns: minmax(0, 1fr) 44px 46px 44px; align-items: center; gap: 7px; border: 3px solid var(--ink); padding: 8px; }
     .particle-control span { min-width: 0; }
-    .particle-control small { display: block; color: var(--muted); font-size: .75rem; }
     .particle-control output { text-align: center; font-size: 1.35rem; font-weight: 700; }
     .proton-control { border-left-color: var(--proton); border-left-width: 8px; }
     .electron-control { border-left-color: var(--electron); border-left-width: 8px; }
@@ -106,7 +103,7 @@
     .result-content { flex: 1; display: flex; flex-direction: column; gap: 6px; }
     .result-empty { flex: 1; min-height: 260px; display: grid; place-content: center; gap: 12px; border: 3px dashed var(--grid); text-align: center; }
     .empty-token { width: 54px; height: 54px; display: grid; place-items: center; margin: 0 auto; border: 3px solid var(--ink); border-radius: 50%; color: var(--panel); background: var(--proton); font-size: 2rem; font-weight: 700; }
-    .result-empty strong { display: block; margin-bottom: 6px; font-size: 1.05rem; letter-spacing: .08em; }
+    .result-empty strong { display: block; font-size: 1.05rem; letter-spacing: .08em; }
     .result-empty p { margin: 0; color: var(--muted); line-height: 1.45; }
     .result-empty[hidden], .result-content[hidden] { display: none; }
     .science-readouts { margin: 0; border: 3px solid var(--ink); }
@@ -173,7 +170,6 @@
     <header class="app-header">
       <div>
         <nav class="site-nav" aria-label="Site navigation"><a href="../../index.html#teaching"><span aria-hidden="true">←</span> HOME</a></nav>
-        <p class="eyebrow">ATOMIC STRUCTURE</p>
         <h1>BUILD AN ATOM</h1>
       </div>
       <div class="history-controls">
@@ -185,19 +181,19 @@
     <section class="particle-panel" aria-labelledby="particle-heading">
       <h2 id="particle-heading">ADD OR REMOVE PARTICLES</h2>
       <div class="particle-control proton-control">
-        <span><strong>PROTON</strong><small>changes the element</small></span>
+        <span><strong>PROTON</strong></span>
         <button type="button" data-particle="protons" data-delta="-1" aria-label="Remove proton">−</button>
         <output id="proton-count">0</output>
         <button type="button" data-particle="protons" data-delta="1" aria-label="Add proton">+</button>
       </div>
       <div class="particle-control">
-        <span><strong>NEUTRON</strong><small>changes the isotope</small></span>
+        <span><strong>NEUTRON</strong></span>
         <button type="button" data-particle="neutrons" data-delta="-1" aria-label="Remove neutron">−</button>
         <output id="neutron-count">0</output>
         <button type="button" data-particle="neutrons" data-delta="1" aria-label="Add neutron">+</button>
       </div>
       <div class="particle-control electron-control">
-        <span><strong>ELECTRON</strong><small>changes the charge</small></span>
+        <span><strong>ELECTRON</strong></span>
         <button type="button" data-particle="electrons" data-delta="-1" aria-label="Remove electron">−</button>
         <output id="electron-count">0</output>
         <button type="button" data-particle="electrons" data-delta="1" aria-label="Add electron">+</button>
@@ -217,7 +213,6 @@
     <section class="atom-panel" aria-labelledby="atom-heading">
       <div class="panel-heading">
         <h2 id="atom-heading">ATOM VIEW</h2>
-        <span id="view-label">SIMPLIFIED SHELL MODEL</span>
       </div>
       <div class="view-controls" role="group" aria-label="Atom representation">
         <button type="button" data-view="bohr" aria-pressed="true">Bohr</button>
@@ -244,7 +239,7 @@
       <h2 id="readout-heading">YOUR RESULT</h2>
       <div id="result-empty" class="result-empty">
         <span class="empty-token" aria-hidden="true">+</span>
-        <p><strong>NO ELEMENT YET</strong>Add a proton to define the element.</p>
+        <p><strong>NO ELEMENT YET</strong></p>
       </div>
       <div id="result-content" class="result-content" hidden>
         <div class="notation-card" aria-label="Nuclear notation">
@@ -263,7 +258,6 @@
           <div><dt>Nucleus</dt><dd id="stability">Not applicable</dd></div>
         </dl>
         <div class="teaching-card">
-          <p class="eyebrow">TEACHING CUE</p>
           <p id="teaching-cue">Add a proton to create an element.</p>
         </div>
       </div>
@@ -626,7 +620,6 @@
         document.querySelectorAll('[data-view]').forEach(button => {
           button.setAttribute('aria-pressed', String(button.dataset.view === view));
         });
-        setText('view-label', lewis ? 'VALENCE ELECTRONS' : 'SIMPLIFIED SHELL MODEL');
         setText('view-note', 'Shells show all electrons in a simplified counting model.');
         setText('atom-description', 'Two electron shells surrounding a nucleus. Text readouts provide exact particle counts.');
         renderAtom(snapshot);

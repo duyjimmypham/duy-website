@@ -90,7 +90,7 @@ for (const slug of ['ideal-gas-law', 'electron-configuration', 'build-an-atom', 
 }
 const gasScript = gasHtml.match(/<script>([\s\S]*?)<\/script>/)[1];
 const modelStart = gasScript.indexOf('const R =');
-const modelEnd = gasScript.indexOf('function controlNote');
+const modelEnd = gasScript.indexOf('function updateControls');
 assert(modelStart >= 0 && modelEnd > modelStart, 'Gas model boundaries must exist');
 const gas = vm.createContext({ document: { getElementById: () => ({ step: '1' }) } });
 vm.runInContext(gasScript.slice(modelStart, modelEnd), gas);

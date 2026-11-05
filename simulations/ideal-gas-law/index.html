@@ -32,12 +32,11 @@ body{
   line-height:1.45;
 }
 .wrap{max-width:1480px;margin:0 auto;padding:16px 22px 24px}
-header h1{margin:0;font-family:var(--serif);font-size:1.85rem;line-height:1.15}
+header h1{margin:0 0 14px;font-family:var(--serif);font-size:1.85rem;line-height:1.15}
 .site-nav{display:flex;margin-bottom:8px}
 .site-nav a{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:6px 12px;border:1px solid var(--line);border-radius:2px;color:var(--ink-soft);font-size:.85rem;text-decoration:none}
 .site-nav a:is(:hover,:focus-visible){background:var(--surface-muted);color:var(--ink)}
 .site-nav a:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
-header .intro{max-width:76ch;margin:5px 0 14px;color:var(--ink-soft);font-size:.94rem}
 .tabs{display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid var(--ink);margin:0}
 .tab{
   min-height:44px;
@@ -71,7 +70,6 @@ header .intro{max-width:76ch;margin:5px 0 14px;color:var(--ink-soft);font-size:.
 .ctl label{display:flex;justify-content:space-between;gap:10px;margin-bottom:3px;font-size:.86rem}
 .ctl output{font-family:var(--mono);font-weight:700;white-space:nowrap}
 .ctl input[type="range"]{width:100%;height:22px;margin:0;accent-color:var(--ink)}
-.ctl .note{min-height:1rem;margin-top:1px;color:var(--ink-soft);font-size:.73rem}
 .ctl.locked{background:var(--surface-muted)}
 .ctl.locked input[type="range"]{opacity:.48}
 .kpanel{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:24px;width:100%;padding:8px 14px}
@@ -92,7 +90,6 @@ header .intro{max-width:76ch;margin:5px 0 14px;color:var(--ink-soft);font-size:.
 @media (max-width:620px){
   .wrap{padding:14px 12px 28px}
   header h1{font-size:1.65rem}
-  header .intro{font-size:.88rem}
   .tabs{gap:1px}
   .tab{flex:1 1 46%;padding:8px 7px;font-size:.84rem}
   .law-bar{display:block;margin:9px 0}
@@ -111,7 +108,6 @@ header .intro{max-width:76ch;margin:5px 0 14px;color:var(--ink-soft);font-size:.
   <header>
     <nav class="site-nav" aria-label="Site navigation"><a href="../../index.html#teaching"><span aria-hidden="true">←</span> Home</a></nav>
     <h1>Ideal Gas Laws</h1>
-    <p class="intro">This simulation illustrates the relationships among pressure, volume, temperature, and amount of gas in an ideal-gas model.</p>
   </header>
 
   <div class="tabs" role="tablist" aria-label="Gas law models">
@@ -125,7 +121,7 @@ header .intro{max-width:76ch;margin:5px 0 14px;color:var(--ink-soft);font-size:.
 
   <div class="law-bar" aria-live="polite">
     <span class="law-eq" id="lawEq">Kinetic Molecular Theory</span>
-    <span class="law-desc" id="lawDesc">Kinetic molecular theory relates microscopic particle motion to the macroscopic variables P, V, T, and n.</span>
+    <span class="law-desc" id="lawDesc"></span>
     <button type="button" id="pauseBtn" class="reset-btn">Pause animation</button>
     <button type="button" id="resetBtn" class="reset-btn" aria-label="Reset the current gas law to its default values">Reset</button>
   </div>
@@ -162,23 +158,19 @@ header .intro{max-width:76ch;margin:5px 0 14px;color:var(--ink-soft);font-size:.
       <div class="controls" aria-label="Gas variable controls">
         <div class="ctl" id="ctlP">
           <label for="sliderP">Pressure (P) <span><output id="valP" for="sliderP">1.23</output> atm</span></label>
-          <input type="range" id="sliderP" min="0.49" max="4.93" step="0.01" value="1.23" aria-describedby="noteP">
-          <div class="note" id="noteP">V is recalculated when P changes.</div>
+          <input type="range" id="sliderP" min="0.49" max="4.93" step="0.01" value="1.23">
         </div>
         <div class="ctl" id="ctlV">
           <label for="sliderV">Volume (V) <span><output id="valV" for="sliderV">20.0</output> L</span></label>
-          <input type="range" id="sliderV" min="5" max="50" step="0.5" value="20" aria-describedby="noteV">
-          <div class="note" id="noteV">Adjustable with the slider or by dragging the piston.</div>
+          <input type="range" id="sliderV" min="5" max="50" step="0.5" value="20">
         </div>
         <div class="ctl" id="ctlT">
           <label for="sliderT">Temperature (T) <span><output id="valT" for="sliderT">300</output> K</span></label>
-          <input type="range" id="sliderT" min="100" max="600" step="5" value="300" aria-describedby="noteT">
-          <div class="note" id="noteT">Adjustable.</div>
+          <input type="range" id="sliderT" min="100" max="600" step="5" value="300">
         </div>
         <div class="ctl" id="ctlN">
           <label for="sliderN">Amount (n) <span><output id="valN" for="sliderN">1.00</output> mol</span></label>
-          <input type="range" id="sliderN" min="0.25" max="2" step="0.05" value="1" aria-describedby="noteN">
-          <div class="note" id="noteN">Adjustable.</div>
+          <input type="range" id="sliderN" min="0.25" max="2" step="0.05" value="1">
         </div>
       </div>
     </div>
@@ -203,7 +195,7 @@ const LIMITS = {
 const MODES = {
   kinetic: {
     eq: 'Kinetic Molecular Theory',
-    desc: 'Kinetic molecular theory relates microscopic particle motion to the macroscopic variables P, V, T, and n.',
+    desc: '',
     inputs: ['V', 'T', 'n'],
     piston: 'free',
     graph: null,
@@ -238,7 +230,7 @@ const MODES = {
   },
   ideal: {
     eq: 'PV = nRT',
-    desc: 'The ideal gas law defines the relationship among P, V, n, and T. The simulation maintains this relationship as the available variables are adjusted.',
+    desc: '',
     inputs: ['V', 'T', 'n'],
     piston: 'free',
     graph: { x: 'V', y: 'P' },
@@ -330,28 +322,6 @@ function resetState(mode) {
   }
 }
 
-function controlNote(name, active) {
-  if (active) {
-    if (name === 'P') {
-      if (state.mode === 'gaylussac') return 'T is recalculated when P changes.';
-      return 'V is recalculated when P changes.';
-    }
-    if (name === 'V' && MODES[state.mode].piston === 'free') return 'Adjustable with the slider or by dragging the piston.';
-    return 'Adjustable.';
-  }
-  if (name === 'P') {
-    return state.mode === 'charles' || state.mode === 'avogadro' ? 'Held constant at 1.00 atm.' : 'Calculated from PV = nRT.';
-  }
-  if (name === 'V') {
-    if (state.mode === 'charles') return 'Calculated to maintain constant P.';
-    if (state.mode === 'avogadro') return 'Calculated to maintain constant P and T.';
-    return 'Fixed at 20.0 L.';
-  }
-  if (name === 'T') return 'Fixed at 300 K.';
-  if (name === 'n') return 'Fixed at 1.00 mol.';
-  return 'Calculated from PV = nRT.';
-}
-
 function updateControls() {
   const mode = MODES[state.mode];
   const bounds = pressureBounds();
@@ -367,7 +337,6 @@ function updateControls() {
     slider.setAttribute('aria-valuetext', format[name](state[name]) + ' ' + units[name]);
     outputs[name].textContent = format[name](state[name]);
     document.getElementById('ctl' + name.toUpperCase()).classList.toggle('locked', !active);
-    document.getElementById('note' + name.toUpperCase()).textContent = controlNote(name, active);
   });
 
   document.getElementById('lawEq').textContent = mode.eq;
@@ -673,10 +642,6 @@ function drawChamber(now) {
     context.fillRect(GEOMETRY.x0 - 12, top - GEOMETRY.pistonHeight - 2, 12, GEOMETRY.pistonHeight + 4);
     context.fillRect(GEOMETRY.x1, top - GEOMETRY.pistonHeight - 2, 12, GEOMETRY.pistonHeight + 4);
   }
-  context.fillStyle = '#4a4a4a';
-  context.font = '11px Consolas, monospace';
-  context.textAlign = 'center';
-  context.fillText(pistonMode === 'free' ? 'ADJUSTABLE' : pistonMode === 'fixed' ? 'FIXED' : 'AUTOMATIC', 200, top - 90);
 
   drawFrost();
   drawGauge();
