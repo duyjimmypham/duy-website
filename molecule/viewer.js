@@ -5,7 +5,7 @@ const viewer = document.querySelector('#molecule-viewer');
 const status = document.querySelector('#molecule-status');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
-export async function start() {
+export async function start(name) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.setClearColor(0, 0);
@@ -115,14 +115,14 @@ export async function start() {
     ground.visible = true;
   }
 
-  const { scene: asset } = await new GLTFLoader().loadAsync(new URL('./assets/methane.glb', import.meta.url).href);
+  const { scene: asset } = await new GLTFLoader().loadAsync(new URL(`./assets/${name}.glb`, import.meta.url).href);
   const molecule = new THREE.Group();
   molecule.name = 'TabletopRig';
   molecule.add(asset);
   scene.add(molecule);
 
   const rest = new THREE.Quaternion();
-  const { rest_height: restHeight, pickup_height: pickupHeight } = asset.getObjectByName('Methane').userData;
+  const { rest_height: restHeight, pickup_height: pickupHeight } = asset.children[0].userData;
   const spheres = [];
   asset.traverse(object => {
     if (object.userData.radius) spheres.push({ center: object.position.clone(), radius: object.userData.radius });

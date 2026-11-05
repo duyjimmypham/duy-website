@@ -6,9 +6,17 @@
 <meta name="author" content="Duy Pham">
 <meta name="description" content="Chemistry, teaching, research, and projects by Duy Pham.">
 <title>Duy Pham — About &amp; projects</title>
-<link rel="icon" href="data:,">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script type="importmap">{"imports":{"three":"./molecule/vendor/three.module.min.js"}}</script>
-<link rel="preload" href="molecule/assets/methane.glb" as="fetch" crossorigin>
+<script>
+const molecules = ['methane', 'caffeine', 'glucose'];
+let previousMolecule;
+try { previousMolecule = localStorage.getItem('last-molecule'); } catch {}
+const moleculeChoices = molecules.filter(name => name !== previousMolecule);
+const molecule = moleculeChoices[Math.floor(Math.random() * moleculeChoices.length)];
+try { localStorage.setItem('last-molecule', molecule); } catch {}
+document.head.append(Object.assign(document.createElement('link'), { rel: 'preload', href: `molecule/assets/${molecule}.glb`, as: 'fetch', crossOrigin: 'anonymous' }));
+</script>
 <link rel="modulepreload" href="molecule/viewer.js">
 <link rel="modulepreload" href="molecule/vendor/three.module.min.js">
 <link rel="modulepreload" href="molecule/vendor/three.core.min.js">
@@ -291,6 +299,8 @@ resetTyping();
   const poster = document.querySelector('.molecule-poster');
   const status = document.querySelector('#molecule-status');
   viewer.setAttribute('aria-busy', 'true');
+  viewer.setAttribute('aria-label', `Pick up and turn the ${molecule} model`);
+  poster.dataset.src = `molecule/assets/${molecule}-poster.png`;
 
   function showFallback(message) {
     poster.src = poster.dataset.src;
@@ -299,7 +309,7 @@ resetTyping();
     viewer.setAttribute('aria-busy', 'false');
   }
   viewer.addEventListener('webglcontextlost', () => showFallback('Still view. Reload to interact with the model.'), true);
-  import('./molecule/viewer.js').then(module => module.start()).then(() => {
+  import('./molecule/viewer.js').then(module => module.start(molecule)).then(() => {
     poster.hidden = true;
     status.textContent = '';
     viewer.setAttribute('aria-busy', 'false');
