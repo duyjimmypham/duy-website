@@ -66,6 +66,22 @@ header.editorial-hero{position:relative;min-height:300px;padding:10px 0 40px}
 h1{font:500 clamp(45px,4.4vw,62px)/.96 var(--display);letter-spacing:-.045em;margin:0 0 17px}
 .hero-statement{margin:0 0 20px;max-width:520px;font:500 clamp(38px,4.2vw,58px)/.98 var(--display);letter-spacing:-.047em;text-wrap:balance}
 .hero-statement em{font-weight:400;font-style:italic;color:var(--accent);transition:color .25s}
+/* Headline misprint: the real text is the black plate; cyan and halftone magenta copies show only while a word prints in or glitches. */
+.hero-statement .w{position:relative;display:inline-block;isolation:isolate}
+.hero-statement .w:before,.hero-statement .w:after{content:attr(data-t) / "";position:absolute;inset:-.25em -.1em;padding:.25em .1em 0;z-index:-1;pointer-events:none;opacity:0}
+.hero-statement .w:before{color:#00a0e3}
+.hero-statement .w:after{color:transparent;background:radial-gradient(circle,#e5007d 45%,transparent 50%) 0 0/3px 3px;-webkit-background-clip:text;background-clip:text}
+@media(prefers-reduced-motion:no-preference){.hero-statement.printing .w:not(.on){opacity:0}}
+.hero-statement .w.on{animation:var(--fx) .5s cubic-bezier(.2,.8,.2,1)}.hero-statement .w.on:before{animation:plate-c .9s cubic-bezier(.2,.8,.2,1)}.hero-statement .w.on:after{animation:plate-m .9s cubic-bezier(.2,.8,.2,1)}
+.hero-statement .w.tear{translate:1px 0}.hero-statement .w.tear:before,.hero-statement .w.tear:after{opacity:1}
+.hero-statement .w.tear:before{clip-path:inset(var(--a) 0 var(--b) 0);translate:var(--tx) 0}.hero-statement .w.tear:after{clip-path:inset(var(--b) 0 var(--a) 0);translate:calc(var(--tx) * -1) 0}
+@keyframes print-stamp{from{opacity:0;transform:scale(1.18);filter:blur(3px)}55%{opacity:1;filter:none}}
+@keyframes print-drop{from{opacity:0;transform:translateY(-.5em) rotate(-5deg)}55%{opacity:1;transform:translateY(.05em)}}
+@keyframes print-smear{from{opacity:0;transform:translateX(-.5em) skewX(-20deg);filter:blur(2px)}60%{opacity:1;transform:skewX(3deg);filter:none}}
+@keyframes print-flicker{from,22%,48%{opacity:0}11%,35%{opacity:1}}
+@keyframes print-dots{from,50%{color:transparent}}
+@keyframes plate-c{from{opacity:1;transform:translate(var(--cx),var(--cy))}60%{opacity:1;transform:translate(calc(var(--cx) * .15),calc(var(--cy) * .15))}to{opacity:0;transform:none}}
+@keyframes plate-m{from{opacity:1;transform:translate(var(--mx),var(--my))}60%{opacity:1;transform:translate(calc(var(--mx) * .15),calc(var(--my) * .15))}to{opacity:0;transform:none}}
 .intro{margin:0;min-height:1.7em;color:var(--muted);font:16.5px/1.68 var(--body);max-width:500px}
 .typing:after{content:"";display:inline-block;height:.85em;border-right:1px solid currentColor;margin-left:3px;vertical-align:-.04em;animation:blink 1s steps(1) infinite}@keyframes blink{50%{opacity:0}}
 .profile-links{display:flex;align-items:center;flex-wrap:wrap;gap:12px 20px;font:500 11px/1.4 var(--ui);letter-spacing:.08em;text-transform:uppercase;margin-top:20px}
@@ -281,6 +297,7 @@ function finishArrival() {
   if (arrival.hidden) return;
   arrival.hidden = true;
   resetTyping();
+  printHeadline();
 }
 if (!reducedMotion.matches && !location.hash && performance.getEntriesByType('navigation')[0]?.type !== 'back_forward') {
   arrival.hidden = false;
@@ -290,6 +307,54 @@ if (!reducedMotion.matches && !location.hash && performance.getEntriesByType('na
   addEventListener('pointerdown', finishArrival, { once: true });
   addEventListener('keydown', finishArrival, { once: true });
 }
+
+// Headline misprint: after the entrance each word prints in with a random effect; afterwards one word occasionally glitches.
+const headline = document.querySelector('.hero-statement');
+const headlineWalker = document.createTreeWalker(headline, NodeFilter.SHOW_TEXT);
+const headlineText = [];
+while (headlineWalker.nextNode()) headlineText.push(headlineWalker.currentNode);
+headlineText.forEach(node => node.replaceWith(...node.textContent.split(/(\s+)/).filter(Boolean).map(text => {
+  if (/^\s/.test(text)) return text;
+  const word = document.createElement('span');
+  word.className = 'w';
+  word.textContent = word.dataset.t = text;
+  return word;
+})));
+const headlineWords = [...headline.querySelectorAll('.w')];
+const printEffects = ['print-stamp', 'print-drop', 'print-smear', 'print-flicker', 'print-dots'];
+function printHeadline() {
+  let delay = 0, previous;
+  headlineWords.forEach(word => {
+    const effects = printEffects.filter(effect => effect !== previous);
+    previous = effects[Math.floor(Math.random() * effects.length)];
+    const angle = Math.random() * 2 * Math.PI, distance = 10 + Math.random() * 6;
+    word.style.setProperty('--fx', previous);
+    word.style.setProperty('--cx', Math.cos(angle) * distance + 'px');
+    word.style.setProperty('--cy', Math.sin(angle) * distance + 'px');
+    word.style.setProperty('--mx', -Math.cos(angle) * distance + 'px');
+    word.style.setProperty('--my', -Math.sin(angle) * distance + 'px');
+    setTimeout(() => word.classList.add('on'), delay);
+    delay += 180 + (/[,.;:!?]$/.test(word.dataset.t) ? 260 : 0);
+  });
+  setTimeout(glitchHeadline, delay + 600);
+}
+function tearWord(word) {
+  const top = Math.random() * 70, height = 12 + Math.random() * 18;
+  word.style.setProperty('--a', top + '%');
+  word.style.setProperty('--b', Math.max(0, 100 - top - height) + '%');
+  word.style.setProperty('--tx', (Math.random() < .5 ? -1 : 1) * (4 + Math.random() * 8) + 'px');
+  word.classList.add('tear');
+  setTimeout(() => word.classList.remove('tear'), 120);
+}
+function glitchHeadline() {
+  if (!reducedMotion.matches && !document.hidden) {
+    const word = headlineWords[Math.floor(Math.random() * headlineWords.length)];
+    for (let k = 0, bursts = 1 + Math.floor(Math.random() * 3); k < bursts; k++) setTimeout(() => tearWord(word), k * 90);
+  }
+  setTimeout(glitchHeadline, 3000 + Math.random() * 4000);
+}
+if (arrival.hidden) setTimeout(glitchHeadline, 3000);
+else headline.classList.add('printing');
 document.addEventListener('visibilitychange',()=>{clearTimeout(timer);if(!document.hidden)typeStep()});
 reducedMotion.addEventListener('change',resetTyping);
 resetTyping();
