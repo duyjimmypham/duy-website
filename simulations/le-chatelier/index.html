@@ -112,7 +112,7 @@ body[data-theme="light"]{color-scheme:light}
 body{margin:0;background:var(--anatomy-page);color:var(--anatomy-text);font:14px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 .iso-page{width:min(650px,100% - 32px);margin:64px auto 96px}
 
-@view-transition{navigation:auto}
+@media(prefers-reduced-motion:no-preference){@view-transition{navigation:auto}}
 body{color:var(--anatomy-strong);font:18px/1.4 "Segoe UI",system-ui,sans-serif;font-variant-numeric:tabular-nums}
 .iso-page{width:auto;margin:0}
 .page{max-width:1600px;min-height:100vh;margin:0 auto;padding:12px 20px;display:flex;flex-direction:column;gap:12px}

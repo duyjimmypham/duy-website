@@ -9,7 +9,7 @@ const desktop = fs.readFileSync(path.join(root, 'retro-desktop.html'), 'utf8');
 const simulationLicense = fs.readFileSync(path.join(root, 'simulations', 'LICENSE.md'), 'utf8');
 const links = [...homepage.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
 const launches = links.filter(link => link.startsWith('simulations/'));
-assert.equal(launches.length, 6);
+assert.equal(launches.length, 7);
 assert.equal((homepage.match(/<style\b/g) || []).length, 1);
 for (const html of [homepage, desktop]) {
   for (const [, attributes, contents] of html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)) {
@@ -18,7 +18,7 @@ for (const html of [homepage, desktop]) {
   }
   assert(html.includes('@view-transition{navigation:auto}'), 'Preserve page transitions');
 }
-assert.equal((homepage.match(/class="project"/g) || []).length, 7);
+assert.equal((homepage.match(/class="project"/g) || []).length, 8);
 for (const id of ['about', 'research', 'teaching', 'for-fun', 'arrival', 'typed-description']) {
   assert(homepage.includes(`id="${id}"`), `Missing homepage section: ${id}`);
 }
@@ -81,12 +81,16 @@ for (const [symbol, element] of Object.entries(electrons.ELEMENTS)) {
 assert.equal(electrons.getSnapshot('Ca', 20).notation, '1s² 2s² 2p⁶ 3s² 3p⁶ 4s²');
 
 const gasHtml = fs.readFileSync(path.join(root, 'simulations/ideal-gas-law/index.html'), 'utf8');
-for (const slug of ['ideal-gas-law', 'electron-configuration', 'build-an-atom', 'molecular-shape-polarity', 'bond-models', 'le-chatelier']) {
+for (const slug of ['ideal-gas-law', 'electron-configuration', 'build-an-atom', 'molecular-shape-polarity', 'bond-models', 'le-chatelier', 'titration']) {
   const html = fs.readFileSync(path.join(root, 'simulations', slug, 'index.html'), 'utf8');
   assert(!/folsom|losrios|chem[ _-]*305/i.test(html), `${slug} has institutional branding`);
   assert(html.includes('creativecommons.org/licenses/by-nc-sa/4.0/'), `${slug} must use the shared simulation license`);
   assert(html.includes('aria-label="Site navigation"'), `${slug} must have site navigation`);
   assert(html.includes('href="../../index.html#teaching"'), `${slug} must link back to the homepage`);
+  // Opt in only without reduced motion, as the homepage does; otherwise returning home aborts the transition.
+  const optIns = html.match(/@view-transition\s*\{/g) || [];
+  const motionOnly = html.match(/@media\s*\(prefers-reduced-motion:\s*no-preference\)\s*\{\s*@view-transition\s*\{\s*navigation:\s*auto\s*\}/g) || [];
+  assert(optIns.length && optIns.length === motionOnly.length, `${slug} must opt in to page transitions only without reduced motion`);
 }
 const gasScript = gasHtml.match(/<script>([\s\S]*?)<\/script>/)[1];
 const modelStart = gasScript.indexOf('const R =');
@@ -140,4 +144,20 @@ for (const key of ['no2', 'hi', 'haber']) {
 assert(equilibrium.Kc(equilibrium.reactions.no2, 373.15) > equilibrium.Kc(equilibrium.reactions.no2, 298.15));
 assert(equilibrium.Kc(equilibrium.reactions.haber, 873.15) < equilibrium.Kc(equilibrium.reactions.haber, 773.15));
 assert(!/<script[^>]+src=|<link[^>]+rel="stylesheet"/.test(fs.readFileSync(path.join(root, 'simulations/le-chatelier/index.html'), 'utf8')), 'Le Chatelier must remain standalone');
-console.log('Release checks passed: links, homepage, atom actions, H–Ca configurations, gas-law relationships, molecular geometry/polarity, covalent/ionic bonds, and Le Chatelier equilibria.');
+// Titration: its images ship beside the page, and the endpoint is the first lasting pink at 25.05 mL.
+const titrationHtml = fs.readFileSync(path.join(root, 'simulations/titration/index.html'), 'utf8');
+const titrationImages = [...titrationHtml.matchAll(/(?:href|src)="((?:realistic\/)?[\w-]+\.webp)"/g)].map(match => match[1]);
+assert.equal(new Set(titrationImages).size, 7, 'Titration images');
+for (const image of titrationImages) {
+  let directory = path.join(root, 'simulations', 'titration');
+  for (const part of image.split('/')) {
+    assert(fs.readdirSync(directory).includes(part), `Missing or incorrectly cased titration image: ${image}`);
+    directory = path.join(directory, part);
+  }
+}
+const titration = vm.createContext({});
+for (const id of ['chemistry', 'indicators']) vm.runInContext(titrationHtml.match(new RegExp(`<script id="${id}">([\\s\\S]*?)<\\/script>`))[1], titration);
+const titrationAt = volume => vm.runInContext(`(() => { const { pH } = solutionAt(${volume}, 'hcl'); return { pH, state: indicators.phenolphthalein.appearance(pH, ${volume}).state }; })()`, titration);
+assert(Math.abs(titrationAt(25.05).pH - 9.9995663577) < 1e-6 && titrationAt(25.05).state === 'faint pink', 'Titration endpoint');
+assert.equal(titrationAt(25).state, 'colorless', 'Titration equivalence stays colorless');
+console.log('Release checks passed: links, homepage, atom actions, H–Ca configurations, gas-law relationships, molecular geometry/polarity, covalent/ionic bonds, Le Chatelier equilibria, and the titration endpoint.');
