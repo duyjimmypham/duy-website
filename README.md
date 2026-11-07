@@ -11,6 +11,7 @@ A personal website and collection of interactive chemistry simulations.
 - [Build an Atom](simulations/build-an-atom/index.html) — Explore elements, isotopes, and ions using Bohr and Lewis views.
 - [Molecular Shape and Polarity](simulations/molecular-shape-polarity/index.html) — Explore 3D molecular shapes, lone pairs, and dipole addition.
 - [Covalent & Ionic Bonds](simulations/bond-models/index.html) — Explore shared electrons, ion formation, and crystal lattices.
+- [Le Chatelier’s Principle](simulations/le-chatelier/index.html) — Change concentration, temperature, and pressure and see which way an equilibrium shifts.
 
 ## Attribution
 

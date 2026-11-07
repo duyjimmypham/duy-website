@@ -9,7 +9,7 @@ const desktop = fs.readFileSync(path.join(root, 'retro-desktop.html'), 'utf8');
 const simulationLicense = fs.readFileSync(path.join(root, 'simulations', 'LICENSE.md'), 'utf8');
 const links = [...homepage.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
 const launches = links.filter(link => link.startsWith('simulations/'));
-assert.equal(launches.length, 5);
+assert.equal(launches.length, 6);
 assert.equal((homepage.match(/<style\b/g) || []).length, 1);
 for (const html of [homepage, desktop]) {
   for (const [, attributes, contents] of html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)) {
@@ -18,7 +18,7 @@ for (const html of [homepage, desktop]) {
   }
   assert(html.includes('@view-transition{navigation:auto}'), 'Preserve page transitions');
 }
-assert.equal((homepage.match(/class="project"/g) || []).length, 6);
+assert.equal((homepage.match(/class="project"/g) || []).length, 7);
 for (const id of ['about', 'research', 'teaching', 'for-fun', 'arrival', 'typed-description']) {
   assert(homepage.includes(`id="${id}"`), `Missing homepage section: ${id}`);
 }
@@ -81,7 +81,7 @@ for (const [symbol, element] of Object.entries(electrons.ELEMENTS)) {
 assert.equal(electrons.getSnapshot('Ca', 20).notation, '1s² 2s² 2p⁶ 3s² 3p⁶ 4s²');
 
 const gasHtml = fs.readFileSync(path.join(root, 'simulations/ideal-gas-law/index.html'), 'utf8');
-for (const slug of ['ideal-gas-law', 'electron-configuration', 'build-an-atom', 'molecular-shape-polarity', 'bond-models']) {
+for (const slug of ['ideal-gas-law', 'electron-configuration', 'build-an-atom', 'molecular-shape-polarity', 'bond-models', 'le-chatelier']) {
   const html = fs.readFileSync(path.join(root, 'simulations', slug, 'index.html'), 'utf8');
   assert(!/folsom|losrios|chem[ _-]*305/i.test(html), `${slug} has institutional branding`);
   assert(html.includes('creativecommons.org/licenses/by-nc-sa/4.0/'), `${slug} must use the shared simulation license`);
@@ -131,4 +131,13 @@ for (const example of bonds.examples) {
 }
 assert.equal((bondHtml.match(/<style>/g) || []).length, 1);
 assert(!/<script[^>]+src=|<link[^>]+rel="stylesheet"/.test(bondHtml), 'Bond models must remain standalone');
-console.log('Release checks passed: links, homepage, atom actions, H–Ca configurations, gas-law relationships, molecular geometry/polarity, and covalent/ionic bonds.');
+const equilibrium = loadModel('le-chatelier', 'equilibrium-model', 'Equilibrium');
+for (const key of ['no2', 'hi', 'haber']) {
+  const start = equilibrium.create(key);
+  assert(Math.abs(Math.log(equilibrium.Q(start) / equilibrium.K(start))) < 1e-9, key);
+}
+// Heating favours the endothermic direction: K rises for N₂O₄ ⇌ 2 NO₂ and falls for the Haber process.
+assert(equilibrium.Kc(equilibrium.reactions.no2, 373.15) > equilibrium.Kc(equilibrium.reactions.no2, 298.15));
+assert(equilibrium.Kc(equilibrium.reactions.haber, 873.15) < equilibrium.Kc(equilibrium.reactions.haber, 773.15));
+assert(!/<script[^>]+src=|<link[^>]+rel="stylesheet"/.test(fs.readFileSync(path.join(root, 'simulations/le-chatelier/index.html'), 'utf8')), 'Le Chatelier must remain standalone');
+console.log('Release checks passed: links, homepage, atom actions, H–Ca configurations, gas-law relationships, molecular geometry/polarity, covalent/ionic bonds, and Le Chatelier equilibria.');
