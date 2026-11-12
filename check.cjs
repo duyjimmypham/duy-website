@@ -9,7 +9,7 @@ const desktop = fs.readFileSync(path.join(root, 'retro-desktop.html'), 'utf8');
 const simulationLicense = fs.readFileSync(path.join(root, 'simulations', 'LICENSE.md'), 'utf8');
 const links = [...homepage.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
 const launches = links.filter(link => link.startsWith('simulations/'));
-assert.equal(launches.length, 7);
+assert.equal(launches.length, 8);
 assert.equal((homepage.match(/<style\b/g) || []).length, 1);
 for (const html of [homepage, desktop]) {
   for (const [, attributes, contents] of html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)) {
@@ -18,7 +18,7 @@ for (const html of [homepage, desktop]) {
   }
   assert(html.includes('@view-transition{navigation:auto}'), 'Preserve page transitions');
 }
-assert.equal((homepage.match(/class="project"/g) || []).length, 8);
+assert.equal((homepage.match(/class="project"/g) || []).length, 9);
 for (const id of ['about', 'research', 'teaching', 'for-fun', 'arrival', 'typed-description']) {
   assert(homepage.includes(`id="${id}"`), `Missing homepage section: ${id}`);
 }
@@ -81,7 +81,7 @@ for (const [symbol, element] of Object.entries(electrons.ELEMENTS)) {
 assert.equal(electrons.getSnapshot('Ca', 20).notation, '1s² 2s² 2p⁶ 3s² 3p⁶ 4s²');
 
 const gasHtml = fs.readFileSync(path.join(root, 'simulations/ideal-gas-law/index.html'), 'utf8');
-for (const slug of ['ideal-gas-law', 'electron-configuration', 'build-an-atom', 'molecular-shape-polarity', 'bond-models', 'le-chatelier', 'titration']) {
+for (const slug of ['ideal-gas-law', 'electron-configuration', 'build-an-atom', 'molecular-shape-polarity', 'bond-models', 'le-chatelier', 'titration', 'acid-base-strength']) {
   const html = fs.readFileSync(path.join(root, 'simulations', slug, 'index.html'), 'utf8');
   assert(!/folsom|losrios|chem[ _-]*305/i.test(html), `${slug} has institutional branding`);
   assert(html.includes('creativecommons.org/licenses/by-nc-sa/4.0/'), `${slug} must use the shared simulation license`);
@@ -160,4 +160,14 @@ for (const id of ['chemistry', 'indicators']) vm.runInContext(titrationHtml.matc
 const titrationAt = volume => vm.runInContext(`(() => { const { pH } = solutionAt(${volume}, 'hcl'); return { pH, state: indicators.phenolphthalein.appearance(pH, ${volume}).state }; })()`, titration);
 assert(Math.abs(titrationAt(25.05).pH - 9.9995663577) < 1e-6 && titrationAt(25.05).state === 'faint pink', 'Titration endpoint');
 assert.equal(titrationAt(25).state, 'colorless', 'Titration equivalence stays colorless');
-console.log('Release checks passed: links, homepage, atom actions, H–Ca configurations, gas-law relationships, molecular geometry/polarity, covalent/ionic bonds, Le Chatelier equilibria, and the titration endpoint.');
+// Acid and base strength: at 0.10 M a strong solute ionizes completely and a weak one rests at 1 of 75.
+const acids = loadModel('acid-base-strength', 'acid-base-model', 'AcidBase');
+for (const [key, intact, ion, left] of [['strongAcid', 'HCl', 'hydronium', 0], ['weakAcid', 'acetic', 'hydronium', 74], ['strongBase', null, 'hydroxide', 0], ['weakBase', 'ammonia', 'hydroxide', 74]]) {
+  const sim = acids.create(key);
+  acids.add(sim);
+  for (let step = 0; step < 60 * 240; step++) acids.step(sim, 1 / 60);
+  assert.equal(intact ? acids.count(sim, intact) : acids.solid(sim), left, key);
+  assert.equal(acids.count(sim, ion), 75 - left, key);
+}
+assert(!/<script[^>]+src=|<link[^>]+rel="stylesheet"/.test(fs.readFileSync(path.join(root, 'simulations/acid-base-strength/index.html'), 'utf8')), 'Acid and base strength must remain standalone');
+console.log('Release checks passed: links, homepage, atom actions, H–Ca configurations, gas-law relationships, molecular geometry/polarity, covalent/ionic bonds, Le Chatelier equilibria, the titration endpoint, and acid and base strength.');

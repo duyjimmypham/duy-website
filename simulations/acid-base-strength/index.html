@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acid and Base Strength</title>
+<link rel="icon" href="data:,">
+<style>
+:root{
+  --paper:#fff;--ink:#111;--rule:#b9bec6;--blue:#0039a6;
+  --font:Arial,"Helvetica Neue",Helvetica,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--paper);color:var(--ink);font:400 18px/1.2 var(--font);font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit}
+sub,sup{font-size:.62em;line-height:0;position:relative;vertical-align:baseline}
+sub{bottom:-.2em}
+sup{top:-.5em}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* The whole simulation is one figure that fits inside the window with room around it. */
+.app{width:min(100% - 32px,1400px,(100vh - 250px)*2.2);min-width:min(100% - 32px,520px);margin:16px 0;container-type:inline-size}
+
+.bar{display:flex;align-items:flex-end;flex-wrap:wrap;gap:10px 18px;padding-bottom:12px}
+.site-nav a{display:flex;align-items:center;gap:6px;height:44px;color:inherit;text-decoration:none}
+.site-nav a:hover{text-decoration:underline}
+.site-nav a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.bar button{height:44px;background:none;cursor:pointer}
+button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+/* Each case is a small line drawing of where the substance is met, with its name beside it;
+   the one in use is underlined. */
+.cases{display:flex;gap:14px}
+.cases button{display:flex;align-items:center;gap:8px;padding:0 2px;border:0;border-bottom:2px solid transparent}
+.cases button:hover{border-bottom-color:var(--rule)}
+.cases button[aria-pressed=true]{border-bottom-color:var(--blue);color:var(--blue)}
+.cases svg{width:26px;height:26px}
+.session{display:flex;gap:8px;margin-left:auto}
+.session button{padding:0 12px;border:1px solid var(--ink);border-radius:2px}
+.session button:hover:enabled{border-color:var(--blue);color:var(--blue)}
+#add:enabled{border-color:var(--blue);background:var(--blue);color:var(--paper)}
+.session button:disabled{border-color:var(--rule);color:var(--rule);cursor:default}
+
+/* The figure is ruled like a journal table: a heavier rule above and below, a hairline over the
+   strip that holds the arrows, K and the concentration, where no particle can cover them. */
+.card{border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink);font-size:clamp(10px,2.9cqw,40px)}
+.stage{position:relative;aspect-ratio:1560/700;overflow:hidden}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%}
+.foot{position:relative;height:2.3em;border-top:1px solid var(--ink)}
+.stage>div,.foot>div,.arrow{position:absolute}
+.room{top:.35em;display:flex;align-items:baseline;gap:1.1em;white-space:nowrap}
+.room b{margin-right:.16em;font-size:2.3em;font-weight:400;line-height:1}
+#left{left:.3em}
+#right{left:calc(var(--right) + .5em);flex-direction:column;align-items:flex-start;gap:0;font-size:.85em}
+#water{left:var(--split);top:.9em;transform:translateX(-50%)}
+#constant{left:.3em;bottom:.5em}
+#constant i{font-family:"Times New Roman",Times,serif}
+#molar{right:.3em;bottom:.5em}
+.arrow{left:var(--split);bottom:.5em;width:3.4em;height:1.3em;transform:translateX(-50%);overflow:visible}
+.arrow path,.much path{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.arrow path{transition:stroke-width 1.2s ease-out,stroke 1.2s ease-out}
+.arrow path.live{stroke:var(--blue);stroke-width:4.5;transition-duration:.08s}
+.much{width:.62em;height:.5em;overflow:visible}
+.much path{stroke:currentColor;stroke-width:1.6}
+.license{margin:10px 0 0;text-align:right;font-size:13px}
+.license a{color:#555}
+@media(prefers-reduced-motion:no-preference){@view-transition{navigation:auto}}
+
+@media (max-width:700px){
+  .session button{padding:0 10px;font-size:15px}
+  .cases{flex:1 1 100%;gap:8px;justify-content:space-between}
+  .cases button{font-size:14px}
+  .cases svg{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .arrow path,.arrow path.live{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="bar">
+    <nav class="site-nav" aria-label="Site navigation"><a href="../../index.html#teaching"><span aria-hidden="true">←</span> Home</a></nav>
+    <div class="cases" id="cases" role="group" aria-label="Solute"></div>
+    <div class="session">
+      <button type="button" id="add"></button>
+      <button type="button" id="pause">Pause</button>
+      <button type="button" id="reset">Reset</button>
+    </div>
+  </div>
+  <div class="card" id="card">
+    <div class="stage">
+      <h1 class="sr-only" id="equation"></h1>
+      <canvas id="rooms" role="img"></canvas>
+      <div class="room" id="left" aria-hidden="true"></div>
+      <div class="room" id="right" aria-hidden="true"></div>
+      <div id="water" aria-hidden="true">H<sub>2</sub>O</div>
+    </div>
+    <div class="foot" aria-hidden="true">
+      <div id="constant"></div>
+      <div id="molar"></div>
+      <svg class="arrow" id="arrow" viewBox="0 0 100 40"></svg>
+    </div>
+  </div>
+  <p class="sr-only" id="status" aria-live="polite"></p>
+  <p class="license"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a></p>
+</div>
+
+<script id="acid-base-model">
+(function () {
+  'use strict';
+
+  const N = 75;    // solute units drawn
+  const C = 0.10;  // mol/L
+  // Two rooms in drawing units with a band of water between them, BAND to each side of SPLIT:
+  // what went in on the left, its ions on the right, and every proton transfer in the band.
+  // The strip above TOP is kept clear for the headings.
+  const WIDTH = 1560, HEIGHT = 700, SPLIT = 860, BAND = 100, TOP = 200;
+  const SIZE = 2.2;   // drawing units per shape unit
+  const HOP = 5.4;    // the gap a proton crosses, in shape units: under a hydrogen's width, so it always touches a molecule
+  const LENS = 130;   // radius of the close-up drawn over a lone event
+  const TAU = Math.PI * 2;
+
+  // K at 25 °C: OpenStax Chemistry 2e, Appendix H (acetic acid) and Appendix I (ammonia).
+  // In the forward reaction the donor gives a proton to the acceptor. Sodium hydroxide is an
+  // ionic solid, so its case has no proton transfer.
+  const CASES = {
+    strongAcid: { name: 'Strong acid', K: Infinity, donor: 'HCl', acceptor: 'water' },
+    weakAcid: { name: 'Weak acid', K: 1.8e-5, donor: 'acetic', acceptor: 'water' },
+    strongBase: { name: 'Strong base', K: Infinity },
+    weakBase: { name: 'Weak base', K: 1.8e-5, donor: 'water', acceptor: 'ammonia' },
+  };
+
+  const RADIUS = { H: 3, O: 4.3, N: 4.3, C: 4.3, Cl: 6, Na: 3.5 };
+
+  // Heavy atoms are [element, x, y] and hydrogens [x, y]. A conjugate pair shares its
+  // hydrogens by index, and the acid form carries the transferable one last.
+  const ACETATE = [['O', 4.85, -5.63], ['O', 4.85, 5.63], ['C', -5.2, 0], ['C', 1.6, 0]];
+  const METHYL = [[-7.65, 4.24], [-7.65, -4.24], [-10.1, 0]];
+  const SPECIES = {
+    water: { atoms: [['O', 0, 0]], h: [[3.75, 2.9], [-3.75, 2.9]], charge: 0 },
+    hydronium: { atoms: [['O', 0, 0]], h: [[4.1, 2.37], [-4.1, 2.37], [0, -4.74]], charge: 1 },
+    hydroxide: { atoms: [['O', 0, 0]], h: [[3.75, 2.9]], charge: -1 },
+    HCl: { atoms: [['Cl', 0, 0]], h: [[-7.3, 0]], charge: 0 },
+    chloride: { atoms: [['Cl', 0, 0]], h: [], charge: -1 },
+    acetic: { atoms: ACETATE, h: [...METHYL, [9.4, 6.5]], charge: 0 },
+    acetate: { atoms: ACETATE, h: METHYL, charge: -1 },
+    ammonia: { atoms: [['N', 0, 0]], h: [[0, -4.9], [4.24, 2.45], [-4.24, 2.45]], charge: 0 },
+    ammonium: { atoms: [['N', 0, 0]], h: [[0, -5], [5, 0], [-5, 0], [0, 5]], charge: 1 },
+    sodium: { atoms: [['Na', 0, 0]], h: [], charge: 1 },
+  };
+  // Losing its last hydrogen turns each key into its value.
+  const BASE_OF = { HCl: 'chloride', acetic: 'acetate', hydronium: 'water', water: 'hydroxide', ammonium: 'ammonia' };
+  const ACID_OF = Object.fromEntries(Object.entries(BASE_OF).map(([acid, base]) => [base, acid]));
+
+  // Seconds for each stage of a proton transfer once the pair are at the line. A lone one is cued
+  // and held so it can be followed; in the strong-acid rush only the turn and the crossing are left.
+  const LONE = { trip: 1.2, cue: 0.6, turn: 0.5, cross: 0.8, hold: 0.7, close: 0.35 };
+  const RUSH = { trip: 0.8, cue: 0, turn: 0.3, cross: 0.4, hold: 0, close: 0 };
+  const REST = 1;      // every run shows its 75 units this long before the first event
+  const BETWEEN = 4;   // weak: time at the equilibrium count between exchanges
+  const SWING = 4.6;   // weak: time the count spends one away from it during an exchange
+
+  // x²/(c − x) = K solved for x, as a fraction of c.
+  function fractionIonized(K, c) {
+    if (K === Infinity) return 1;
+    return (-K + Math.sqrt(K * K + 4 * K * c)) / (2 * c);
+  }
+
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const smooth = (k) => k * k * (3 - 2 * k);
+  const last = (list) => list[list.length - 1];
+  const angle = ([x, y]) => Math.atan2(y, x);
+  // Radius of the circle a species sweeps as it turns, in drawing units.
+  const reach = (kind) => SIZE * Math.max(
+    ...SPECIES[kind].atoms.map(([element, x, y]) => Math.hypot(x, y) + RADIUS[element]),
+    ...SPECIES[kind].h.map(([x, y]) => Math.hypot(x, y) + RADIUS.H));
+  const solute = (c) => (c.donor === 'water' ? c.acceptor : c.donor);
+  const product = (c) => (c.donor === 'water' ? ACID_OF[c.acceptor] : BASE_OF[c.donor]);  // the ion the solute becomes
+  // Ions belong to the right-hand room and everything else to the left.
+  const room = (kind) => (SPECIES[kind].charge ? [SPLIT + BAND, WIDTH] : [0, SPLIT - BAND]);
+
+  function mulberry32(a) {
+    return () => {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  // `calm` is reduced motion: particles fade in where they belong and do not drift.
+  function create(key, { seed = 1, calm = false } = {}) {
+    const c = CASES[key];
+    const sim = {
+      c, calm, t: 0, random: mulberry32(seed),
+      bodies: [], transfers: [], pellets: [], plan: [], spots: { molecules: [], ions: [] },
+      added: false, settled: Infinity, forward: 0, reverse: 0, flip: false,
+      goal: Math.round(fractionIonized(c.K, C) * N),   // ionized units at equilibrium
+    };
+    sim.gauss = () => Math.sqrt(-2 * Math.log(1 - sim.random())) * Math.cos(TAU * sim.random());
+    return sim;
+  }
+
+  function shuffle(sim, list) {
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(sim.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+    return list;
+  }
+
+  function body(sim, kind, x, y) {
+    return {
+      kind, x, y, vx: 0, vy: 0, turn: sim.random() * TAU, r: reach(kind), state: 'free',
+      show: 1,   // 1 in full colour; a water molecule fades in from 0 and back
+      mark: 0,   // charge mark fading in
+      born: 0,   // which ionization made this ion
+    };
+  }
+
+  // n evenly spread places between x0 and x1 for particles of radius r, in random order.
+  function places(sim, n, r, [x0, x1]) {
+    const wide = x1 - x0, deep = HEIGHT - TOP;
+    const rows = Math.max(1, Math.round(Math.sqrt(n * deep / wide))), cols = Math.ceil(n / rows);
+    const out = [];
+    for (let row = 0; row < rows; row++) for (let col = 0; col < cols; col++) {
+      out.push([
+        clamp(x0 + (col + 0.5 + (sim.random() - 0.5) * 0.6) * wide / cols, x0 + r + 2, x1 - r - 2),
+        clamp(TOP + (row + 0.5 + (sim.random() - 0.5) * 0.6) * deep / rows, TOP + r + 2, HEIGHT - r - 2),
+      ]);
+    }
+    return shuffle(sim, out).slice(0, n);
+  }
+
+  // A free place in a particle's own room, well away from `from` when one is given.
+  function ownPlace(sim, kind, from) {
+    const side = SPECIES[kind].charge ? 'ions' : 'molecules';
+    if (!sim.spots[side].length) sim.spots[side] = places(sim, N, reach('hydronium'), room(kind));
+    const far = from ? sim.spots[side].findIndex(([x, y]) => Math.hypot(x - from[0], y - from[1]) > 260) : 0;
+    return sim.spots[side].splice(Math.max(far, 0), 1)[0];
+  }
+
+  // Sends a particle to (x, y) and returns when it arrives. With reduced motion it fades in there.
+  function travel(sim, b, [x, y], start, duration, pour) {
+    if (sim.calm) {
+      Object.assign(b, { x, y, show: 0, state: 'free' });
+      return sim.t;
+    }
+    b.state = 'path';
+    b.path = { x0: b.x, y0: b.y, x1: x, y1: y, start, end: start + duration, pour };
+    return start + duration;
+  }
+
+  // The solute drops into the left-hand room and spreads out.
+  function add(sim) {
+    if (sim.added) return;
+    sim.added = true;
+    sim.settled = sim.t;
+    if (!sim.c.donor) return addPellets(sim);
+    const kind = solute(sim.c);
+    places(sim, N, reach(kind), room(kind)).forEach((place, i) => {
+      const b = body(sim, kind, (SPLIT - BAND) / 2 + (sim.random() - 0.5) * 140, -30 - sim.random() * 60);
+      sim.settled = Math.max(sim.settled, travel(sim, b, place, sim.t + i * 0.012 + sim.random() * 0.25, 1.3 + sim.random() * 0.6, true));
+      sim.bodies.push(b);
+    });
+  }
+
+  // Sodium hydroxide: five pellets, each a 5 × 6 lattice of alternating Na⁺ and OH⁻.
+  const COLS = 5, ROWS = 6, PITCH = 8.4 * SIZE;
+  function addPellets(sim) {
+    const pellets = N / (COLS * ROWS / 2);
+    const spots = places(sim, 2 * N, reach('hydroxide'), room('hydroxide'));
+    for (let p = 0; p < pellets; p++) {
+      const pellet = {
+        x: (SPLIT - BAND) * (p + 0.5) / pellets - (COLS - 1) * PITCH / 2 + (sim.random() - 0.5) * 30,
+        top: -ROWS * PITCH - 20, floor: HEIGHT - (ROWS - 0.5) * PITCH - 14,
+        start: sim.calm ? sim.t - 1 : sim.t + p * 0.12 + sim.random() * 0.1,   // one second to drop to the floor
+      };
+      sim.settled = Math.max(sim.settled, pellet.start + 1);
+      for (let row = 0; row < ROWS; row++) for (let col = 0; col < COLS; col++) {
+        const b = body(sim, (col + row) % 2 ? 'hydroxide' : 'sodium', 0, 0);
+        Object.assign(b, { state: 'solid', mark: 1, turn: 0, pellet, col, row, spot: spots.pop() });
+        sim.bodies.push(b);
+      }
+      sim.pellets.push(pellet);
+    }
+    sim.pellets.forEach((pellet, p) => { pellet.next = sim.settled + REST + p * 0.08; });   // when it next sheds a pair of ions
+    stepPellets(sim);
+  }
+
+  function stepPellets(sim) {
+    for (const pellet of sim.pellets) {
+      const sunk = smooth(clamp(sim.t - pellet.start, 0, 1));
+      const ions = sim.bodies.filter((b) => b.pellet === pellet && b.state === 'solid');
+      for (const b of ions) {
+        b.x = pellet.x + b.col * PITCH;
+        b.y = pellet.top + (pellet.floor - pellet.top) * sunk + b.row * PITCH;
+      }
+      if (sim.t < pellet.next || !ions.length) continue;
+      pellet.next = sim.t + 0.4;
+      // The least held sodium and hydroxide leave together, each for a place of its own across the line.
+      const held = (b) => ions.filter((o) => Math.abs(o.col - b.col) + Math.abs(o.row - b.row) === 1).length;
+      for (const kind of ['sodium', 'hydroxide']) {
+        const pool = ions.filter((b) => b.kind === kind), least = Math.min(...pool.map(held));
+        const loose = pool.filter((b) => held(b) === least);
+        const b = loose[Math.floor(sim.random() * loose.length)];
+        b.turn = sim.random() * TAU;
+        travel(sim, b, b.spot, sim.t, 1.7 + sim.random() * 0.6);
+      }
+      sim.forward++;
+    }
+  }
+
+  const free = (sim, kind) => sim.bodies.filter((b) => b.kind === kind && b.state === 'free');
+
+  // Starts one proton transfer and reports whether it could. The pair meet at the dividing line:
+  // the solute particle (`lead`) on its left, water or the counter-ion on its right, and the
+  // proton crosses the line. In reverse the two ions come from different ionizations when they can.
+  function react(sim, dir, lone, lead) {
+    const c = sim.c;
+    const [donorKind, acceptorKind] = dir > 0 ? [c.donor, c.acceptor] : [ACID_OF[c.acceptor], BASE_OF[c.donor]];
+    const leadKind = dir > 0 ? solute(c) : product(c), gives = leadKind === donorKind;
+    const partnerKind = gives ? acceptorKind : donorKind;
+    let partner;
+    if (dir > 0) {
+      const pool = free(sim, leadKind);
+      lead = lead || pool[Math.floor(sim.random() * pool.length)];
+    } else {
+      const pairs = free(sim, leadKind).flatMap((a) => free(sim, partnerKind).map((b) => ({ a, b })));
+      const pair = pairs.find((p) => p.a.born !== p.b.born) || pairs[0];
+      if (pair) [lead, partner] = [pair.a, pair.b];
+    }
+    if (!lead) return false;
+
+    const from = last(SPECIES[donorKind].h), to = last(SPECIES[ACID_OF[acceptorKind]].h);
+    const out = (site) => SIZE * (Math.hypot(...site) + HOP / 2);   // from a particle's centre to the line
+    const y = clamp(lead.y, TOP + LENS + 6, HEIGHT - LENS - 10);
+    const stand = [SPLIT - out(gives ? from : to), y], dock = [SPLIT + out(gives ? to : from), y];
+    // Each turns to point its proton, or the place a proton will attach, at the other.
+    const across = gives ? 0 : Math.PI;
+    const aim = (isDonor) => (isDonor ? across - angle(from) : across + Math.PI - angle(to));
+
+    if (dir > 0) {
+      partner = Object.assign(body(sim, 'water', ...dock), { show: 0, turn: aim(!gives) });
+      sim.bodies.push(partner);
+    }
+    if (sim.calm) for (const [b, [px, py]] of [[lead, stand], [partner, dock]]) Object.assign(b, { x: px, y: py, show: 0 });
+    const pose = (b, [x, py], turn) => ({
+      b, x0: b.x, y0: b.y, x1: x, y1: py, turn0: b.turn,
+      turn1: b.turn + Math.atan2(Math.sin(turn - b.turn), Math.cos(turn - b.turn)),
+    });
+    const stage = lone ? LONE : RUSH;
+    const at = { trip: stage.trip, cue: stage.trip + stage.cue };
+    at.turn = at.cue + stage.turn; at.cross = at.turn + stage.cross; at.hold = at.cross + stage.hold; at.end = at.hold + stage.close;
+    const transfer = {
+      dir, lone, lead, partner, donor: gives ? lead : partner, acceptor: gives ? partner : lead,
+      at, age: 0, k: 0, focus: 0, landed: false, x: SPLIT, y,
+      poses: [pose(lead, stand, aim(gives)), pose(partner, dock, aim(!gives))],
+    };
+    lead.state = partner.state = 'busy';
+    lead.transfer = partner.transfer = transfer;
+    sim.transfers.push(transfer);
+    return true;
+  }
+
+  function stepTransfers(sim, dt) {
+    sim.transfers = sim.transfers.filter((t) => {
+      const { at, donor, acceptor } = t;
+      t.age += dt;
+      const arrived = smooth(clamp(t.age / at.trip, 0, 1));
+      for (const p of t.poses) {
+        p.b.x = p.x0 + (p.x1 - p.x0) * arrived;
+        p.b.y = p.y0 + (p.y1 - p.y0) * arrived;
+        p.b.turn = p.turn0 + (p.turn1 - p.turn0) * arrived;
+      }
+      t.k = smooth(clamp((t.age - at.turn) / (at.cross - at.turn), 0, 1));
+      // The close-up opens when the pair are at the line and closes after the result has been held.
+      if (t.lone) t.focus = smooth(clamp((t.age - at.trip) / 0.45, 0, 1)) * (1 - smooth(clamp((t.age - at.hold) / (at.end - at.hold), 0, 1)));
+
+      if (!t.landed && t.k === 1) {
+        t.landed = true;
+        donor.kind = BASE_OF[donor.kind];
+        acceptor.kind = ACID_OF[acceptor.kind];
+        donor.r = reach(donor.kind); acceptor.r = reach(acceptor.kind);
+        if (t.dir > 0) donor.born = acceptor.born = ++sim.forward; else sim.reverse++;
+      }
+      if (t.age < at.end) return true;
+
+      donor.state = acceptor.state = 'free';
+      donor.transfer = acceptor.transfer = null;
+      // Each goes to a place in its own room: ions to the right, apart from each other; a molecule
+      // back to the left. Water left over fades away where it is.
+      const first = ownPlace(sim, t.lead.kind);
+      travel(sim, t.lead, first, sim.t, 1.2 + sim.random() * 0.4);
+      if (t.dir > 0) travel(sim, t.partner, ownPlace(sim, t.partner.kind, first), sim.t, 1.2 + sim.random() * 0.4);
+      return false;
+    });
+  }
+
+  function schedule(sim) {
+    const c = sim.c;
+    if (!c.donor) return stepPellets(sim);
+    sim.plan = sim.plan.filter((p) => sim.t < p.at || !react(sim, p.dir, p.lone, p.lead));
+    if (sim.plan.length || sim.transfers.length || sim.t < sim.settled + REST) return;
+    const ions = count(sim, product(c));
+    if (c.K === Infinity) {
+      // Strong: the first goes alone, the rest in a rush that thins out, and one is kept back to go last, alone.
+      const intact = free(sim, c.donor);
+      if (ions === 0 || intact.length === 1) sim.plan.push({ at: sim.t + (ions ? 0.4 : 0), dir: 1, lone: true });
+      else shuffle(sim, intact).slice(1).forEach((b, i, rest) => sim.plan.push({ at: sim.t + 0.3 + 3.6 * (i / rest.length) ** 1.6, dir: 1, lead: b }));
+    } else if (ions < sim.goal) {
+      sim.plan.push({ at: sim.t, dir: 1, lone: true });
+    } else {
+      // Weak, at equilibrium: one more ionizes and one cation and anion turn back, the order alternating.
+      const first = (sim.flip = !sim.flip) ? 1 : -1, start = sim.t + BETWEEN;
+      sim.plan.push({ at: start, dir: first, lone: true }, { at: start + SWING, dir: -first, lone: true });
+    }
+  }
+
+  // Slow random drift without turning, each particle inside its own room; overlapping neighbours
+  // ease apart. Everything holds still while a close-up is open, so nothing competes with it.
+  function wander(sim, dt) {
+    const still = 1 - Math.max(0, ...sim.transfers.map((t) => t.focus));
+    const keep = Math.exp(-dt / 0.9), kick = (sim.calm ? 0 : 9) * Math.sqrt(1 - keep * keep);
+    const live = sim.bodies.filter((b) => b.state !== 'path');
+    for (const b of live) {
+      if (b.state !== 'free') continue;
+      b.vx = b.vx * keep + kick * sim.gauss();
+      b.vy = b.vy * keep + kick * sim.gauss();
+    }
+    const ease = Math.min(1, 6 * dt) * still;
+    for (let i = 0; i < live.length; i++) for (let j = i + 1; j < live.length; j++) {
+      const a = live[i], b = live[j];
+      const wa = a.state === 'free' ? 1 : 0, wb = b.state === 'free' ? 1 : 0;
+      if (!wa && !wb) continue;
+      const dx = b.x - a.x, dy = b.y - a.y, min = a.r + b.r + 3;
+      if (Math.abs(dx) >= min || Math.abs(dy) >= min) continue;
+      const d = Math.hypot(dx, dy) || 1;
+      if (d >= min) continue;
+      const push = (min - d) * ease / d / (wa + wb);
+      a.x -= dx * push * wa; a.y -= dy * push * wa;
+      b.x += dx * push * wb; b.y += dy * push * wb;
+    }
+    for (const b of live) {
+      if (b.state !== 'free' || b.kind === 'water') continue;
+      const [x0, x1] = room(b.kind);
+      b.x += b.vx * dt * still; b.y += b.vy * dt * still;
+      if (b.x < x0 + b.r) { b.x = x0 + b.r; b.vx = Math.abs(b.vx); }
+      if (b.x > x1 - b.r) { b.x = x1 - b.r; b.vx = -Math.abs(b.vx); }
+      if (b.y < TOP + b.r) { b.y = TOP + b.r; b.vy = Math.abs(b.vy); }
+      if (b.y > HEIGHT - b.r) { b.y = HEIGHT - b.r; b.vy = -Math.abs(b.vy); }
+    }
+  }
+
+  function step(sim, dt) {
+    sim.t += dt;
+    if (sim.added) schedule(sim);
+    for (const b of sim.bodies) {
+      if (b.state === 'path') {
+        const k = clamp((sim.t - b.path.start) / (b.path.end - b.path.start), 0, 1);
+        const fall = 1 - (1 - k) ** 3, e = b.path.pour ? fall : smooth(k);
+        b.x = b.path.x0 + (b.path.x1 - b.path.x0) * (b.path.pour ? smooth(fall) : e);   // poured molecules drop before they spread
+        b.y = b.path.y0 + (b.path.y1 - b.path.y0) * e;
+        if (k === 1) { b.state = 'free'; b.path = null; }
+      }
+      // A water molecule waits for its cue and fades away once it is let go.
+      const t = b.transfer, hidden = b.kind === 'water' && (t ? t.age < t.at.cue : b.state === 'free');
+      b.show = clamp(b.show + (hidden ? -dt / 0.7 : dt / 0.25), 0, 1);
+      b.mark = clamp(b.mark + (SPECIES[b.kind].charge ? dt : -dt) * 5, 0, 1);
+    }
+    stepTransfers(sim, dt);
+    sim.bodies = sim.bodies.filter((b) => b.show > 0 || b.kind !== 'water' || b.state !== 'free');
+    wander(sim, dt);
+  }
+
+  // A particle's hydrogens in its own frame. During a transfer the proton in flight is left out
+  // and the others ease into their places in the new species.
+  function hydrogens(b) {
+    const t = b.transfer, h = SPECIES[b.kind].h;
+    if (!t || t.landed) return h;
+    const next = SPECIES[b === t.donor ? BASE_OF[b.kind] : ACID_OF[b.kind]].h;
+    return h.slice(0, Math.min(h.length, next.length)).map(([x, y], i) => [x + (next[i][0] - x) * t.k, y + (next[i][1] - y) * t.k]);
+  }
+
+  // The proton of a transfer in room coordinates: on the donor, in flight (k from 0 to 1), then
+  // on the acceptor.
+  function proton(t, k = t.k) {
+    const place = (b, [x, y]) => [
+      b.x + (x * Math.cos(b.turn) - y * Math.sin(b.turn)) * SIZE,
+      b.y + (x * Math.sin(b.turn) + y * Math.cos(b.turn)) * SIZE,
+    ];
+    if (t.landed) return place(t.acceptor, last(SPECIES[t.acceptor.kind].h));
+    const [x0, y0] = place(t.donor, last(SPECIES[t.donor.kind].h));
+    const [x1, y1] = place(t.acceptor, last(SPECIES[ACID_OF[t.acceptor.kind]].h));
+    return [x0 + (x1 - x0) * k, y0 + (y1 - y0) * k];
+  }
+
+  // Particles of one kind in the rooms, and formula units still in the pellets.
+  const count = (sim, kind) => sim.bodies.reduce((n, b) => n + (b.kind === kind && b.state !== 'solid'), 0);
+  const solid = (sim) => sim.bodies.reduce((n, b) => n + (b.state === 'solid'), 0) / 2;
+
+  window.AcidBase = {
+    N, C, WIDTH, HEIGHT, SPLIT, BAND, TOP, SIZE, LENS, CASES, RADIUS, SPECIES, BASE_OF, ACID_OF,
+    fractionIonized, solute, create, add, step, hydrogens, proton, count, solid,
+  };
+})();
+</script>
+
+<script>
+'use strict';
+const A = window.AcidBase;
+const { WIDTH, HEIGHT, SPLIT, BAND, SIZE, LENS, SPECIES, RADIUS } = A;
+const $ = (id) => document.getElementById(id);
+const TAU = Math.PI * 2;
+const ZOOM = 2.2;   // how much a lone event is enlarged in its close-up
+const MINT = '#ffffff', WATER = '#edf2fa', PLUM = '#ffffff', LINE = '#111111';
+// One colour per element everywhere, each with the same thin outline.
+const FILL = { H: '#ffffff', O: '#e0312a', N: '#2f55c8', C: '#8c8c8c', Cl: '#1fa83c', Na: '#9b5fd0' };
+// Where each substance is met: stomach acid, vinegar, drain cleaner, window cleaner.
+const PICTURE = {
+  strongAcid: ['Stomach acid', '<path d="M24 5v13c0 7-12 9-12 23 0 12 9 19 21 19 10 0 17-5 19-13h7v-9h-9c-2 4-5 6-9 5-8-3-3-13-3-25V5z" fill="none"/><path d="M19 42c2 6 8 9 14 9" fill="none"/>'],
+  weakAcid: ['Vinegar', '<path d="M26 4h12v12c7 3 10 8 10 14v24c0 3-2 6-6 6H22c-4 0-6-3-6-6V30c0-6 3-11 10-14z" fill="none"/><path d="M16 36h32v20c0 2-2 4-6 4H22c-4 0-6-2-6-4z" fill="none"/><rect x="25" y="2" width="14" height="7" rx="2" fill="none"/>'],
+  strongBase: ['Drain cleaner', '<path d="M20 12h18v8l10 8v28c0 3-2 5-5 5H17c-3 0-5-2-5-5V26l8-6z" fill="none"/><rect x="22" y="3" width="14" height="10" rx="2" fill="none"/><rect x="18" y="34" width="24" height="16" rx="3" fill="none"/><path d="M30 37c3 4 5 6 5 8a5 5 0 0 1-10 0c0-2 2-4 5-8z" fill="none"/>'],
+  weakBase: ['Window cleaner', '<path d="M22 24h20l6 10v22c0 3-2 5-5 5H21c-3 0-5-2-5-5V34z" fill="none"/><path d="M26 24V14H14V7h30v7h-8v10z" fill="none"/><path d="M14 14l-6 6" fill="none"/><path d="M22 14v6h-5" fill="none"/>'],
+};
+const MUCH = '<svg class="much" viewBox="0 0 26 20"><path d="M3 3l9 7-9 7M14 3l9 7-9 7"/></svg>';
+const FORMULA = {
+  hydronium: 'H<sub>3</sub>O<sup>+</sup>', hydroxide: 'OH<sup>–</sup>',
+  HCl: 'HCl', chloride: 'Cl<sup>–</sup>', acetic: 'CH<sub>3</sub>COOH', acetate: 'CH<sub>3</sub>COO<sup>–</sup>',
+  ammonia: 'NH<sub>3</sub>', ammonium: 'NH<sub>4</sub><sup>+</sup>', sodium: 'Na<sup>+</sup>', NaOH: 'NaOH',
+};
+// What a screen reader hears for each case: the heading, the rooms once the solute is in, and the outcome.
+const SPOKEN = {
+  strongAcid: ['Hydrogen chloride and water give hydronium and chloride ions. The reaction goes one way. K a is much greater than 1.',
+    '75 hydrogen chloride molecules in water, 0.10 molar.',
+    'All 75 hydrogen chloride molecules have ionized: 75 hydronium ions and 75 chloride ions.'],
+  weakAcid: ['Acetic acid and water give hydronium and acetate ions. The reaction is an equilibrium and runs both ways. K a is 1.8 times ten to the minus 5.',
+    '75 acetic acid molecules in water, 0.10 molar.',
+    'About 1 of 75 acetic acid molecules is ionized. Molecules keep ionizing and ions keep turning back.'],
+  strongBase: ['Sodium hydroxide gives sodium ions and hydroxide ions. The reaction goes one way. K is much greater than 1.',
+    'Five pellets of sodium hydroxide in water, 0.10 molar.',
+    'All 75 units of sodium hydroxide have come apart: 75 sodium ions and 75 hydroxide ions.'],
+  weakBase: ['Ammonia and water give ammonium and hydroxide ions. The reaction is an equilibrium and runs both ways. K b is 1.8 times ten to the minus 5.',
+    '75 ammonia molecules in water, 0.10 molar.',
+    'About 1 of 75 ammonia molecules is ionized. Molecules keep ionizing and ions keep turning back.'],
+};
+const slow = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+let sim, key = 'strongAcid', runs = 0, paused = false, last, bank = 0, said, landed, liveUntil;
+
+/* ---------- drawing ---------- */
+
+function atom(ctx, element, x, y) {
+  ctx.fillStyle = FILL[element];
+  ctx.beginPath(); ctx.arc(x, y, RADIUS[element], 0, TAU); ctx.fill(); ctx.stroke();
+}
+
+// One particle at (x, y). An ion carries its sign on the atom that holds the charge, drawn upright.
+function particle(ctx, b) {
+  const sp = SPECIES[b.kind];
+  ctx.save();
+  ctx.globalAlpha *= b.show;
+  const x = mapX(b.x);
+  ctx.save();
+  ctx.translate(x, b.y); ctx.rotate(b.turn); ctx.scale(SIZE, SIZE);
+  ctx.lineWidth = 0.45; ctx.strokeStyle = LINE;
+  for (const [hx, hy] of A.hydrogens(b)) atom(ctx, 'H', hx, hy);
+  for (const [element, ax, ay] of sp.atoms) atom(ctx, element, ax, ay);
+  ctx.restore();
+  if (sp.charge && b.mark) {
+    const [element, ax, ay] = sp.atoms[b.kind === 'acetate' ? 1 : 0], cos = Math.cos(b.turn), sin = Math.sin(b.turn);
+    const cx = x + (ax * cos - ay * sin) * SIZE, cy = b.y + (ax * sin + ay * cos) * SIZE, arm = RADIUS[element] * 0.55 * SIZE;
+    ctx.globalAlpha *= b.mark; ctx.strokeStyle = '#fff'; ctx.lineWidth = RADIUS[element] * 0.3 * SIZE;
+    ctx.beginPath(); ctx.moveTo(cx - arm, cy); ctx.lineTo(cx + arm, cy);
+    if (sp.charge > 0) { ctx.moveTo(cx, cy - arm); ctx.lineTo(cx, cy + arm); }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// The proton in flight. With reduced motion it fades from one molecule to the other.
+function drawProton(ctx, t) {
+  const spots = sim.calm ? [[A.proton(t, 0), 1 - t.k], [A.proton(t, 1), t.k]] : [[A.proton(t), 1]];
+  for (const [[x, y], alpha] of spots) {
+    ctx.save();
+    ctx.globalAlpha = alpha; ctx.translate(mapX(x), y); ctx.scale(SIZE, SIZE); ctx.lineWidth = 0.45; ctx.strokeStyle = LINE;
+    atom(ctx, 'H', 0, 0);
+    ctx.restore();
+  }
+}
+
+// A lone event is shown enlarged in a ring in the water band. On the way there a ring follows
+// each particle.
+function closeUp(ctx, t) {
+  ctx.strokeStyle = LINE; ctx.lineWidth = 1.5;
+  if (!t.focus) {
+    if (t.age < t.at.trip) for (const b of [t.lead, t.partner]) {
+      if (b.show < 1) continue;
+      ctx.beginPath(); ctx.arc(mapX(b.x), b.y, b.r + 10, 0, TAU); ctx.stroke();
+    }
+    return;
+  }
+  const open = sim.calm ? 1 : t.focus, radius = LENS * (0.3 + 0.7 * open), zoom = 1 + (ZOOM - 1) * open;
+  ctx.save();
+  ctx.beginPath(); ctx.arc(wall, t.y, radius, 0, TAU); ctx.clip();
+  ctx.fillStyle = WATER; ctx.fill();
+  ctx.translate(wall, t.y); ctx.scale(zoom, zoom); ctx.translate(-wall, -t.y);
+  particle(ctx, t.donor); particle(ctx, t.acceptor);
+  if (!t.landed) drawProton(ctx, t);
+  ctx.restore();
+  ctx.beginPath(); ctx.arc(wall, t.y, radius, 0, TAU); ctx.stroke();
+}
+
+// The wall moves with the share of the solute that is ionized, so the rooms show the balance by
+// their widths. Neither room shrinks below about a quarter of the stage.
+let wall = WIDTH * 0.74;
+const wallFor = (share) => WIDTH * (0.74 - 0.48 * share);
+// Room coordinates to the drawing: each room stretches to its side of the wall; the band keeps its width.
+function mapX(x) {
+  if (x < SPLIT - BAND) return x * (wall - BAND) / (SPLIT - BAND);
+  if (x > SPLIT + BAND) return wall + BAND + (x - SPLIT - BAND) * (WIDTH - wall - BAND) / (WIDTH - SPLIT - BAND);
+  return wall + x - SPLIT;
+}
+
+const canvas = $('rooms'), ctx = canvas.getContext('2d');
+let cw = 0, ch = 0;
+new ResizeObserver(() => {
+  const dpr = window.devicePixelRatio || 1;
+  cw = canvas.clientWidth; ch = canvas.clientHeight;
+  canvas.width = Math.round(cw * dpr); canvas.height = Math.round(ch * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  draw();
+}).observe(canvas);
+
+function draw() {
+  if (!cw) return;
+  const scale = Math.min(cw / WIDTH, ch / HEIGHT), left = (cw - WIDTH * scale) / 2;
+  const edge = (x) => left + x * scale;
+  $('card').style.setProperty('--split', `${edge(wall)}px`);
+  $('card').style.setProperty('--right', `${edge(wall + BAND)}px`);
+  ctx.fillStyle = MINT; ctx.fillRect(0, 0, edge(wall - BAND), ch);
+  ctx.fillStyle = WATER; ctx.fillRect(edge(wall - BAND), 0, 2 * BAND * scale, ch);
+  ctx.fillStyle = PLUM; ctx.fillRect(edge(wall + BAND), 0, cw, ch);
+  ctx.fillStyle = LINE;
+  for (const x of [wall - BAND, wall + BAND]) ctx.fillRect(Math.round(edge(x)), 0, 1, ch);
+  ctx.save();
+  ctx.translate(left, (ch - HEIGHT * scale) / 2);
+  ctx.scale(scale, scale);
+  for (const b of sim.bodies) particle(ctx, b);
+  for (const t of sim.transfers) if (!t.landed) drawProton(ctx, t);
+  for (const t of sim.transfers) if (t.lone) closeUp(ctx, t);
+  ctx.restore();
+}
+
+/* ---------- interface ---------- */
+
+// Builds the headings of the two rooms, the arrows on the line and K for the current case.
+function build() {
+  const c = sim.c, strong = c.K === Infinity;
+  const from = c.donor ? A.solute(c) : 'NaOH';
+  const to = c.donor ? [A.ACID_OF[c.acceptor], A.BASE_OF[c.donor]] : ['sodium', 'hydroxide'];
+  const [mantissa, exponent] = c.K.toExponential(1).split('e-');
+  const tally = (kind) => `<span><b data-count="${kind}"></b>${FORMULA[kind]}</span>`;
+  $('left').innerHTML = tally(from);
+  $('right').innerHTML = to.map(tally).join('');
+  $('arrow').innerHTML = strong
+    ? '<path class="fwd" d="M4 20H96M80 9l16 11-16 11"/>'
+    : '<path class="fwd" d="M4 13H96L80 3"/><path class="rev" d="M96 27H4l16 10"/>';
+  $('constant').innerHTML = `<i>K</i>${c.donor ? `<sub>${c.acceptor === 'water' ? 'a' : 'b'}</sub>` : ''} `
+    + `${strong ? `${MUCH} 1` : `= ${mantissa} × 10<sup>–${exponent}</sup>`}`;
+  $('equation').textContent = SPOKEN[key][0];
+  $('add').innerHTML = `Add ${FORMULA[from]}`;
+  document.querySelectorAll('#cases button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.case === key));
+}
+
+function setText(el, text) { if (el.textContent !== text) el.textContent = text; }
+
+// Counts, arrows, buttons and spoken text; called every frame and written only on change.
+function sync(now) {
+  const c = sim.c;
+  for (const el of document.querySelectorAll('[data-count]')) {
+    const kind = el.dataset.count;
+    setText(el, sim.added ? String(kind === 'NaOH' ? A.solid(sim) : A.count(sim, kind)) : '');
+  }
+  setText($('molar'), sim.added ? `${A.C.toFixed(2)} M` : '');
+  // An arrow is heavy for the whole of a lone event in its direction, and for a moment after any other.
+  [[sim.forward, 1, '.fwd'], [sim.reverse, -1, '.rev']].forEach(([n, dir, path], i) => {
+    if (n !== landed[i]) { landed[i] = n; liveUntil[i] = now + 300; }
+    const el = document.querySelector(`.arrow ${path}`);
+    if (el) el.classList.toggle('live', now < liveUntil[i] || sim.transfers.some((t) => t.lone && t.dir === dir));
+  });
+  $('add').disabled = sim.added;
+  setText($('pause'), paused ? 'Play' : 'Pause');
+  const over = c.K < Infinity ? sim.forward > 0 : (c.donor ? A.count(sim, c.donor) : A.solid(sim)) === 0;
+  const text = sim.added ? SPOKEN[key][over ? 2 : 1] : 'Two empty rooms with water between them: molecules on the left, ions on the right.';
+  if (text !== said) {
+    said = text;
+    $('status').textContent = text;
+    canvas.setAttribute('aria-label', text);
+  }
+}
+
+// Starts a case with both rooms empty and the clock running.
+function load(k) {
+  key = k; paused = false; landed = [0, 0]; liveUntil = [0, 0];
+  sim = A.create(key, { seed: ++runs, calm: slow.matches });
+  wall = wallFor(0);
+  build();
+}
+
+$('cases').innerHTML = Object.entries(A.CASES).map(([k, c]) => `<button type="button" data-case="${k}" aria-label="${PICTURE[k][0]}, a ${c.name.toLowerCase()}">`
+  + `<svg viewBox="0 0 64 64" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${PICTURE[k][1]}</svg>${PICTURE[k][0]}</button>`).join('');
+// Every press answers at once, without waiting for the next frame.
+const press = (act) => (e) => { act(e); sync(performance.now()); };
+$('cases').addEventListener('click', press((e) => { const b = e.target.closest('button'); if (b) load(b.dataset.case); }));
+// Add spends itself, so focus moves on to Pause.
+$('add').onclick = press(() => { paused = false; A.add(sim); $('pause').focus(); });
+$('pause').onclick = press(() => { paused = !paused; });
+$('reset').onclick = press(() => load(key));
+
+const STEP = 1 / 60;
+function frame(now) {
+  const dt = Math.min(0.05, (now - (last ?? now)) / 1000);
+  last = now;
+  sim.calm = slow.matches;
+  if (!paused) for (bank += dt; bank >= STEP; bank -= STEP) A.step(sim, STEP);
+  const c = sim.c, ions = A.count(sim, !c.donor ? 'sodium' : c.donor === 'water' ? A.ACID_OF[c.acceptor] : A.BASE_OF[c.donor]);
+  wall = sim.calm ? wallFor(ions / A.N) : wall + (wallFor(ions / A.N) - wall) * (1 - Math.exp(-dt / 0.5));
+  sync(now);
+  draw();
+  requestAnimationFrame(frame);
+}
+
+load(key);
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

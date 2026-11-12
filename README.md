@@ -13,6 +13,7 @@ A personal website and collection of interactive chemistry simulations.
 - [Covalent & Ionic Bonds](simulations/bond-models/index.html) — Explore shared electrons, ion formation, and crystal lattices.
 - [Le Chatelier’s Principle](simulations/le-chatelier/index.html) — Change concentration, temperature, and pressure and see which way an equilibrium shifts.
 - [Titration](simulations/titration/index.html) — Titrate HCl with NaOH and stop at the first lasting pink of phenolphthalein.
+- [Acid and Base Strength](simulations/acid-base-strength/index.html) — Dissolve a strong acid, weak acid, strong base, or weak base and see how much of it ionizes.
 
 ## Attribution
 
