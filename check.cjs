@@ -18,7 +18,9 @@ for (const html of [homepage, desktop]) {
   }
   assert(html.includes('@view-transition{navigation:auto}'), 'Preserve page transitions');
 }
-assert.equal((homepage.match(/class="project"/g) || []).length, 9);
+assert.equal((homepage.match(/<a class="tile"/g) || []).length, 9);
+assert.equal((homepage.match(/data-initial="[A-Z]">/g) || []).length, 14);
+assert(homepage.includes('Initials.mount()') && !homepage.includes('src="initials.js"'), 'Homepage initials must ship inline');
 for (const id of ['about', 'research', 'teaching', 'for-fun', 'arrival', 'typed-description']) {
   assert(homepage.includes(`id="${id}"`), `Missing homepage section: ${id}`);
 }
