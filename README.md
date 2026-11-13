@@ -14,7 +14,8 @@ A personal website and collection of interactive chemistry simulations.
 - [Le Chatelier’s Principle](simulations/le-chatelier/index.html) — Change concentration, temperature, and pressure and see which way an equilibrium shifts.
 - [Titration](simulations/titration/index.html) — Titrate HCl with NaOH and stop at the first lasting pink of phenolphthalein.
 - [Acid and Base Strength](simulations/acid-base-strength/index.html) — Dissolve a strong acid, weak acid, strong base, or weak base and see how much of it ionizes.
+- [Exile Catch-Up](exile-catch-up/index.html) — Path of Exile patch notes, one change at a time, with the backstory attached.
 
 ## Attribution
 
-The chemistry simulations use the [CC BY-NC-SA 4.0 license](simulations/LICENSE.md). Bundled libraries, fonts, and icons retain their respective license notices. The simulation license does not apply to the homepage.
+The chemistry simulations use the [CC BY-NC-SA 4.0 license](simulations/LICENSE.md). Bundled libraries, fonts, and icons retain their respective license notices. The simulation license does not apply to the homepage. Exile Catch-Up is a fan project: its patch note text and game art belong to Grinding Gear Games ([credits](exile-catch-up/assets/CREDITS.md)).

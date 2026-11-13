@@ -18,8 +18,8 @@ for (const html of [homepage, desktop]) {
   }
   assert(html.includes('@view-transition{navigation:auto}'), 'Preserve page transitions');
 }
-assert.equal((homepage.match(/<a class="tile"/g) || []).length, 9);
-assert.equal((homepage.match(/data-initial="[A-Z]">/g) || []).length, 14);
+assert.equal((homepage.match(/<a class="tile"/g) || []).length, 10);
+assert.equal((homepage.match(/data-initial="[A-Z]">/g) || []).length, 15);
 assert(homepage.includes('Initials.mount()') && !homepage.includes('src="initials.js"'), 'Homepage initials must ship inline');
 for (const id of ['about', 'research', 'teaching', 'for-fun', 'arrival', 'typed-description']) {
   assert(homepage.includes(`id="${id}"`), `Missing homepage section: ${id}`);
@@ -172,4 +172,13 @@ for (const [key, intact, ion, left] of [['strongAcid', 'HCl', 'hydronium', 0], [
   assert.equal(acids.count(sim, ion), 75 - left, key);
 }
 assert(!/<script[^>]+src=|<link[^>]+rel="stylesheet"/.test(fs.readFileSync(path.join(root, 'simulations/acid-base-strength/index.html'), 'utf8')), 'Acid and base strength must remain standalone');
+// Exile Catch-Up: every file its page and image list name ships beside it, and it links home.
+const exileRoot = path.join(root, 'exile-catch-up');
+const exile = fs.readFileSync(path.join(exileRoot, 'index.html'), 'utf8');
+assert(homepage.includes('href="exile-catch-up/index.html"'), 'Homepage must link to Exile Catch-Up');
+assert(exile.includes('href="../index.html#for-fun"'), 'Exile Catch-Up must link back to the homepage');
+const exileFiles = [...exile.matchAll(/(?:href|src)="(?!https?:|#|\.\.\/)([^"]+)"/g)].map(match => match[1])
+  .concat([...fs.readFileSync(path.join(exileRoot, 'data/images.js'), 'utf8').matchAll(/img\('([^']+)'/g)].map(match => `assets/img/${match[1]}`));
+assert(exileFiles.length > 100, 'Exile Catch-Up files');
+for (const file of exileFiles) assert(fs.existsSync(path.join(exileRoot, file)), `Missing Exile Catch-Up file: ${file}`);
 console.log('Release checks passed: links, homepage, atom actions, H–Ca configurations, gas-law relationships, molecular geometry/polarity, covalent/ionic bonds, Le Chatelier equilibria, the titration endpoint, and acid and base strength.');
