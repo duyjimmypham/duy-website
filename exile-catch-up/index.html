@@ -1,10 +1,14 @@
 <!doctype html>
-<html lang="en" data-game="poe1">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Exile Catch-Up</title>
-<meta name="description" content="Path of Exile patch notes, one change at a time, with the backstory attached.">
+<meta name="description" content="Path of Exile and Path of Exile 2 patch notes, one change at a time, with the backstory attached.">
+<script>
+  // Links from before the chooser existed (#/card/…, #/glossary …) belong to the Path of Exile edition.
+  if (location.hash.startsWith('#/')) location.replace('poe1.html' + location.hash);
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=Marcellus&amp;family=Marcellus+SC&amp;display=swap">
@@ -13,43 +17,53 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
-<header class="top">
-  <div class="top-in">
-    <a class="brand" href="#/start">Exile Catch-Up</a>
-    <nav aria-label="Sections">
-      <ul>
-        <li><a href="#/start" data-nav="start">Start</a></li>
-        <li><a href="#/cards" data-nav="cards">My cards</a></li>
-        <li><a href="#/all" data-nav="all">All changes</a></li>
-        <li><a href="#/glossary" data-nav="glossary">Glossary</a></li>
-        <li><a href="#/notes" data-nav="notes">Full notes</a></li>
-      </ul>
-    </nav>
-  </div>
-</header>
-<main id="main" class="wrap" tabindex="-1">
-  <noscript><p>Exile Catch-Up needs JavaScript to show the cards.</p></noscript>
+<main id="main" class="wrap chooser">
+  <header class="stack chooser-head">
+    <p class="eyebrow">Exile Catch-Up</p>
+    <h1 class="display">Which game are you catching up on?</h1>
+    <p class="lede">Patch notes, one change at a time, with the backstory attached. Pick a game to start.</p>
+  </header>
+
+  <!-- Each card names the edition's current patch. Update it with the edition (docs/UPDATE-RUNBOOK.md, section 5). -->
+  <ul class="editions-pick">
+    <li>
+      <a class="edition" data-ed="poe1" href="poe1.html">
+        <span class="edition-art"><img src="assets/img/league-3-30.jpg" alt="" decoding="async"></span>
+        <span class="edition-body">
+          <span class="edition-crest"><img src="assets/img/poe-icon.png" alt="" width="56" height="56"></span>
+          <span class="edition-game">Path of Exile</span>
+          <span class="edition-league">Covens of Umbra</span>
+          <span class="edition-meta">Patch 3.30, launched 13 November 2026</span>
+          <span class="edition-line">Stop the Coven’s rites, pick Fates for the boss, and Threads replace Scarabs.</span>
+          <span class="edition-go">Read the 3.30 changes <span aria-hidden="true">→</span></span>
+        </span>
+      </a>
+    </li>
+    <li>
+      <a class="edition" data-ed="poe2" href="poe2/index.html">
+        <span class="edition-art"><img src="poe2/assets/img/league-0-5.jpg" alt="" decoding="async"></span>
+        <span class="edition-body">
+          <span class="edition-crest"><img src="poe2/assets/img/poe2-icon.png" alt="" width="56" height="56"></span>
+          <span class="edition-game">Path of Exile 2</span>
+          <span class="edition-league">Return of the Ancients</span>
+          <span class="edition-meta">Patch 0.5, the game as it is before 1.0</span>
+          <span class="edition-line">A rebuilt endgame, Remnant crafting and two new ascendancies. Version 1.0 arrives 11 December 2026.</span>
+          <span class="edition-go">Read the 0.5 changes <span aria-hidden="true">→</span></span>
+        </span>
+      </a>
+    </li>
+  </ul>
 </main>
 <footer class="wrap foot">
   <p>Fan-made. Not affiliated with Grinding Gear Games. Patch note text and game art belong to Grinding Gear Games.</p>
-  <p id="notes-source"></p>
   <p><a href="../index.html#for-fun">Back to Duy Pham’s homepage</a></p>
 </footer>
-
-<script src="data/core.js"></script>
-<script src="data/game.js"></script>
-<script src="data/glossary.js"></script>
-<script src="data/images.js"></script>
-<script src="data/3.30/league.js"></script>
-<script src="data/3.30/notes.js"></script>
-<script src="data/3.30/changes-league-build.js"></script>
-<script src="data/3.30/changes-endgame.js"></script>
-<script src="data/3.30/changes-leagues.js"></script>
-<script src="data/3.30/changes-items.js"></script>
-<script src="data/3.29/changes.js"></script>
-<script src="logic.js"></script>
 <script src="vendor/vanilla-tilt.min.js"></script>
-<script src="app.js"></script>
+<script>
+  // The cards lean toward the pointer, as the art frames do inside each edition. Not on touch or with reduced motion.
+  if (window.VanillaTilt && matchMedia('(hover: hover) and (prefers-reduced-motion: no-preference)').matches) {
+    VanillaTilt.init(document.querySelectorAll('.edition'), { max: 4, speed: 600, scale: 1.015, glare: true, 'max-glare': 0.18, gyroscope: false });
+  }
+</script>
 </body>
 </html>

@@ -175,9 +175,11 @@ assert(!/<script[^>]+src=|<link[^>]+rel="stylesheet"/.test(fs.readFileSync(path.
 // Exile Catch-Up, both editions: every file a page and its image list name ships with it, each links home,
 // and the patch-note sources (which hold third-party text) are never published.
 assert(homepage.includes('href="exile-catch-up/index.html"'), 'Homepage must link to Exile Catch-Up');
-for (const [edition, home] of [['exile-catch-up', '../index.html#for-fun'], ['exile-catch-up/poe2', '../../index.html#for-fun']]) {
+const chooser = fs.readFileSync(path.join(root, 'exile-catch-up/index.html'), 'utf8');
+for (const href of ['poe1.html', 'poe2/index.html', '../index.html#for-fun']) assert(chooser.includes(`href="${href}"`), `Exile Catch-Up chooser must link to ${href}`);
+for (const [edition, file, home] of [['exile-catch-up', 'poe1.html', '../index.html#for-fun'], ['exile-catch-up/poe2', 'index.html', '../../index.html#for-fun']]) {
   const editionRoot = path.join(root, edition);
-  const page = fs.readFileSync(path.join(editionRoot, 'index.html'), 'utf8');
+  const page = fs.readFileSync(path.join(editionRoot, file), 'utf8');
   assert(page.includes(`href="${home}"`), `${edition} must link back to the homepage`);
   assert(!fs.existsSync(path.join(editionRoot, 'sources')), `${edition} must not publish its sources`);
   const editionFiles = [...page.matchAll(/(?:href|src)="(?!https?:|#)([^"#]+)/g)].map(match => match[1])

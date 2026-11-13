@@ -30,5 +30,5 @@ EXILE.setGame({
   tagPrefixes: { skill: 'Skills', asc: 'Ascendancies', class: 'Classes', weapon: 'Weapons', unique: 'Uniques', support: 'Supports' },
   // The patch before this one: its cards are the catch-up pack for players who skipped it. null for none.
   pack: '0.4',
-  other: { label: 'PoE 1', href: '../index.html' },
+  other: { label: 'PoE 1', href: '../poe1.html' },
 });

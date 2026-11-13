@@ -1,6 +1,6 @@
 /* Exile Catch-Up: this edition's game. logic.js and app.js read every game-specific word and version from here. */
 EXILE.setGame({
-  id: 'poe1', // matches <html data-game> in index.html
+  id: 'poe1', // matches <html data-game> in poe1.html
   name: 'Path of Exile',
   label: 'PoE 1', // in the edition switch
   storageKey: 'exile-catch-up',

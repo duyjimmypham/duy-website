@@ -357,6 +357,38 @@ mark { background: var(--accent-soft); color: inherit; box-shadow: 0 2px 0 var(-
 
 .foot { display: flex; flex-direction: column; gap: 6px; padding-block: 22px 36px; border-top: 1px solid var(--edge); font-size: 15px; color: var(--muted); }
 
+/* ---------- Chooser (index.html): one big card per game. The cards stay dark in both themes, like the game's
+   own screens, and each takes its edition's colours: warm bronze and orange, or cold steel and crimson. ---------- */
+.chooser { max-width: 1040px; gap: 36px; padding-block: 56px 64px; }
+.chooser-head { align-items: center; text-align: center; }
+.chooser-head .lede { color: var(--muted); text-wrap: balance; }
+.chooser ~ .foot { max-width: 1040px; }
+.editions-pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 28px; }
+.edition[data-ed="poe1"] { --ed-accent: #e58f4a; --ed-edge: #7d6641; --ed-name: #d2b77c; --ed-top: #2a2016; --ed-bg: #0d0b0a; }
+.edition[data-ed="poe2"] { --ed-accent: #ec6a74; --ed-edge: #59636f; --ed-name: #c8b183; --ed-top: #1c2128; --ed-bg: #0a0c0f; }
+.edition { display: flex; flex-direction: column; height: 100%; color: #d6d3cc; text-decoration: none; background: linear-gradient(var(--ed-top), var(--ed-bg) 55%); border: 1px solid var(--ed-edge); border-radius: 2px; outline: 1px solid var(--line); outline-offset: 4px; box-shadow: var(--shadow-5); }
+.edition:focus-visible { outline: 3px solid var(--ed-accent); outline-offset: 4px; }
+.edition-art { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; border-bottom: 1px solid var(--ed-edge); }
+.edition-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.edition-art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 55%, var(--ed-top)); }
+.edition-body { position: relative; display: flex; flex: 1; flex-direction: column; align-items: center; gap: 8px; padding: 44px 26px 28px; text-align: center; }
+/* The game's crest sits in a socket on the seam between the art and the text. */
+.edition-crest { position: absolute; top: -38px; display: grid; place-items: center; width: 76px; height: 76px; border: 1px solid var(--ed-edge); border-radius: 50%; background: radial-gradient(circle at 50% 42%, var(--ed-top), var(--ed-bg) 72%); box-shadow: inset 0 0 0 3px var(--ed-bg), inset 0 0 0 4px var(--ed-edge), var(--shadow-3); }
+.edition-crest img { display: block; width: 56px; height: 56px; }
+.edition-game { font: 400 15px/1.3 var(--label); letter-spacing: .14em; color: var(--ed-accent); }
+.edition-league { font: 400 34px/1.15 var(--display); color: var(--ed-name); text-wrap: balance; }
+.edition-meta { font-size: 15px; color: #9b968c; }
+.edition-line { max-width: 36ch; padding-block: 6px 10px; }
+/* The game's separator above the call to action: a hairline that fades at both ends. */
+.edition-go { margin-top: auto; align-self: stretch; padding-top: 16px; font-weight: 700; color: var(--ed-accent); background: linear-gradient(90deg, transparent, var(--ed-edge), transparent) top / 100% 1px no-repeat; }
+.edition:hover { border-color: var(--ed-accent); }
+.edition:hover .edition-go { text-decoration: underline; text-underline-offset: 4px; }
+@media (max-width: 560px) {
+  .chooser { padding-block: 32px 48px; }
+  .edition-league { font-size: 28px; }
+  .edition-body { padding: 42px 18px 22px; }
+}
+
 /* ---------- motion: small, and only when the reader allows it. Curves are Open Props easings. ---------- */
 @media (prefers-reduced-motion: no-preference) {
   .in-next { animation: in-next .32s var(--ease-out-4); }
@@ -367,6 +399,9 @@ mark { background: var(--accent-soft); color: inherit; box-shadow: 0 2px 0 var(-
   .pop { animation: pop .18s var(--ease-out-3); transform-origin: top center; }
   details[open] > :not(summary) { animation: reveal .25s var(--ease-out-3); }
   .btn, .toggle, .tag, .row-art { transition: transform .15s var(--ease-out-3), border-color .15s, filter .15s, box-shadow .15s; }
+  .edition { transition: border-color .2s; }
+  .edition-art img { transition: transform .6s var(--ease-out-3); }
+  .edition:hover .edition-art img { transform: scale(1.04); }
   .btn:not(:disabled):active, .toggle:active, .tag:active { transform: translateY(1px) scale(.98); }
   .toggle[aria-pressed="true"], .tag[aria-pressed="true"] { animation: press .35s var(--ease-spring-3); }
   .row:hover .row-art { transform: scale(1.08); }
