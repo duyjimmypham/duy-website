@@ -172,13 +172,17 @@ for (const [key, intact, ion, left] of [['strongAcid', 'HCl', 'hydronium', 0], [
   assert.equal(acids.count(sim, ion), 75 - left, key);
 }
 assert(!/<script[^>]+src=|<link[^>]+rel="stylesheet"/.test(fs.readFileSync(path.join(root, 'simulations/acid-base-strength/index.html'), 'utf8')), 'Acid and base strength must remain standalone');
-// Exile Catch-Up: every file its page and image list name ships beside it, and it links home.
-const exileRoot = path.join(root, 'exile-catch-up');
-const exile = fs.readFileSync(path.join(exileRoot, 'index.html'), 'utf8');
+// Exile Catch-Up, both editions: every file a page and its image list name ships with it, each links home,
+// and the patch-note sources (which hold third-party text) are never published.
 assert(homepage.includes('href="exile-catch-up/index.html"'), 'Homepage must link to Exile Catch-Up');
-assert(exile.includes('href="../index.html#for-fun"'), 'Exile Catch-Up must link back to the homepage');
-const exileFiles = [...exile.matchAll(/(?:href|src)="(?!https?:|#|\.\.\/)([^"]+)"/g)].map(match => match[1])
-  .concat([...fs.readFileSync(path.join(exileRoot, 'data/images.js'), 'utf8').matchAll(/img\('([^']+)'/g)].map(match => `assets/img/${match[1]}`));
-assert(exileFiles.length > 100, 'Exile Catch-Up files');
-for (const file of exileFiles) assert(fs.existsSync(path.join(exileRoot, file)), `Missing Exile Catch-Up file: ${file}`);
+for (const [edition, home] of [['exile-catch-up', '../index.html#for-fun'], ['exile-catch-up/poe2', '../../index.html#for-fun']]) {
+  const editionRoot = path.join(root, edition);
+  const page = fs.readFileSync(path.join(editionRoot, 'index.html'), 'utf8');
+  assert(page.includes(`href="${home}"`), `${edition} must link back to the homepage`);
+  assert(!fs.existsSync(path.join(editionRoot, 'sources')), `${edition} must not publish its sources`);
+  const editionFiles = [...page.matchAll(/(?:href|src)="(?!https?:|#)([^"#]+)/g)].map(match => match[1])
+    .concat([...fs.readFileSync(path.join(editionRoot, 'data/images.js'), 'utf8').matchAll(/img\('([^']+)'/g)].map(match => `assets/img/${match[1]}`));
+  assert(editionFiles.length > 50, `${edition} files`);
+  for (const file of editionFiles) assert(fs.existsSync(path.join(editionRoot, file)), `Missing ${edition} file: ${file}`);
+}
 console.log('Release checks passed: links, homepage, atom actions, H–Ca configurations, gas-law relationships, molecular geometry/polarity, covalent/ionic bonds, Le Chatelier equilibria, the titration endpoint, and acid and base strength.');

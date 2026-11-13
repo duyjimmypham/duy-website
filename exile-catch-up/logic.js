@@ -1,28 +1,13 @@
-/* Exile Catch-Up logic: the schema's word lists and pure functions, shared by app.js and the Node tests. */
+/* Exile Catch-Up logic: the schema's generic word lists and pure functions, shared by app.js and the Node tests.
+   Functions that need the game's play styles, tag groups or catch-up pack take `game` (data/game.js). */
 (function () {
-  const STYLES = {
-    maps: 'I run maps',
-    bosses: 'I fight endgame bosses',
-    crafting: 'I craft gear',
-    trade: 'I care about currency and trade',
-    mercenary: 'I use a mercenary',
-    leveling: 'I mostly play the campaign',
-    party: 'I play with friends',
-    ruthless: 'I play Ruthless',
-  };
-  const AREAS = {
-    league: 'New league', maps: 'Maps and Atlas', build: 'Your build', economy: 'Economy and loot',
-    crafting: 'Crafting', bosses: 'Bosses', qol: 'Quality of life',
-  };
   const KINDS = { new: 'New', removed: 'Removed', buff: 'Buff', nerf: 'Nerf', changed: 'Changed' };
   const VERDICTS = { do: 'Do this', know: 'Know this', skip: "Skip unless it's your build" };
-  const TAG_PREFIXES = { skill: 'Skills', asc: 'Ascendancies', unique: 'Uniques', support: 'Supports' };
   const TERM_KINDS = {
     system: 'Systems', mechanic: 'Mechanics', league: 'Leagues and modes', currency: 'Currency', item: 'Items',
     boss: 'Bosses', npc: 'Characters', skill: 'Skills', stat: 'Stats',
   };
   const TERM_STATUSES = { new: 'New', removed: 'Removed', changed: 'Changed', unchanged: 'Unchanged' };
-  const PACK = '3.29';
 
   const MARKUP = /\[\[([^[\]|]+)\|([^[\]]+)\]\]/g;
   const SMALL_WORDS = new Set(['a', 'an', 'and', 'at', 'for', 'in', 'of', 'on', 'the', 'to', 'with']);
@@ -54,13 +39,13 @@
     return 0;
   }
 
-  // The cards that can appear at all: the new league always, the 3.29 catch-up pack only when it is on.
-  function available(changes, skipped329) {
-    return changes.filter((c) => c.league !== PACK || skipped329);
+  // The cards that can appear at all: the new league always, the catch-up pack only when it is on.
+  function available(changes, skippedPack, game) {
+    return changes.filter((c) => c.league !== game.pack || skippedPack);
   }
 
-  function matchesProfile(change, profile) {
-    if (change.league === PACK && !profile.skipped329) return false;
+  function matchesProfile(change, profile, game) {
+    if (change.league === game.pack && !profile.skippedPack) return false;
     const who = change.who || [];
     return who.includes('all') || who.some((w) => profile.styles.includes(w)) ||
       (change.tags || []).some((t) => profile.tags.includes(t));
@@ -78,8 +63,8 @@
       .map((entry) => entry.change);
   }
 
-  function buildDeck(changes, profile) {
-    return sortDeck(changes.filter((c) => matchesProfile(c, profile)));
+  function buildDeck(changes, profile, game) {
+    return sortDeck(changes.filter((c) => matchesProfile(c, profile, game)));
   }
 
   function firstUnread(deck, readIds) {
@@ -116,10 +101,10 @@
     });
   }
 
-  function tagGroups(changes) {
+  function tagGroups(changes, game) {
     const tags = new Set();
     changes.forEach((c) => (c.tags || []).forEach((t) => tags.add(t)));
-    return Object.keys(TAG_PREFIXES)
+    return Object.keys(game.tagPrefixes)
       .map((prefix) => ({
         prefix,
         tags: [...tags].filter((t) => t.startsWith(prefix + ':'))
@@ -176,22 +161,22 @@
     return changes.filter((c) => (c.sources || []).some((s) => s && line.includes(s))).map((c) => c.id);
   }
 
-  // A tag is kept only while a card that can appear carries it, so turning the 3.29 pack off drops its tags.
-  function sanitizeProfile(raw, changes) {
+  // A tag is kept only while a card that can appear carries it, so turning the pack off drops its tags.
+  function sanitizeProfile(raw, changes, game) {
     const r = raw && typeof raw === 'object' ? raw : {};
-    const skipped329 = r.skipped329 === true;
+    const skippedPack = r.skippedPack === true && game.pack !== null;
     const known = new Set();
-    available(changes || [], skipped329).forEach((c) => (c.tags || []).forEach((t) => known.add(t)));
+    available(changes || [], skippedPack, game).forEach((c) => (c.tags || []).forEach((t) => known.add(t)));
     const keep = (list, ok) => (Array.isArray(list) ? [...new Set(list)].filter(ok) : null);
     return {
-      styles: keep(r.styles, (s) => Object.hasOwn(STYLES, s)) || ['maps'],
+      styles: keep(r.styles, (s) => Object.hasOwn(game.styles, s)) || [...game.defaultStyles],
       tags: keep(r.tags, (t) => known.has(t)) || [],
-      skipped329,
+      skippedPack,
     };
   }
 
   const api = {
-    STYLES, AREAS, KINDS, VERDICTS, TAG_PREFIXES, TERM_KINDS, TERM_STATUSES, PACK,
+    KINDS, VERDICTS, TERM_KINDS, TERM_STATUSES,
     parseMarkup, plainText, compareVersions, available, matchesProfile, sortDeck, buildDeck, firstUnread,
     tagLabel, searchChanges, tagGroups, linkTerms, findCards, sanitizeProfile,
   };

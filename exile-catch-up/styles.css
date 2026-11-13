@@ -15,7 +15,7 @@
   --accent: #8f3d0c; --accent-soft: #e3cfae; --on-accent: #fff6e8; --buff: #1d6039; --nerf: #96281f; --know: #33399c;
   --edge: #7a6238; --head: #4a3210; --band1: #dccdaa; --band2: #e8dcc2; --glow: rgb(255 248 230 / .55); --art-o: 0;
   --focus: var(--know);
-  --tip-bg: #0d0b0a; --tip-head: #1c1712; --tip-edge: #6b5a3c; --tip-name: #aa9e82; --tip-text: #c8c8c8; --tip-magic: #8888ff;
+  --tip-bg: #0d0b0a; --tip-top: #271f17; --tip-head: #1c1712; --tip-edge: #6b5a3c; --tip-name: #aa9e82; --tip-text: #c8c8c8; --tip-magic: #8888ff;
   /* Open Props reads these two for every --shadow-N and --inner-shadow-N. */
   --shadow-color: 32 35% 14%; --shadow-strength: 6%;
   --inner-shadow-highlight: inset 0 -.5px 0 0 rgb(255 255 255 / .5), inset 0 .5px 0 0 rgb(0 0 0 / .07);
@@ -47,6 +47,31 @@
 :root[data-theme="light"] {
   --shadow-color: 32 35% 14%; --shadow-strength: 6%;
   --inner-shadow-highlight: inset 0 -.5px 0 0 rgb(255 255 255 / .5), inset 0 .5px 0 0 rgb(0 0 0 / .07);
+}
+/* Path of Exile 2 (<html data-game="poe2">): colder and more austere. Near-black with a blue-grey cast, pale
+   steel, muted antique gold, crimson for the accent. Same light, dark and data-theme pattern as above. */
+:root[data-game="poe2"] {
+  --bg: #d3d7db; --surface: #e6e9ec; --sunk: #c7ccd2; --ink: #14181d; --muted: #49525c; --line: #98a1ab;
+  --accent: #8c1626; --accent-soft: #e8d3d5; --on-accent: #fff5f5;
+  --edge: #66707b; --head: #5a4519; --band1: #cbd1d6; --band2: #dce0e4; --glow: rgb(244 247 250 / .55);
+  --tip-bg: #0a0c0f; --tip-top: #1f252d; --tip-head: #151a20; --tip-edge: #4d5966; --tip-name: #b3a47e; --tip-text: #c5c9ce;
+  --shadow-color: 215 25% 14%;
+  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .30 0 0 0 0 .35 0 0 0 0 .42 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+  --socket: radial-gradient(circle at 50% 42%, #232a33, var(--tip-bg) 72%);
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-game="poe2"]:not([data-theme="light"]) {
+    --bg: #0a0c0f; --surface: #12161b; --sunk: #07080a; --ink: #d6dade; --muted: #959da7; --line: #2b323b;
+    --accent: #ec6a74; --accent-soft: #2c1318; --on-accent: #16070a;
+    --edge: #59636f; --head: #c8b183; --band1: #1c2128; --band2: #0f1216; --glow: rgb(70 88 110 / .28);
+    --shadow-color: 220 30% 2%;
+  }
+}
+:root[data-game="poe2"][data-theme="dark"] {
+  --bg: #0a0c0f; --surface: #12161b; --sunk: #07080a; --ink: #d6dade; --muted: #959da7; --line: #2b323b;
+  --accent: #ec6a74; --accent-soft: #2c1318; --on-accent: #16070a;
+  --edge: #59636f; --head: #c8b183; --band1: #1c2128; --band2: #0f1216; --glow: rgb(70 88 110 / .28);
+  --shadow-color: 220 30% 2%;
 }
 
 /* ---------- base ---------- */
@@ -93,11 +118,18 @@ p { max-width: 65ch; }
 .top nav a { display: flex; align-items: center; justify-content: center; min-height: 48px; color: var(--muted); font-weight: 700; font-size: 16px; text-decoration: none; box-shadow: inset 0 -3px 0 transparent; }
 .top nav a:hover { color: var(--ink); }
 .top nav a[aria-current="page"] { color: var(--ink); box-shadow: inset 0 -3px 0 var(--accent); }
-@media (min-width: 720px) {
+/* The edition switch (PoE 1 / PoE 2) stays on the brand's row. */
+.editions { display: flex; margin-right: auto; border: 1px solid var(--line); border-radius: 2px; }
+.editions a { display: flex; align-items: center; min-height: 32px; padding: 0 10px; font: 700 14px/1 var(--body); color: var(--muted); text-decoration: none; }
+.editions a:hover { color: var(--ink); }
+.editions a[aria-current="true"] { background: var(--accent-soft); color: var(--ink); box-shadow: var(--inner-shadow-2); }
+/* Sticky only where the bar is one row (brand, switch and nav fit from about 780px). */
+@media (min-width: 800px) {
   .top { position: sticky; top: 0; z-index: 10; }
   html { scroll-padding-top: 80px; }
 }
 @media (max-width: 719px) {
+  .editions { margin-right: 0; }
   .top nav { width: 100%; }
   .top ul { justify-content: space-between; gap: 8px; }
   .top nav a { width: min-content; font-size: 15px; line-height: 1.15; text-align: center; }
@@ -296,7 +328,7 @@ mark { background: var(--accent-soft); color: inherit; box-shadow: 0 2px 0 var(-
 .tip .term { color: #d6b98c; border-bottom-color: #8a7350; }
 .tip .label { color: #8f8574; }
 .entry { break-inside: avoid; margin-bottom: 18px; scroll-margin-top: 96px; }
-.tip-name { padding: 9px 14px; font: 400 19px/1.25 var(--label); letter-spacing: .04em; color: var(--tip-name); background: linear-gradient(#271f17, var(--tip-head)); border-bottom: 1px solid var(--tip-edge); }
+.tip-name { padding: 9px 14px; font: 400 19px/1.25 var(--label); letter-spacing: .04em; color: var(--tip-name); background: linear-gradient(var(--tip-top), var(--tip-head)); border-bottom: 1px solid var(--tip-edge); }
 .tip-body { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 16px 14px; }
 .tip-body p { max-width: none; }
 .tip-status { font-size: 15px; color: var(--tip-magic); }

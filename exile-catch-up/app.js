@@ -3,8 +3,9 @@
   'use strict';
   const L = window.ExileLogic;
   const E = window.EXILE;
+  const G = E.game;
   const main = document.getElementById('main');
-  const PACK = L.PACK;
+  const PACK = G.pack;
 
   // ---------- data ----------
   const changes = E.changes;
@@ -25,27 +26,27 @@
     if (Object.hasOwn(E.glossary, part.term) && !ids.includes(part.term)) ids.push(part.term);
   })));
   // In lists, a change with no picture of its own shows the emblem of its area.
-  const AREA_ART = { league: 'term:wickerman', maps: 'term:map', build: 'term:golem', economy: 'term:chaos-orb', crafting: 'term:exalted-orb', bosses: 'term:fragment', qol: 'term:portal-scroll' };
-  const rowArt = (c) => (Object.hasOwn(E.images, `card:${c.id}`) ? `card:${c.id}` : AREA_ART[c.area] || '');
+  const rowArt = (c) => (Object.hasOwn(E.images, `card:${c.id}`) ? `card:${c.id}` : G.areaArt[c.area] || '');
   const keyArt = E.images[`league:${version}`];
-  if (keyArt && keyArt.src) document.documentElement.style.setProperty('--key-art', `url("${keyArt.src}")`);
+  // An absolute address: a relative one would resolve against styles.css, which the PoE2 page loads from the folder above.
+  if (keyArt && keyArt.src) document.documentElement.style.setProperty('--key-art', `url("${new URL(keyArt.src, document.baseURI).href}")`);
 
   // ---------- storage: optional, the site works without it ----------
-  const KEY = 'exile-catch-up';
+  const KEY = G.storageKey;
   let storageWorks = true;
   const saved = (() => {
     let text = null;
     try { text = localStorage.getItem(KEY); } catch (e) { storageWorks = false; }
     try { return JSON.parse(text) || {}; } catch (e) { return {}; }
   })();
-  let profile = L.sanitizeProfile(saved.profile, changes);
+  let profile = L.sanitizeProfile(saved.profile, changes, G);
   const read = new Set(Array.isArray(saved.read) ? saved.read.filter((id) => typeof id === 'string') : []);
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify({ profile, read: [...read] })); } catch (e) { storageWorks = false; }
   }
 
-  const mine = () => L.buildDeck(changes, profile);
-  const eligible = () => L.available(changes, profile.skipped329);
+  const mine = () => L.buildDeck(changes, profile, G);
+  const eligible = () => L.available(changes, profile.skippedPack, G);
 
   // ---------- html helpers: every piece of data text goes through esc() ----------
   const esc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (ch) => `&#${ch.charCodeAt(0)};`);
@@ -73,7 +74,7 @@
   const chip = (c, short) => `<span class="chip v-${esc(c.verdict)}">${esc(short && c.verdict === 'skip'
     ? "If it's your build" : L.VERDICTS[c.verdict] || c.verdict)}</span>`;
   const kindLabel = (c) => `<span class="label k-${esc(c.kind)}">${esc(L.KINDS[c.kind] || c.kind)}</span>`;
-  const fromPack = (c) => (c.league === PACK ? '<span class="label pack">From 3.29</span>' : '');
+  const fromPack = (c) => (c.league === PACK ? `<span class="label pack">From ${esc(PACK)}</span>` : '');
   const tick = (c) => (read.has(c.id) ? '<span class="tick">Read</span>' : '');
 
   // Decorative pictures sit beside text that already names them, so they carry no alt text.
@@ -84,7 +85,7 @@
       : '';
   }
 
-  // A socket never stays empty: with no picture of its own it shows the Path of Exile icon, dimmed.
+  // A socket never stays empty: with no picture of its own it shows the game's icon (site:fallback), dimmed.
   const socket = (key) => (Object.hasOwn(E.images, key) ? picture(key, 'thumb', true) : picture('site:fallback', 'thumb fallback', true));
 
   function statusText(term) {
@@ -136,7 +137,7 @@
       if (a.dataset.nav === nav) a.setAttribute('aria-current', 'page');
       else a.removeAttribute('aria-current');
     });
-    document.title = `${titles[nav]} · Exile Catch-Up`;
+    document.title = `${titles[nav]} · ${G.name} · Exile Catch-Up`;
     const target = views[name](path.slice(1).join('/'), name);
     tiltArt();
     window.scrollTo(0, 0);
@@ -150,7 +151,7 @@
 
   // ---------- Start ----------
   function viewStart(arg) {
-    main.innerHTML = heroHtml() + recapHtml() + tldrHtml() + profileHtml() +
+    main.innerHTML = heroHtml() + recapHtml() + nextHtml() + tldrHtml() + profileHtml() +
       '<div class="action-bar"><p class="count" aria-live="polite" data-count></p><a class="btn primary" href="#/cards" data-go></a></div>';
     syncProfile();
     return arg === 'profile' ? document.getElementById('profile') : null;
@@ -166,7 +167,7 @@
       { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}`;
     return `<header class="stack">
       ${picture(`league:${league.version}`, 'key-art')}
-      <p class="eyebrow">Path of Exile ${esc(league.version)}${esc(when)}</p>
+      <p class="eyebrow">${esc(G.name)} ${esc(league.version)}${esc(when)}</p>
       <h1 class="display">${esc(league.name)}</h1>
       <p class="lede">${rich(league.oneLine)}</p>
     </header>`;
@@ -176,13 +177,27 @@
     const steps = league && Array.isArray(league.recap) ? league.recap : [];
     if (!steps.length) return '';
     return `<section class="stack" aria-labelledby="recap-h">
-      <h2 id="recap-h">Previously on Wraeclast</h2>
+      <h2 id="recap-h">${esc(G.recapTitle)}</h2>
       <ol class="recap">${steps.map((s) => `<li${s.version === version ? ' class="now"' : ''}>
         <span class="ver">${esc(s.version)}${s.version === version ? ' · this league' : ''}</span>
         <b>${esc(s.name)}</b>
         <p>${rich(s.oneThing)}</p>
         ${s.version === PACK && packCards.length ? '<button type="button" class="link-btn" data-pack-button aria-pressed="false">I skipped this one</button><span class="quiet" data-pack-note aria-live="polite"></span>' : ''}
       </li>`).join('')}</ol>
+    </section>`;
+  }
+
+  // What is announced for the patch after this one. Facts only, with their source; there are no cards for it yet.
+  function nextHtml() {
+    const next = league && league.next;
+    if (!next || !Array.isArray(next.points) || !next.points.length) return '';
+    const day = new Date(`${next.date}T12:00:00`);
+    const when = isNaN(day) ? '' : `, ${day.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+    return `<section class="stack notice" aria-labelledby="next-h">
+      <h3 id="next-h">Coming next: ${esc(next.name)}${esc(when)}</h3>
+      <ul class="lines">${next.points.map((point) => `<li><p>${rich(point)}</p></li>`).join('')}</ul>
+      <p class="quiet">These cards cover the game as it is today.${next.sourceUrl
+        ? ` Source: <a href="${esc(next.sourceUrl)}" target="_blank" rel="noopener">${esc(next.sourceLabel || next.sourceUrl)}</a>.` : ''}</p>
     </section>`;
   }
 
@@ -202,7 +217,7 @@
       <p>Pick what you do. Changes that don't touch you are hidden from your cards.</p>
       ${pickerHtml()}
       ${packCards.length ? `<label class="check"><input type="checkbox" id="pack">
-        <span>I skipped last league (3.29)<small>Adds <span data-pack-count></span> for how you play, before the ${esc(version || 'new')} ones, marked “From 3.29”.</small></span></label>` : ''}
+        <span>I skipped last league (${esc(PACK)})<small>Adds <span data-pack-count></span> for how you play, before the ${esc(version || 'new')} ones, marked “From ${esc(PACK)}”.</small></span></label>` : ''}
       ${storageWorks ? '' : '<p class="quiet">This browser is blocking storage, so these choices last only until you close the page.</p>'}
     </section>`;
   }
@@ -210,21 +225,21 @@
   // Only styles and tags that a card on offer uses, so every button changes something. Redrawn when the pack toggles.
   function pickerHtml() {
     const pool = eligible();
-    const styles = Object.keys(L.STYLES).filter((key) => pool.some((c) => c.who.includes(key)));
-    const groups = L.tagGroups(pool);
+    const styles = Object.keys(G.styles).filter((key) => pool.some((c) => c.who.includes(key)));
+    const groups = L.tagGroups(pool, G);
     return `<div class="stack" data-picker>
       <div class="toggles" role="group" aria-label="How you play">${styles.map((key) =>
-        `<button type="button" class="toggle" data-style="${key}" aria-pressed="false">${esc(L.STYLES[key])}</button>`).join('')}</div>
+        `<button type="button" class="toggle" data-style="${key}" aria-pressed="false">${esc(G.styles[key])}</button>`).join('')}</div>
       ${groups.length ? `<div class="stack build">
         <h3>My build</h3>
         <div class="field"><label for="tag-q">Find a skill, ascendancy or unique</label>
           <input id="tag-q" type="search" autocomplete="off" spellcheck="false"></div>
         <div class="chips picked" data-picked></div>
         <div class="tag-box">${groups.map((g) => `<div class="tag-group">
-          <h4 class="label">${esc(L.TAG_PREFIXES[g.prefix])}</h4>
+          <h4 class="label">${esc(G.tagPrefixes[g.prefix])}</h4>
           <div class="chips">${g.tags.map((t) => `<button type="button" class="tag" data-tag="${esc(t.tag)}" aria-pressed="false">${esc(t.label)}</button>`).join('')}</div>
         </div>`).join('')}<p class="quiet" data-no-tag hidden>No skill, ascendancy or unique matches that.</p></div>
-        <p class="quiet">Not in the list? Then ${profile.skipped329 ? 'neither this patch nor the 3.29 cards change' : "this patch didn't change"} it.</p>
+        <p class="quiet">Not in the list? Then ${profile.skippedPack ? `neither this patch nor the ${esc(PACK)} cards change` : "this patch didn't change"} it.</p>
       </div>` : ''}
     </div>`;
   }
@@ -233,16 +248,16 @@
     main.querySelectorAll('[data-style]').forEach((b) => b.setAttribute('aria-pressed', profile.styles.includes(b.dataset.style)));
     main.querySelectorAll('[data-tag]').forEach((b) => b.setAttribute('aria-pressed', profile.tags.includes(b.dataset.tag)));
     // The pack adds only the catch-up cards that match how you play.
-    const packMine = plural(packCards.filter((c) => L.matchesProfile(c, Object.assign({}, profile, { skipped329: true }))).length, 'catch-up card');
+    const packMine = plural(packCards.filter((c) => L.matchesProfile(c, Object.assign({}, profile, { skippedPack: true }), G)).length, 'catch-up card');
     const box = main.querySelector('#pack');
     if (box) {
-      box.checked = profile.skipped329;
+      box.checked = profile.skippedPack;
       main.querySelector('[data-pack-count]').textContent = packMine;
     }
     const packButton = main.querySelector('[data-pack-button]');
     if (packButton) {
-      packButton.setAttribute('aria-pressed', profile.skipped329);
-      main.querySelector('[data-pack-note]').textContent = profile.skipped329 ? `${packMine} added.` : '';
+      packButton.setAttribute('aria-pressed', profile.skippedPack);
+      main.querySelector('[data-pack-note]').textContent = profile.skippedPack ? `${packMine} added.` : '';
     }
     // Chosen tags stay in view above the list, whatever the search hides, and each one removes itself.
     const picked = main.querySelector('[data-picked]');
@@ -265,8 +280,8 @@
   }
 
   function setProfile(update) {
-    const packToggled = 'skipped329' in update && update.skipped329 !== profile.skipped329;
-    profile = L.sanitizeProfile(Object.assign({}, profile, update), changes);
+    const packToggled = 'skippedPack' in update && update.skippedPack !== profile.skippedPack;
+    profile = L.sanitizeProfile(Object.assign({}, profile, update), changes, G);
     save();
     if (packToggled) main.querySelector('[data-picker]').outerHTML = pickerHtml();
     syncProfile();
@@ -350,7 +365,7 @@
     return `${deck.outside === c.id ? '<p class="quiet outside">Not in your cards.</p>' : ''}
     <article class="card v-${esc(c.verdict)}" aria-labelledby="card-h">
       <header class="card-head">
-        <div class="card-top">${chip(c)}<span class="label">${esc(L.AREAS[c.area] || c.area)}</span>${kindLabel(c)}${fromPack(c)}${tick(c)}</div>
+        <div class="card-top">${chip(c)}<span class="label">${esc(G.areas[c.area] || c.area)}</span>${kindLabel(c)}${fromPack(c)}${tick(c)}</div>
         <h1 class="card-h" id="card-h">${esc(L.plainText(c.headline))}</h1>
       </header>
       <div class="card-body">
@@ -456,7 +471,7 @@
       main.innerHTML = '<section class="stack"><h1 class="display">All changes</h1><p>No change files have loaded yet.</p></section>';
       return null;
     }
-    const packOn = profile.skipped329 && packCards.length > 0;
+    const packOn = profile.skippedPack && packCards.length > 0;
     if (!packOn) allState.pack = false;
     main.innerHTML = `<section class="stack">
       <h1 class="display">All changes</h1>
@@ -469,7 +484,7 @@
           <label class="check"><input type="checkbox" id="all-mine"${allState.mine ? ' checked' : ''}><span>Only my cards</span></label>
           ${packOn ? `<div class="seg" role="radiogroup" aria-label="League">
             <label><input type="radio" name="all-league" value="main"${allState.pack ? '' : ' checked'}><span>${esc(version || 'This league')}</span></label>
-            <label><input type="radio" name="all-league" value="pack"${allState.pack ? ' checked' : ''}><span>From 3.29</span></label>
+            <label><input type="radio" name="all-league" value="pack"${allState.pack ? ' checked' : ''}><span>From ${esc(PACK)}</span></label>
           </div>` : ''}
         </div>
       </div>
@@ -483,7 +498,7 @@
   function renderAll() {
     const pool = changes.filter((c) => (allState.pack ? c.league === PACK : c.league !== PACK));
     const found = L.sortDeck(L.searchChanges(pool, { query: allState.query, kinds: allState.kinds }))
-      .filter((c) => !allState.mine || L.matchesProfile(c, profile));
+      .filter((c) => !allState.mine || L.matchesProfile(c, profile, G));
     const filtered = allState.kinds.length > 0 || allState.mine;
     main.querySelector('[data-count]').textContent = found.length === pool.length
       ? `Showing all ${plural(pool.length, 'change')}.` : `Showing ${found.length} of ${plural(pool.length, 'change')}.`;
@@ -493,10 +508,10 @@
       results.innerHTML = `<div class="empty stack"><p>${esc(what)}</p><p><button type="button" class="btn" data-clear-search>Clear search</button></p></div>`;
       return;
     }
-    results.innerHTML = Object.keys(L.AREAS).map((area) => {
+    results.innerHTML = Object.keys(G.areas).map((area) => {
       const list = found.filter((c) => c.area === area);
       return list.length ? `<section class="group stack" aria-labelledby="area-${area}">
-        <h2 id="area-${area}">${esc(L.AREAS[area])} <span class="n">${list.length}</span></h2>
+        <h2 id="area-${area}">${esc(G.areas[area])} <span class="n">${list.length}</span></h2>
         <ul class="rows">${list.map((c) => row(c, true)).join('')}</ul>
       </section>` : '';
     }).join('');
@@ -533,7 +548,7 @@
   }
 
   function termHtml(id, term) {
-    // This league's cards first; the deck order would put the 3.29 pack ahead of them.
+    // This league's cards first; the deck order would put the catch-up pack ahead of them.
     const cards = L.sortDeck([...(usedIn.get(id) || [])]).sort((a, b) => (a.league === PACK) - (b.league === PACK));
     const link = (c) => `<li><a href="${cardHref(c)}">${esc(L.plainText(c.headline))}</a></li>`;
     const search = [term.name].concat(term.aliases || [], L.plainText(term.def)).join(' ').toLowerCase();
@@ -674,7 +689,7 @@
       setProfile({ tags: data.untag ? profile.tags.filter((t) => t !== data.untag) : [] });
       (main.querySelector('[data-untag]') || main.querySelector('#tag-q')).focus();
     }
-    else if ('packButton' in data) setProfile({ skipped329: !profile.skipped329 });
+    else if ('packButton' in data) setProfile({ skippedPack: !profile.skippedPack });
     else if ('next' in data) next();
     else if ('back' in data) back();
     else if ('reset' in data) {
@@ -721,7 +736,7 @@
 
   document.addEventListener('change', (e) => {
     const el = e.target;
-    if (el.id === 'pack') setProfile({ skipped329: el.checked });
+    if (el.id === 'pack') setProfile({ skippedPack: el.checked });
     else if (el.id === 'all-mine') { allState.mine = el.checked; renderAll(); }
     else if (el.name === 'all-league') { allState.pack = el.value === 'pack'; renderAll(); }
   });
@@ -768,6 +783,10 @@
 
   document.getElementById('notes-source').textContent = league && league.notesSource
     ? `Patch notes: ${league.notesSource}.` : '';
+  // The edition switch beside the brand, in label order so it reads the same in both editions.
+  const editions = [[G.label, '#/start', true], [G.other.label, G.other.href, false]].sort((a, b) => a[0].localeCompare(b[0]));
+  document.querySelector('.brand').insertAdjacentHTML('afterend', `<div class="editions" role="group" aria-label="Game">${editions.map(([label, href, current]) =>
+    `<a href="${esc(href)}"${current ? ' aria-current="true"' : ''}>${esc(label)}</a>`).join('')}</div>`);
   window.addEventListener('hashchange', route);
   route();
 })();
