@@ -24,7 +24,7 @@ document.head.append(Object.assign(document.createElement('link'), { rel: 'prelo
 <link rel="modulepreload" href="molecule/vendor/utils/BufferGeometryUtils.js">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Abril+Fatface&family=Almendra+Display&family=Bodoni+Moda:ital,wght@1,900&family=Cinzel+Decorative:wght@700&family=DM+Serif+Display&family=Diplomata+SC&family=Elsie+Swash+Caps:wght@900&family=Fraunces:wght@900&family=IM+Fell+English&family=Limelight&family=Pirata+One&family=Playfair+Display:ital,wght@1,900&family=Uncial+Antiqua&family=UnifrakturMaguntia&family=Vast+Shadow&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Fraunces:opsz,wght@144,900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&display=swap" rel="stylesheet"></noscript>
 <style>
 @media(prefers-reduced-motion:no-preference){
@@ -97,14 +97,14 @@ h1{font:500 clamp(45px,4.4vw,62px)/.96 var(--display);letter-spacing:-.045em;mar
 
 .section-heading{display:flex;justify-content:space-between;align-items:baseline;gap:20px;margin-bottom:13px}
 h2{font:500 24px/1.15 var(--display);letter-spacing:-.025em;margin:0}
-/* Project wall: each entry is an ornamental initial drawn by initials.js. */
+/* Project wall: each entry is an emblem of its subject, printed like an ornamental initial by initials.js. */
 .wall{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:22px 24px}
 .tile{display:grid;gap:9px;align-content:start;text-decoration:none}
 .tile-title{margin:0;font:500 17px/1.2 var(--display);letter-spacing:-.01em;transition:color .2s}
 a.tile:is(:hover,:focus-visible) .tile-title{color:var(--accent)}
 .init{position:relative;display:block;aspect-ratio:1}
 .init canvas{display:block;width:100%;height:100%}.init .ltr{position:absolute;inset:0}
-/* Hover, letter layer: one of six ways the letter is printed again. The ornament layer is animated in initials.js. */
+/* Hover, emblem layer: one of six ways the emblem is printed again. The ornament layer is animated in initials.js. */
 @keyframes fx-restamp{0%{transform:scale(1.1) translate(-3px,2px);filter:drop-shadow(6px -3px 0 #00a0e3)}40%{transform:scale(1) translate(2px,-1px);filter:drop-shadow(-5px 3px 0 #e5007d)}100%{transform:none;filter:drop-shadow(0 0 0 transparent)}}
 @keyframes fx-drop{0%{opacity:0;transform:translateY(-16%) rotate(-6deg)}60%{opacity:1;transform:translateY(2%) rotate(1deg)}100%{transform:none}}
 @keyframes fx-smear{0%{opacity:0;transform:translateX(-14%) skewX(-20deg);filter:blur(2px)}60%{opacity:1;transform:skewX(4deg);filter:none}100%{transform:none}}
@@ -112,6 +112,12 @@ a.tile:is(:hover,:focus-visible) .tile-title{color:var(--accent)}
 @keyframes fx-stamp{0%{opacity:0;transform:scale(1.3);filter:blur(3px)}55%{opacity:1;transform:scale(.97);filter:none}100%{transform:none}}
 @keyframes fx-turn{0%{transform:rotate(-14deg) scale(.9)}60%{transform:rotate(3deg)}100%{transform:none}}
 .tile:is(:hover,:focus-visible) .ltr{animation:var(--fx) .6s cubic-bezier(.2,.8,.2,1)}
+/* Research: a ruled list, emblem beside its title and an abstract-style sentence. */
+.rows{grid-template-columns:1fr;gap:0;border-top:1px solid var(--line)}
+.rows .tile{grid-template-columns:104px minmax(0,1fr);gap:28px;align-items:center;padding:18px 0;border-bottom:1px solid var(--line)}
+.rows .tile-text{display:grid;gap:2px;min-width:0}
+.rows .tile-title{font-size:21px;letter-spacing:-.015em}
+.rows p{margin:0;font-size:15px;line-height:1.5;color:var(--muted);max-width:62ch}
 .project-group + .project-group{margin-top:40px}
 footer{margin-top:45px;padding-top:18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font:14px/1.5 var(--body);font-style:italic;color:var(--muted)}footer a{text-decoration-color:#b8bab2}
 
@@ -121,7 +127,7 @@ footer{margin-top:45px;padding-top:18px;border-top:1px solid var(--line);display
 @media(max-width:900px){.molecule-stage{position:relative;right:auto;width:min(100%,340px);height:300px;margin:8px auto 0}}
 @media(max-width:700px){
   .layout{padding:34px 23px 26px}.eyebrow{font-size:10px}header.editorial-hero{min-height:0;padding:0 0 28px}.hero-statement{font-size:clamp(34px,9vw,42px);margin-bottom:14px}.intro{font-size:16px;min-height:3.36em}.profile-links{margin-top:12px}.section-heading{gap:12px;flex-wrap:wrap}h2{font-size:22px}.section-label{font-size:10px}
-  .wall{grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:18px 16px}.tile-title{font-size:15px}footer{margin-top:35px}
+  .wall{grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:18px 16px}.tile-title{font-size:15px}.rows{grid-template-columns:1fr;gap:0}.rows .tile{grid-template-columns:80px minmax(0,1fr);gap:16px}.rows .tile-title{font-size:19px}footer{margin-top:35px}
 }
 @media(prefers-reduced-motion:reduce){.arrival{display:none}.typing:after{display:none}html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}.reveal-item{opacity:1!important;filter:none!important;transform:none!important}}
 </style>
@@ -176,32 +182,32 @@ SOFTWARE.
 </header>
 <section class="project-group reveal-item" id="research" aria-labelledby="research-title">
 <div class="section-heading"><h2 id="research-title">Research &amp; Professional Work</h2></div>
-<ul class="wall">
-<li><div class="tile" data-initial="D"><h3 class="tile-title">Peptide design</h3><p class="sr-only">Computational Peptide Design &amp; Docking. Exploration of computational methods for peptide design, structure prediction, and molecular docking to investigate peptide–protein interactions.</p></div></li>
-<li><div class="tile" data-initial="P"><h3 class="tile-title">Peptide chemistry</h3><p class="sr-only">Peptide Chemistry. Synthesis and screening of combinatorial peptide libraries using solid-phase synthesis, fluorescence assays, HPLC, LC-MS, and biolayer interferometry.</p></div></li>
-<li><div class="tile" data-initial="C"><h3 class="tile-title"><i>Camellia sinensis</i></h3><p class="sr-only"><i>Camellia sinensis</i>. Research on tea chemistry and survivability</p></div></li>
-<li><div class="tile" data-initial="S"><h3 class="tile-title">Silicon-29 NMR</h3><p class="sr-only">Silicon-29 NMR Method Development. Development of a silicon-29 NMR method for carbohydrate structural analysis and characterization.</p></div></li>
-<li><div class="tile" data-initial="H"><h3 class="tile-title">Flow hydrogenation</h3><p class="sr-only">Selective Hydrogenation Using Flow Chemistry. Development of a selective hydrogenation protocol using flow chemistry, with an emphasis on reaction selectivity and laboratory safety.</p></div></li>
+<ul class="wall rows">
+<li><div class="tile" data-icon="dock"><div class="tile-text"><h3 class="tile-title">Computational peptide design &amp; docking</h3><p><i>In silico</i> design of peptide ligands, integrating structure prediction and molecular docking to characterize peptide–protein interactions.</p></div></div></li>
+<li><div class="tile" data-icon="pep"><div class="tile-text"><h3 class="tile-title">Peptide chemistry</h3><p>Solid-phase synthesis and screening of combinatorial peptide libraries, employing fluorescence-based assays, HPLC, LC-MS, and biolayer interferometry.</p></div></div></li>
+<li><div class="tile" data-icon="leaf"><div class="tile-text"><h3 class="tile-title"><i>Camellia sinensis</i></h3><p>Investigation of the chemistry and survivability of <i>Camellia sinensis</i>.</p></div></div></li>
+<li><div class="tile" data-icon="nmr"><div class="tile-text"><h3 class="tile-title">Silicon-29 NMR method development</h3><p>Development of a <sup>29</sup>Si NMR methodology for the structural analysis and characterization of carbohydrates.</p></div></div></li>
+<li><div class="tile" data-icon="flow"><div class="tile-text"><h3 class="tile-title">Selective hydrogenation in flow</h3><p>Development of a selective hydrogenation protocol under continuous-flow conditions, with emphasis on reaction selectivity and laboratory safety.</p></div></div></li>
 </ul>
 </section>
 <section class="project-group reveal-item" id="teaching" aria-labelledby="teaching-title">
 <div class="section-heading"><h2 id="teaching-title">Teaching</h2><span class="section-label">Chemistry simulations</span></div>
 <ul class="wall">
-<li><a class="tile" href="simulations/build-an-atom/index.html" data-initial="A"><span class="tile-title">Build an Atom</span><span class="sr-only">. Add particles to make elements, isotopes, and ions.</span></a></li>
-<li><a class="tile" href="simulations/electron-configuration/index.html" data-initial="E"><span class="tile-title">Electron Configuration</span><span class="sr-only">. Follow electrons into shells, subshells, and orbitals.</span></a></li>
-<li><a class="tile" href="simulations/bond-models/index.html" data-initial="B"><span class="tile-title">Covalent &amp; Ionic Bonds</span><span class="sr-only">. Follow electrons through bonding and ion formation.</span></a></li>
-<li><a class="tile" href="simulations/molecular-shape-polarity/index.html" data-initial="S"><span class="tile-title">Molecular Shape &amp; Polarity</span><span class="sr-only">. Turn molecules around and see how their dipoles add up.</span></a></li>
-<li><a class="tile" href="simulations/ideal-gas-law/index.html" data-initial="G"><span class="tile-title">Ideal Gas Law</span><span class="sr-only">. Explore pressure, volume, and temperature in a gas.</span></a></li>
-<li><a class="tile" href="simulations/le-chatelier/index.html" data-initial="L"><span class="tile-title">Le Chatelier’s Principle</span><span class="sr-only">. Stress an equilibrium and see which way it shifts.</span></a></li>
-<li><a class="tile" href="simulations/titration/index.html" data-initial="T"><span class="tile-title">Titration</span><span class="sr-only">. Add base drop by drop and stop at the first lasting pink.</span></a></li>
-<li><a class="tile" href="simulations/acid-base-strength/index.html" data-initial="A"><span class="tile-title">Acid and Base Strength</span><span class="sr-only">. Dissolve a strong or weak acid or base and see how much ionizes.</span></a></li>
+<li><a class="tile" href="simulations/build-an-atom/index.html" data-icon="atom"><span class="tile-title">Build an Atom</span><span class="sr-only">. Add particles to make elements, isotopes, and ions.</span></a></li>
+<li><a class="tile" href="simulations/electron-configuration/index.html" data-icon="econf"><span class="tile-title">Electron Configuration</span><span class="sr-only">. Follow electrons into shells, subshells, and orbitals.</span></a></li>
+<li><a class="tile" href="simulations/bond-models/index.html" data-icon="bond"><span class="tile-title">Covalent &amp; Ionic Bonds</span><span class="sr-only">. Follow electrons through bonding and ion formation.</span></a></li>
+<li><a class="tile" href="simulations/molecular-shape-polarity/index.html" data-icon="shape"><span class="tile-title">Molecular Shape &amp; Polarity</span><span class="sr-only">. Turn molecules around and see how their dipoles add up.</span></a></li>
+<li><a class="tile" href="simulations/ideal-gas-law/index.html" data-icon="gas"><span class="tile-title">Ideal Gas Law</span><span class="sr-only">. Explore pressure, volume, and temperature in a gas.</span></a></li>
+<li><a class="tile" href="simulations/le-chatelier/index.html" data-icon="flask"><span class="tile-title">Le Chatelier’s Principle</span><span class="sr-only">. Stress an equilibrium and see which way it shifts.</span></a></li>
+<li><a class="tile" href="simulations/titration/index.html" data-icon="titr"><span class="tile-title">Titration</span><span class="sr-only">. Add base drop by drop and stop at the first lasting pink.</span></a></li>
+<li><a class="tile" href="simulations/acid-base-strength/index.html" data-icon="acid"><span class="tile-title">Acid and Base Strength</span><span class="sr-only">. Dissolve a strong or weak acid or base and see how much ionizes.</span></a></li>
 </ul>
 </section>
 <section class="project-group reveal-item" id="for-fun" aria-labelledby="fun-title">
 <div class="section-heading"><h2 id="fun-title">For fun</h2><span class="section-label">Play &amp; experiments</span></div>
 <ul class="wall">
-<li><a class="tile" href="retro-desktop.html" data-initial="R"><span class="tile-title">Retro Desktop</span><span class="sr-only">. A little Windows-style world with pets, games, and trash jokes.</span></a></li>
-<li><a class="tile" href="exile-catch-up/index.html" data-initial="E"><span class="tile-title">Exile Catch-Up</span><span class="sr-only">. Path of Exile patch notes, one change at a time.</span></a></li>
+<li><a class="tile" href="retro-desktop.html" data-icon="retro"><span class="tile-title">Retro Desktop</span><span class="sr-only">. A little Windows-style world with pets, games, and trash jokes.</span></a></li>
+<li><a class="tile" href="exile-catch-up/index.html" data-icon="poe"><span class="tile-title">Exile Catch-Up</span><span class="sr-only">. Path of Exile patch notes, one change at a time.</span></a></li>
 </ul>
 </section>
 <footer class="reveal-item"><span>this is my little corner of the internet.</span></footer>
@@ -353,14 +359,212 @@ resetTyping();
 })();
 </script>
 <script>
-// Ornamental initials for the homepage project wall.
-// Every element with data-initial="X" gets a printed initial drawn on two stacked canvases (frame, ground and
-// pattern below; the letter above). Hovering or focusing it clears the ornament and grows it back in.
+// Emblems for the homepage project wall.
+// Every element with data-icon="name" gets an emblem of its subject printed like an ornamental initial: frame, ground
+// and pattern on one canvas, the emblem on another. Hovering or focusing it clears the ornament and grows it back in.
 // Looks are seeded by the element's position in the page and a per-visit deal, so each refresh draws a new set.
 const Initials = (() => {
+/* Emblems. Each draws in a space 100 units wide centred on 0,0, through a pen whose fills and strokes take the
+   current ink. Plates print in this order:
+   body = the silhouette, in the main ink
+   tint = parts of the body reprinted in the second ink
+   cut  = detail knocked out of both
+   over = small marks printed in the second ink on top */
+const TAU = Math.PI * 2;
+const D = (p, x, y, r) => p.fill(c => c.arc(x, y, r, 0, 7));
+const L = (p, w, ...a) => p.stroke(w, c => { for (let i = 0; i < a.length; i += 2) c.lineTo(a[i], a[i + 1]); });
+const G = (p, ...a) => p.fill(c => { for (let i = 0; i < a.length; i += 2) c.lineTo(a[i], a[i + 1]); c.closePath(); });
+const R = (p, x, y, w, h) => p.fill(c => c.rect(x, y, w, h));
+const shine = (p, x, y, r) => p.stroke(2.5, c => c.arc(x, y, r, 3.3, 4.6));   // a highlight cut into a ball
+/* Tea. A leaf is [x, y, angle, length, width, bend]: an ellipse widest below the middle with a drawn-out tip,
+   its midrib bowed by bend. leafAt gives the point a fraction t up the midrib and u across the half-width. */
+const leafAt = ([x, y, a, l, w, bend], t, u) => {
+  const ux = Math.sin(a), uy = -Math.cos(a), off = bend * Math.sin(Math.PI * t) + u * w * .5 * Math.sin(Math.PI * t ** .8) ** .9;
+  return [x + ux * l * t - uy * off, y + uy * l * t + ux * off];
+};
+const leafPath = (c, lf, toothed = true) => {   // a toothed edge: every other point pulled in, except near base and tip
+  for (const s of [1, -1]) for (let i = 0; i <= 30; i++) { const t = s > 0 ? i / 30 : 1 - i / 30; c.lineTo(...leafAt(lf, t, s * (toothed && i % 2 && t > .12 && t < .9 ? .87 : 1))); }
+  c.closePath();
+};
+const veins = (p, lf) => {
+  p.stroke(2.4, c => { for (let t = .05; t <= .86; t += .03) c.lineTo(...leafAt(lf, t, 0)); });
+  [.2, .36, .52, .68].forEach(t => [1, -1].forEach(s => p.stroke(1.8, c => { c.moveTo(...leafAt(lf, t, 0)); c.quadraticCurveTo(...leafAt(lf, t + .07, s * .45), ...leafAt(lf, t + .15, s * .74)); })));
+};
+const TEA = [[-2, 26, -1.1, 54, 34, 5], [0, 6, 1.05, 52, 32, -5], [2, -10, -.6, 32, 19, 2]], BUD = [4, -20, .1, 29, 12, 1.5];
+const STEM = c => { c.moveTo(2, 50); c.quadraticCurveTo(-7, 12, 4, -20); };
+/* Silicon-29 spectrum: a 1:2:1 triplet, a doublet and a tall singlet, drawn as a plotted line. */
+const LINES = [[-34, 16], [-28, 32], [-22, 16], [-3, 26], [5, 26], [30, 66]];
+const MULTIPLETS = [[-34, -22], [-3, 5], [30, 30]];
+const spectrum = x => 30 - LINES.reduce((s, [x0, h]) => s + h / (1 + ((x - x0) / 1.3) ** 2), 0);
+/* Burette: graduated tube, stopcock with a tap handle, tapered tip, one drop. */
+const DROP = c => { c.moveTo(0, 33); c.quadraticCurveTo(7, 43, 0, 46); c.quadraticCurveTo(-7, 43, 0, 33); };
+const BEADS = [-32, 28, -9, 3, 9, 21, 24, -6, 38, -32];
+const BALLS = [[38, 6, 10], [0, -37, 12], [-37, 22, 13], [10, 38, 14]];
+const ELECTRONS = [0, 1.05, -1.05].map((r, i) => [(i % 2 ? -1 : 1) * 46 * Math.cos(r), (i % 2 ? -1 : 1) * 46 * Math.sin(r)]);
+const GAS = [[-19, 8], [9, 3], [21, 26], [-3, 23], [-21, 35], [8, 37]];
+// Patch notes: a parchment scroll rolled at both ends, closed with a wax seal.
+const SEAL = [20, 28];
+// Wax pressed out unevenly round the stamp, with one drip running down.
+const sealEdge = c => { for (let i = 0; i <= 90; i++) { const a = i / 90 * TAU, r = 15 + 1.3 * Math.sin(7 * a + .5) + .8 * Math.sin(11 * a + 2) + 5 * Math.exp(-(((a - 2) / .22) ** 2)); c.lineTo(SEAL[0] + r * Math.cos(a), SEAL[1] + r * Math.sin(a)); } c.closePath(); };
+const seal = p => p.fill(sealEdge);
+
+/* Docked peptide: a rounded protein surface, lit from the upper left by a halftone, with a ribbon helix in its groove.
+   The surface is a union of large spheres, like a molecular surface; the helix runs along its own local x axis. */
+const LOBES = [[-28, 6, 20], [-14, -9, 22], [5, -15, 18], [23, -10, 17], [35, 5, 14], [22, 19, 18], [2, 17, 20], [-16, 23, 14], [-41, -6, 10], [-3, -32, 10]];
+const POCKET = { x: 3, y: -1, a: -.42, rx: 36, ry: 15 };
+const LIGHT = [-24, -26];
+const HT = 2.5 * TAU, RIB = 9.5;
+// A ribbon wound on a cylinder: both edges share a height and differ only along the axis, so the band
+// narrows to a line where it turns edge-on at the top and bottom, and shows its full face in between.
+const coilAt = t => [-29 + 50 * t / HT, 13.5 * Math.sin(t)];
+const ribbon = (c, a, b) => {
+  const pts = []; for (let t = a; t <= b + 1e-6; t += (b - a) / 18) pts.push(coilAt(t));
+  pts.forEach(([x, y]) => c.lineTo(x, y)); pts.reverse().forEach(([x, y]) => c.lineTo(x + RIB, y)); c.closePath();
+};
+// Half-turns alternate: the face toward the viewer, then the inner face seen through the coil.
+const SPANS = Array.from({ length: 6 }, (_, k) => [Math.max(0, k * Math.PI - Math.PI / 2), Math.min(HT, k * Math.PI + Math.PI / 2), k % 2 === 0]).filter(([a, b]) => a < b);
+const ICONS = {
+  dock: { // a peptide helix docked in the groove of its target protein
+    deepSecond: true,
+    body(p) { LOBES.forEach(([x, y, r]) => D(p, x, y, r)); },
+    cut(p) {
+      const c = p.c;
+      c.save();   // halftone light everywhere but the groove
+      c.beginPath(); c.rect(-70, -70, 140, 140); c.ellipse(POCKET.x, POCKET.y, POCKET.rx, POCKET.ry, POCKET.a, 0, TAU); c.clip('evenodd');
+      for (let y = -50; y <= 50; y += 3.4) for (let x = -60 + (Math.round(y / 3.4) % 2) * 1.7; x <= 60; x += 3.4) {
+        const r = 1.6 * (1 - Math.hypot(x - LIGHT[0], y - LIGHT[1]) / 52);
+        if (r > .25) D(p, x, y, r);
+      }
+      c.restore();
+      p.stroke(2.2, c => c.ellipse(POCKET.x, POCKET.y, POCKET.rx + 2.5, POCKET.ry + 2.5, POCKET.a, Math.PI + .35, TAU - .35));   // the groove's upper lip catching the light
+    },
+    over(p) {   // inner faces first, hatched as shade; then each front face with a gap cut around it
+      const c = p.c; c.translate(POCKET.x, POCKET.y); c.rotate(POCKET.a);
+      const [x0, y0] = coilAt(0), [x1, y1] = coilAt(HT);
+      p.fill(c => { c.moveTo(x0, y0 - 1.6); c.lineTo(x0 + RIB, y0 - 1.6); c.quadraticCurveTo(x0 - 2, y0 + 1, x0 - 10, y0 + 5); c.quadraticCurveTo(x0 - 3, y0 + 2, x0, y0 + 1.6); c.closePath(); });
+      p.fill(c => { c.moveTo(x1, y1 + 1.6); c.lineTo(x1 + RIB, y1 + 1.6); c.quadraticCurveTo(x1 + 12, y1 - 1, x1 + 18, y1 - 5); c.quadraticCurveTo(x1 + 10, y1 - 2, x1, y1 - 1.6); c.closePath(); });
+      SPANS.forEach(([a, b, near]) => {
+        if (near) return;
+        p.fill(c => ribbon(c, a, b));
+        c.save(); c.beginPath(); ribbon(c, a, b); c.clip(); c.globalCompositeOperation = 'destination-out';
+        for (let d = -60; d < 60; d += 1.9) L(p, 1.1, d, -20, d + 8, 20);
+        c.restore();
+      });
+      SPANS.forEach(([a, b, near]) => {
+        if (!near) return;
+        c.globalCompositeOperation = 'destination-out'; p.stroke(2.4, c => ribbon(c, a, b));
+        c.globalCompositeOperation = 'source-over'; p.fill(c => ribbon(c, a, b));
+      });
+    }
+  },
+  pep: { // a chain growing off a resin bead, residues alternating
+    body(p) { L(p, 6, ...BEADS); D(p, -32, 28, 17); for (let i = 2; i < 10; i += 2) D(p, BEADS[i], BEADS[i + 1], 10); },
+    tint(p) { D(p, BEADS[2], BEADS[3], 10); D(p, BEADS[6], BEADS[7], 10); },
+    cut(p) { shine(p, -32, 28, 11); [2, 4, 6, 8].forEach(i => shine(p, BEADS[i], BEADS[i + 1], 6)); }
+  },
+  leaf: { // a plucking: two toothed leaves, a young leaf and the downy bud on a curved stem
+    body(p) { p.stroke(6, STEM); TEA.forEach(lf => p.fill(c => leafPath(c, lf))); p.fill(c => leafPath(c, BUD, false)); },
+    tint(p) { p.fill(c => leafPath(c, BUD, false)); },
+    cut(p) { TEA.forEach(lf => veins(p, lf)); p.stroke(1.8, c => { for (let t = .15; t <= .8; t += .05) c.lineTo(...leafAt(BUD, t, .25)); }); }
+  },
+  nmr: { // the spectrum on its ppm axis, a stepped integral above each multiplet
+    body(p) {
+      p.stroke(4.6, c => { for (let x = -46; x <= 46; x += .25) c.lineTo(x, spectrum(x)); });
+      L(p, 4, -46, 40, 46, 40); for (let x = -40; x <= 40; x += 10) L(p, 3, x, 40, x, x % 20 ? 44 : 48);
+    },
+    over(p) {   // one continuous integral: flat between multiplets, stepping up across each, in proportion to its area
+      const step = x => MULTIPLETS.reduce((s, [a, b], i) => { const u = Math.min(1, Math.max(0, (x - a + 5) / (b - a + 10))); return s + [7, 7, 14][i] * u * u * (3 - 2 * u); }, 0);
+      p.stroke(3, c => { for (let x = -46; x <= 46; x += .5) c.lineTo(x, -14 - step(x)); });
+    }
+  },
+  flow: { // a reactor coil through a packed catalyst cartridge
+    body(p) {
+      p.stroke(9, c => { c.moveTo(-44, -32); c.lineTo(26, -32); c.arc(26, -16, 16, -Math.PI / 2, Math.PI / 2); c.lineTo(-26, 0); c.arc(-26, 16, 16, -Math.PI / 2, Math.PI / 2, true); c.lineTo(32, 32); });
+      G(p, 30, 18, 50, 32, 30, 46); p.fill(c => c.roundRect(-17, -12, 34, 24, 4));
+    },
+    tint(p) { p.fill(c => c.roundRect(-17, -12, 34, 24, 4)); },
+    cut(p) { [-9, 0, 9].forEach(x => { D(p, x, -4, 2.8); D(p, x + 4.5, 4, 2.8); }); }
+  },
+  atom: { // three orbits round a nucleus of three nucleons
+    body(p) { [0, 1.05, -1.05].forEach(r => p.stroke(6, c => c.ellipse(0, 0, 46, 17, r, 0, 7))); ELECTRONS.forEach(([x, y]) => D(p, x, y, 7.5)); D(p, -5, -4, 8); D(p, 5, -4, 8); D(p, 0, 5, 8); },
+    tint(p) { ELECTRONS.forEach(([x, y]) => D(p, x, y, 7.5)); D(p, 5, -4, 8); },
+    cut(p) { p.stroke(2.2, c => c.arc(5, -4, 8, 0, 7)); p.stroke(2.2, c => c.arc(0, 5, 8, 0, 7)); shine(p, -5, -4, 4); shine(p, 5, -4, 4); shine(p, 0, 5, 4); }
+  },
+  econf: { // one orbital box holding a spin pair
+    body(p) { p.stroke(6, c => c.roundRect(-44, -47, 88, 94, 3)); G(p, -15, -36, -32, -12, -22, -12, -22, 34, -8, 34, -8, -12, 2, -12); G(p, 15, 36, 32, 12, 22, 12, 22, -34, 8, -34, 8, 12, -2, 12); },
+    tint(p) { G(p, 15, 36, 32, 12, 22, 12, 22, -34, 8, -34, 8, 12, -2, 12); }
+  },
+  bond: { // two atoms overlapping, the shared pair between them
+    body(p) { D(p, -17, 0, 32); D(p, 17, 0, 32); },
+    cut(p) { p.stroke(2.5, c => c.arc(-17, 0, 32, -1.01, 1.01)); p.stroke(2.5, c => c.arc(17, 0, 32, Math.PI - 1.01, Math.PI + 1.01)); D(p, 0, -11, 6.5); D(p, 0, 11, 6.5); shine(p, -17, 0, 25); },
+    over(p) { D(p, 0, -11, 4.5); D(p, 0, 11, 4.5); }
+  },
+  shape: {
+    body(p) { BALLS.forEach(([x, y, r]) => { L(p, 8, 0, 0, x, y); D(p, x, y, r); }); D(p, 0, 0, 17); },
+    tint(p) { D(p, 0, 0, 17); },
+    cut(p) { BALLS.forEach(([x, y, r]) => shine(p, x, y, r - 5)); shine(p, 0, 0, 11); }
+  },
+  gas: { // particles under a piston
+    body(p) { L(p, 7, -35, -40, -35, 45, 35, 45, 35, -40); R(p, -35, -24, 70, 13); L(p, 8, 0, -24, 0, -46); L(p, 8, -16, -47, 16, -47); GAS.forEach(([x, y]) => D(p, x, y, 6)); },
+    tint(p) { GAS.forEach(([x, y]) => D(p, x, y, 6)); },
+    cut(p) { L(p, 2.5, -28, -17.5, 28, -17.5); GAS.forEach(([x, y]) => shine(p, x, y, 3)); }
+  },
+  flask: { // liquid in a flask, the equilibrium sign cut through it
+    body(p) { G(p, -10, -46, 10, -46, 10, -14, 40, 38, 34, 46, -34, 46, -40, 38, -10, -14); L(p, 6, -15, -46, 15, -46); },
+    tint(p) { R(p, -50, 12, 100, 40); },
+    cut(p) { L(p, 4, -18, 22, 18, 22, 8, 13); L(p, 4, 18, 34, -18, 34, -8, 43); L(p, 2.5, -26, 7, 26, 7); D(p, -2, -2, 2.5); D(p, 3, -10, 2); }
+  },
+  titr: { // a burette clamped to its stand: titrant below the meniscus, graduations, stopcock, tip, the drop about to fall
+    body(p) {
+      p.c.translate(6, 0);
+      R(p, -43, -48, 6, 90); p.fill(c => c.roundRect(-50, 40, 32, 8, 2)); L(p, 5, -40, -28, -12, -28); D(p, -40, -28, 5);
+      p.fill(c => { c.moveTo(-15, -50); c.lineTo(15, -50); c.lineTo(12, -45); c.lineTo(12, 10); c.lineTo(6, 17); c.lineTo(-6, 17); c.lineTo(-12, 10); c.lineTo(-12, -45); c.closePath(); });
+      p.fill(c => c.roundRect(-9, 14, 18, 12, 3)); L(p, 7, 8, 20, 31, 20); D(p, 33, 20, 7);
+      G(p, -4, 25, 4, 25, 1.5, 34, -1.5, 34); p.fill(DROP);
+    },
+    tint(p) {
+      p.c.translate(6, 0);
+      p.fill(c => { c.moveTo(-12, -22); c.quadraticCurveTo(0, -16, 12, -22); c.lineTo(12, 10); c.lineTo(6, 14); c.lineTo(-6, 14); c.lineTo(-12, 10); c.closePath(); });
+      R(p, -2, 26, 4, 8); p.fill(DROP);
+    },
+    cut(p) {
+      p.c.translate(6, 0);
+      p.stroke(2.6, c => { c.moveTo(-7, -44); c.lineTo(-7, 6); });   // the glass wall's gleam
+      for (let y = -40; y <= 4; y += 5.5) L(p, 2, 2, y, Math.round((y + 40) / 5.5) % 2 ? 6 : 10, y);
+      L(p, 2.4, -5, 20, 5, 20); shine(p, 33, 20, 3.5); shine(p, -40, -28, 2.5);
+    }
+  },
+  acid: { // just the letters
+    body(p) { p.text('pH', '900 76px Fraunces, Georgia, serif', 0, 18); },
+    tint(p) { p.c.font = '900 76px Fraunces, Georgia, serif'; const w = p.c.measureText('pH').width, edge = -w / 2 + p.c.measureText('p').width; R(p, edge, -60, 60, 120); }
+  },
+  retro: { // a monitor showing one window and a cursor
+    body(p) { p.fill(c => c.roundRect(-46, -44, 92, 68, 6)); G(p, -8, 24, 8, 24, 11, 38, -11, 38); L(p, 8, -24, 42, 24, 42); },
+    tint(p) { R(p, -38, -36, 76, 11); },
+    cut(p) { p.stroke(2.5, c => c.rect(-38, -36, 76, 52)); L(p, 2.5, -38, -25, 38, -25); p.fill(c => { c.rect(26, -33, 6, 5); c.rect(16, -33, 6, 5); }); G(p, -9, -19, -9, 9, -2, 3, 3, 13, 8, 11, 3, 1, 12, 1); }
+  },
+  poe: { // patch notes on a scroll, closed with a wax seal: buffs point up, nerfs down
+    body(p) {
+      R(p, -29, -38, 58, 66);
+      p.fill(c => c.roundRect(-38, -48, 76, 15, 7.5)); p.fill(c => c.roundRect(-38, 22, 76, 15, 7.5));
+      seal(p);
+    },
+    tint: seal,
+    cut(p) {
+      [[-31, -40.5], [31, -40.5], [-31, 29.5]].forEach(([x, y]) => p.stroke(2, c => { c.arc(x, y, 4.5, 0, 4.8); c.arc(x, y, 1.8, 4.8, 9); }));   // curled ends
+      L(p, 2, -24, -36, 24, -36); L(p, 2, -24, 25, 4, 25);
+      [-24, -12, 0, 12].forEach((y, i) => { const s = i === 1 ? -1 : 1; G(p, -22, y + 4 * s, -17, y - 5 * s, -12, y + 4 * s); L(p, 3.4, -6, y, [22, 12, 20, 2][i], y); });
+      p.stroke(2.2, c => c.arc(...SEAL, 16.5, 0, TAU));   // a gap between seal and scroll
+      p.stroke(1.8, c => c.arc(...SEAL, 10, 0, TAU));   // the rim the stamp pressed
+      p.stroke(2, c => c.arc(...SEAL, 13, 3.6, 4.6));   // light on the raised wax
+      for (let k = 0; k < 4; k++) { const a = k * Math.PI / 4; L(p, 2.2, SEAL[0] - 5.5 * Math.cos(a), SEAL[1] - 5.5 * Math.sin(a), SEAL[0] + 5.5 * Math.cos(a), SEAL[1] + 5.5 * Math.sin(a)); }
+    }
+  }
+};
+
 const ACCENTS = ['#31594d', '#a34f37', '#744463', '#68713d', '#831d24', '#b27a27', '#c66f68', '#2d302d'];
+const NEAR_BLACK = ['#2d302d', '#1d1d1b'];
 const PAPER = '#fafaf7', CREAM = '#efe6d0', INK = '#242624';
-const FACES = ['600 200px "Cormorant Garamond"', '200px "Uncial Antiqua"', '200px "Abril Fatface"', '200px "Limelight"', 'italic 900 200px "Playfair Display"', '200px "Pirata One"', '700 200px "Cinzel Decorative"', '900 200px "Elsie Swash Caps"', '200px "IM Fell English"', '200px "Vast Shadow"', '200px "UnifrakturMaguntia"', 'italic 900 200px "Bodoni Moda"', '200px "DM Serif Display"', '200px "Almendra Display"', '900 200px "Fraunces"', '200px "Diplomata SC"'];
 const SHAPES = ['square', 'octagon', 'circle', 'arch', 'rounded', 'hexagon', 'bare', 'diamond'];
 const FX = ['fx-restamp', 'fx-drop', 'fx-stamp', 'fx-smear', 'fx-turn', 'fx-flicker'];
 
@@ -379,13 +583,8 @@ function shapePath(g, kind, S) {
   else g.rect(m, m, w, w);
 }
 
-/* Each background fixes its own animation:
-   when   = the order marks appear in (radial, from a seed point, upward, downward, diagonal, clockwise, random, bubbly)
-   seq    = marks appear strictly in the order they were drawn
-   enter  = how one mark arrives (grow along its line, swell, spin, drop, rise, fade)
-   ground = how the colour behind returns (dots, squares, diamonds, bars, fade) */
 const PATTERNS = [
-  { label: 'Cobbles, cracking out from one corner', when: 'seed', enter: 'grow', ground: 'dots', draw(g, S, r) {
+  { when: 'seed', enter: 'grow', ground: 'dots', draw(g, S, r) {
     for (let x = 0; x < S + 22; x += 22) for (let y = 0; y < S + 22; y += 22) {
       const cx = x + (r() - .5) * 9, cy = y + (r() - .5) * 9, k = 6 + ~~(r() * 3);
       g.beginPath();
@@ -393,10 +592,10 @@ const PATTERNS = [
       g.closePath(); g.stroke();
     }
   } },
-  { label: 'Bricks, laid from the bottom row up', when: 'up', enter: 'swell', ground: 'bars', draw(g, S) {
+  { when: 'up', enter: 'swell', ground: 'bars', draw(g, S) {
     for (let row = 0, y = 0; y < S; row++, y += 15) for (let x = -(row % 2) * 17; x < S; x += 34) { g.beginPath(); g.roundRect(x + 2, y + 2, 30, 11, 4); g.stroke(); g.beginPath(); g.moveTo(x + 9, y + 7.5); g.lineTo(x + 25, y + 7.5); g.stroke(); }
   } },
-  { label: 'Vines, curling out from the letter', when: 'radial', enter: 'grow', ground: 'dots', draw(g, S, r) {
+  { when: 'radial', enter: 'grow', ground: 'dots', draw(g, S, r) {
     for (let n = 0; n < 20; n++) {
       const x0 = r() * S, y0 = r() * S, dir = r() < .5 ? -1 : 1, a0 = r() * 6.283, R = 18 + r() * 20;
       g.beginPath();
@@ -406,15 +605,15 @@ const PATTERNS = [
     }
     for (let n = 0; n < 50; n++) { g.beginPath(); g.arc(r() * S, r() * S, 1.6, 0, 7); g.fill(); }
   } },
-  { label: 'Wood grain, drawn line by line from the middle', when: 'radial', enter: 'grow', ground: 'bars', draw(g, S, r) {
+  { when: 'radial', enter: 'grow', ground: 'bars', draw(g, S, r) {
     const p1 = r() * 6, p2 = r() * 6;
     for (let y = -30; y < S + 30; y += 8) { g.beginPath(); for (let x = 0; x <= S; x += 6) g.lineTo(x, y + Math.sin(x * .021 + p1) * 20 * Math.sin(y * .03 + p2) + Math.sin(x * .06 + y * .11) * 4); g.stroke(); }
   } },
-  { label: 'Halftone, dots swelling at random', when: 'random', enter: 'swell', ground: 'fade', draw(g, S, r) {
+  { when: 'random', enter: 'swell', ground: 'fade', draw(g, S, r) {
     const cx = S * (.2 + r() * .6), cy = S * (.2 + r() * .6);
     for (let x = 6; x < S; x += 12) for (let y = 6; y < S; y += 12) { g.beginPath(); g.arc(x, y, Math.max(.8, 5.4 - Math.hypot(x - cx, y - cy) / 38), 0, 7); g.fill(); }
   } },
-  { label: 'Bond lattice, bonding outward from one atom', when: 'seed', enter: 'grow', ground: 'diamonds', draw(g, S, r) {
+  { when: 'seed', enter: 'grow', ground: 'diamonds', draw(g, S, r) {
     const s = 17, h = s * Math.sqrt(3);
     for (let c = -1; c * s * 1.5 < S + s; c++) for (let q = -1; q * h < S + h; q++) for (let k = 0; k < 3; k++) {
       if (r() < .22) continue;
@@ -423,10 +622,10 @@ const PATTERNS = [
       if (r() < .16) { g.beginPath(); g.arc(x + s * Math.cos(a), y + s * Math.sin(a), 4, 0, 7); g.fill(); }
     }
   } },
-  { label: 'Scales, dropping in from the top', when: 'down', enter: 'drop', ground: 'bars', draw(g, S) {
+  { when: 'down', enter: 'drop', ground: 'bars', draw(g, S) {
     for (let row = 0, y = 0; y < S + 13; row++, y += 13) for (let x = (row % 2) * 13; x < S + 26; x += 26) { g.beginPath(); g.arc(x, y, 13, 0, Math.PI); g.stroke(); g.beginPath(); g.arc(x, y, 7, 0, Math.PI); g.stroke(); }
   } },
-  { label: 'Rosettes, spinning open at random', when: 'random', enter: 'spin', ground: 'dots', draw(g, S, r) {
+  { when: 'random', enter: 'spin', ground: 'dots', draw(g, S, r) {
     for (let n = 0; n < 34; n++) {
       const x = r() * S, y = r() * S, a0 = r() * 6;
       g.beginPath();
@@ -435,50 +634,50 @@ const PATTERNS = [
       g.beginPath(); g.arc(x, y, 2.2, 0, 7); g.fill();
     }
   } },
-  { label: 'Orbits, traced one shell at a time', when: 'radial', seq: true, enter: 'grow', ground: 'fade', draw(g, S, r) {
+  { when: 'radial', seq: true, enter: 'grow', ground: 'fade', draw(g, S, r) {
     for (let k = 0; k < 7; k++) {
       const rx = 34 + k * 22, ry = rx * (.3 + r() * .35), rot = r() * 3.14, c = Math.cos(rot), s = Math.sin(rot), at = a => [S / 2 + Math.cos(a) * rx * c - Math.sin(a) * ry * s, S / 2 + Math.cos(a) * rx * s + Math.sin(a) * ry * c];
       g.beginPath(); for (let a = 0; a <= 6.34; a += .12) g.lineTo(...at(a)); g.stroke();
       g.beginPath(); g.arc(...at(r() * 6.28), 5, 0, 7); g.fill();
     }
   } },
-  { label: 'Asterisks, spinning in on the diagonal', when: 'diag', enter: 'spin', ground: 'squares', draw(g, S) {
+  { when: 'diag', enter: 'spin', ground: 'squares', draw(g, S) {
     for (let row = 0, y = 8; y < S + 10; row++, y += 26) for (let x = 8 + (row % 2) * 15; x < S + 10; x += 30) {
       g.beginPath();
       for (let k = 0; k < 3; k++) { const a = k * Math.PI / 3 + .2; g.moveTo(x - Math.cos(a) * 9, y - Math.sin(a) * 9); g.lineTo(x + Math.cos(a) * 9, y + Math.sin(a) * 9); }
       g.stroke();
     }
   } },
-  { label: 'Harlequin, lozenges swelling across the diagonal', when: 'diag', enter: 'swell', ground: 'diamonds', draw(g, S) {
+  { when: 'diag', enter: 'swell', ground: 'diamonds', draw(g, S) {
     for (let row = 0, y = 0; y < S + 22; row++, y += 22) for (let x = (row % 2) * 15; x < S + 15; x += 30) {
       g.beginPath(); g.moveTo(x, y - 20); g.lineTo(x + 13, y); g.lineTo(x, y + 20); g.lineTo(x - 13, y); g.closePath();
       row % 2 ? g.fill() : g.stroke();
     }
   } },
-  { label: 'Waves, filling from the bottom', when: 'up', enter: 'grow', ground: 'bars', draw(g, S) {
+  { when: 'up', enter: 'grow', ground: 'bars', draw(g, S) {
     for (let row = 0, y = 4; y < S + 8; row++, y += 12) { g.beginPath(); for (let x = -4; x <= S + 4; x += 4) g.lineTo(x, y + Math.sin(x * .13 + row * 1.3) * 4); g.stroke(); }
   } },
-  { label: 'Rays, sweeping round like a clock hand', when: 'angle', enter: 'grow', ground: 'dots', draw(g, S) {
+  { when: 'angle', enter: 'grow', ground: 'dots', draw(g, S) {
     for (let k = 0; k < 48; k++) {
       const a = k / 48 * 6.2832, len = k % 2 ? S : S * .52, c = Math.cos(a), s = Math.sin(a);
       g.beginPath(); g.moveTo(S / 2 + c * 30, S / 2 + s * 30); g.lineTo(S / 2 + c * len, S / 2 + s * len); g.stroke();
       if (!(k % 2)) { g.beginPath(); g.arc(S / 2 + c * (len + 9), S / 2 + s * (len + 9), 3.5, 0, 7); g.fill(); }
     }
   } },
-  { label: 'Crosshatch, engraved in two passes', when: 'diag', twoPass: true, enter: 'grow', ground: 'fade', draw(g, S, r) {
+  { when: 'diag', twoPass: true, enter: 'grow', ground: 'fade', draw(g, S, r) {
     for (let d = -S; d < S; d += 9) { g.beginPath(); g.moveTo(d, 0); g.lineTo(d + S, S); g.stroke(); }
     g.tag = 1;
     const phase = r() * 6;
     for (let d = -S; d < S; d += 9) if (Math.sin(d * .045 + phase) > -.2) { g.beginPath(); g.moveTo(d + S, 0); g.lineTo(d, S); g.stroke(); }
   } },
-  { label: 'Bubbles, rising as the colour fills up', when: 'bubbly', gwhen: 'up', enter: 'rise', ground: 'bars', draw(g, S, r) {
+  { when: 'bubbly', gwhen: 'up', enter: 'rise', ground: 'bars', draw(g, S, r) {
     for (let n = 0; n < 46; n++) {
       const x = r() * S, y = r() * S, rad = 4 + r() * r() * 18;
       g.beginPath(); g.arc(x, y, rad, 0, 7); g.stroke();
       if (rad > 8) { g.beginPath(); g.arc(x - rad * .35, y - rad * .35, rad * .22, 0, 7); g.fill(); }
     }
   } },
-  { label: 'Ripples, spreading from where the drop landed', when: 'seed', seq: true, enter: 'swell', ground: 'dots', draw(g, S, r, sx, sy) {
+  { when: 'seed', seq: true, enter: 'swell', ground: 'dots', draw(g, S, r, sx, sy) {
     for (let rad = 8; rad < S * 1.35; rad += 10) { g.beginPath(); g.arc(sx, sy, rad, 0, 7); g.stroke(); }
   } }
 ];
@@ -491,24 +690,46 @@ try { previousRoll = +localStorage.getItem('last-initials'); } catch {}
 let roll = Math.floor(Math.random() * 47);
 if (roll >= previousRoll) roll++;
 try { localStorage.setItem('last-initials', roll); } catch {}
+const plate = Object.assign(document.createElement('canvas'), { width: 300, height: 300 });
+const hatch = Object.assign(document.createElement('canvas'), { width: 300, height: 300 });
+const probe = Object.assign(document.createElement('canvas'), { width: 300, height: 300 });
 
-// Two layers: frame, ground and pattern on the first canvas, the letter on the second so it can animate alone.
+// The pen an emblem draws with. e fattens every edge, for keylines and for carving room in the pattern.
+const pen = (c, e) => ({ c,
+  fill(build) { c.beginPath(); build(c); c.fill(); if (e) { c.lineWidth = e; c.stroke(); } },
+  stroke(w, build) { c.beginPath(); build(c); c.lineWidth = w + e; c.stroke(); },
+  text(str, font, x, y) { c.font = font; c.textAlign = 'center'; c.fillText(str, x, y); if (e) { c.lineWidth = e; c.strokeText(str, x, y); } } });
+
+// Where an emblem's ink actually falls, in its own units: centre and size of the body's bounding box.
+const bounds = {};
+function measure(name) {
+  if (bounds[name]) return bounds[name];
+  const q = probe.getContext('2d', { willReadFrequently: true }), Z = 2.3;
+  q.setTransform(1, 0, 0, 1, 0, 0); q.clearRect(0, 0, 300, 300); q.lineJoin = q.lineCap = 'round';
+  q.translate(150, 150); q.scale(Z, Z); ICONS[name].body(pen(q, 0));
+  const d = q.getImageData(0, 0, 300, 300).data;
+  let x0 = 300, y0 = 300, x1 = 0, y1 = 0;
+  for (let y = 0; y < 300; y++) for (let x = 0; x < 300; x++) if (d[(y * 300 + x) * 4 + 3] > 40) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  return bounds[name] = { cx: ((x0 + x1) / 2 - 150) / Z, cy: ((y0 + y1) / 2 - 150) / Z, w: (x1 - x0) / Z, h: (y1 - y0) / Z };
+}
+
 function drawInitial(wrap) {
   const [canvas, top] = wrap.children, n = +wrap.dataset.n, g = canvas.getContext('2d'), t = top.getContext('2d'), S = canvas.width, r = rng((n + 1) * 7919 + roll * 104729);
   const pick = list => list[~~(r() * list.length)];
-  // Multipliers are coprime with each list's length, so up to 16 tiles get a different background and typeface.
   const P = PATTERNS[(n * 7 + roll * 3) % PATTERNS.length];
-  const face = FACES[(n * 5 + roll * 7) % FACES.length];
   const shape = SHAPES[(n * 3 + roll + ~~(r() * 2)) % SHAPES.length];
   const ground = ACCENTS[(n * 3 + roll + ~~(r() * 2)) % ACCENTS.length];
   const bare = shape === 'bare', light = bare || r() < .38;
   const fill = bare ? PAPER : light ? pick([CREAM, PAPER, '#fff']) : ground;
   const patternInk = light ? ground : pick([PAPER, CREAM, 'rgba(0,0,0,.42)']);
   const others = ACCENTS.filter(a => a !== ground);
-  const letterInk = light ? pick([INK, pick(others), INK]) : pick([PAPER, CREAM, ground === '#b27a27' ? INK : '#d9a440', '#f0b8b0']);
+  const letterInk = light ? pick([INK, pick(others), INK]) : pick([PAPER, CREAM, '#f2c14e', '#f0b8b0']);
+  // Second ink: on pale tiles another accent; on dark tiles a different pale ink. Never the main ink or near-black.
+  const second = light ? pick(others.filter(a => a !== letterInk && !NEAR_BLACK.includes(a))) : pick(['#f2c14e', '#f0b8b0', CREAM, PAPER].filter(a => a !== letterInk));
+  const deep = !light && ICONS[wrap.dataset.icon].deepSecond ? pick(others.filter(a => !NEAR_BLACK.includes(a))) : second;
+  const ring = r() < .5;
   top.style.setProperty('--fx', FX[(n + roll) % FX.length]);
 
-  // Timing fields: where a point falls in the order things appear, from 0 (first) to 1 (last).
   const sx = S * (.1 + r() * .8), sy = S * (.1 + r() * .8), a0 = r() * 6.2832, salt = r() * 100;
   const reach = Math.max(...[[0, 0], [S, 0], [0, S], [S, S]].map(([x, y]) => Math.hypot(x - sx, y - sy)));
   const noise = (x, y) => { const v = Math.sin(x * 12.9898 + y * 78.233 + salt) * 43758.5453; return v - Math.floor(v); };
@@ -523,7 +744,6 @@ function drawInitial(wrap) {
     bubbly: (x, y) => (1 - y / S) * .7 + noise(x, y) * .3
   };
 
-  // Record the pattern as separate marks so each can arrive on its own.
   const units = [];
   let cmds = [];
   const rec = { tag: 0, beginPath() { cmds = []; }, stroke() { units.push({ cmds, kind: 'stroke', tag: rec.tag }); }, fill() { units.push({ cmds, kind: 'fill', tag: rec.tag }); } };
@@ -534,14 +754,13 @@ function drawInitial(wrap) {
     u.cx = pts.reduce((s, p) => s + p[0], 0) / pts.length;
     u.cy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
     u.poly = u.cmds.length > 3;
-    if (u.cmds[0][0] === 'moveTo' && !u.poly) [u.cx, u.cy] = u.cmds[0][1];                 // a single line grows from its start
+    if (u.cmds[0][0] === 'moveTo' && !u.poly) [u.cx, u.cy] = u.cmds[0][1];
     let w = P.seq ? i / units.length : clamp01(WHEN[P.when](u.cx, u.cy));
     if (P.twoPass) w = u.tag ? .5 + w / 2 : w / 2;
     u.dur = u.poly && P.enter === 'grow' ? .34 : .22;
     u.begin = w * (.94 - u.dur) + r() * .06;
   });
 
-  // Cells the ground colour returns through, timed by the same field as the pattern.
   const cells = [], gw = WHEN[P.gwhen || P.when];
   if (P.ground === 'bars') for (let row = 0, y = 0; y < S; row++, y += 20) cells.push([0, y, clamp01(gw(S / 2, y + 10)) * .5, row % 2]);
   else for (let cx = 10; cx < S; cx += 20) for (let cy = 10; cy < S; cy += 20) {
@@ -551,18 +770,37 @@ function drawInitial(wrap) {
 
   t.clearRect(0, 0, S, S);
   g.lineJoin = g.lineCap = t.lineJoin = t.lineCap = 'round';
-  const letter = wrap.dataset.letter, small = shape === 'diamond' ? .42 : shape === 'circle' || shape === 'octagon' || shape === 'hexagon' ? .54 : .62;
-  g.font = face; g.textAlign = 'center';
-  let m = g.measureText(letter);
-  const size = 200 * Math.min(S * small / (m.actualBoundingBoxAscent + m.actualBoundingBoxDescent), S * (small + .08) / m.width);
-  g.font = t.font = face.replace('200px', size + 'px'); t.textAlign = 'center';
-  m = g.measureText(letter);
-  const x = S / 2 + (m.actualBoundingBoxLeft - m.actualBoundingBoxRight) / 2, y = S / 2 + (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2 + (shape === 'arch' ? 12 : 0);
-  if (r() < .5) { t.fillStyle = light ? ground : INK; t.globalAlpha = .9; t.fillText(letter, x + 6, y + 6); t.globalAlpha = 1; } // offset plate
-  t.fillStyle = letterInk; t.fillText(letter, x, y);
-  if (r() < .45) { t.strokeStyle = light ? fill : INK; t.lineWidth = 2; t.strokeText(letter, x, y); }
+  // The emblem takes the letter's place. stamp prints one plate of it: ink is the colour, extra fattens every edge.
+  // It is fitted to the frame by its measured ink, as the letter was: by height, or by width if that binds first.
+  const icon = ICONS[wrap.dataset.icon], m = measure(wrap.dataset.icon), room = shape === 'diamond' ? .45 : shape === 'circle' || shape === 'octagon' || shape === 'hexagon' ? .54 : .62;
+  const k = Math.min(S * room / m.h, S * (room + .08) / m.w);
+  const stamp = (c, ink, extra = 0, off = 0, part = 'body') => {
+    c.save(); c.translate(S / 2 + off, S / 2 + off + (shape === 'arch' ? 12 : 0)); c.scale(k, k); c.translate(-m.cx, -m.cy);
+    c.fillStyle = c.strokeStyle = ink;
+    icon[part](pen(c, extra / k));
+    c.restore();
+  };
+  if (r() < .5) { t.globalAlpha = .9; stamp(t, light ? ground : INK, 0, 6); t.globalAlpha = 1; } // offset plate
+  if (r() < .45) stamp(t, light ? fill : INK, 4);                                             // keyline
 
-  // Letterpress wear: tiny specks knocked out of the ink on both layers.
+  // The main plate is built on its own canvas: main ink, second ink, engraving, cut detail, then marks on top.
+  const b = plate.getContext('2d'), h = hatch.getContext('2d');
+  b.clearRect(0, 0, S, S); b.lineJoin = b.lineCap = 'round';
+  stamp(b, letterInk);
+  if (icon.tint) { b.globalCompositeOperation = 'source-atop'; stamp(b, second, 0, 0, 'tint'); }
+  // Engraving: white lines cut along the lower-right edge of every shape, where a shadow would fall.
+  // The last stamp keeps them off thin strokes, which they would only break up.
+  h.globalCompositeOperation = 'source-over'; h.clearRect(0, 0, S, S); h.lineCap = 'round'; h.lineWidth = 2.4; h.strokeStyle = '#000';
+  h.beginPath(); for (let d = -S; d < S; d += 6) { h.moveTo(d, 0); h.lineTo(d + S, S); } h.stroke();
+  h.globalCompositeOperation = 'destination-in'; stamp(h, '#000');
+  h.globalCompositeOperation = 'destination-out'; stamp(h, '#000', 0, -7);
+  h.globalCompositeOperation = 'destination-in'; stamp(h, '#000', 0, 8);
+  b.globalCompositeOperation = 'destination-out'; b.drawImage(hatch, 0, 0);
+  if (icon.cut) stamp(b, '#000', 0, 0, 'cut');
+  b.globalCompositeOperation = 'source-over';
+  if (icon.over) stamp(b, deep, 0, 0, 'over');
+  t.drawImage(plate, 0, 0);
+
   const specks = () => Array.from({ length: 900 }, () => [.25 + r() * .6, r() * S, r() * S, .4 + r() * 1.1]);
   const wear = (c, list) => {
     c.globalCompositeOperation = 'destination-out';
@@ -572,10 +810,9 @@ function drawInitial(wrap) {
   const groundWear = specks();
   wear(t, specks());
 
-  // Paint the frame layer as it stands at growth time q (0 = bare letter in its frame line, 1 = finished).
   wrap.paint = q => {
     g.clearRect(0, 0, S, S);
-    if (q < 1 && !light) { g.globalAlpha = 1 - q; g.strokeStyle = ground; g.lineWidth = 3; g.strokeText(letter, x, y); g.globalAlpha = 1; } // keeps a pale letter readable on bare paper
+    if (q < 1 && !light) { g.globalAlpha = 1 - q; stamp(g, ground, 3); g.globalAlpha = 1; }
     g.save();
     shapePath(g, shape, S); g.clip();
     const veil = P.ground === 'fade' && q < 1 ? ease(q / .6) : 1;
@@ -612,7 +849,9 @@ function drawInitial(wrap) {
       g[u.kind]();
       g.restore();
     }
-    g.globalAlpha = veil; g.strokeStyle = fill; g.lineWidth = 16; g.strokeText(letter, x, y);   // carve room in the pattern
+    g.globalAlpha = veil;
+    if (ring) stamp(g, patternInk, 22);   // keyline ring around the carved space
+    stamp(g, fill, 16);                   // carve room in the pattern
     g.restore();
     if (!bare) { shapePath(g, shape, S); g.strokeStyle = light ? ground : INK; g.lineWidth = light ? 3 : 2; g.stroke(); }
     wear(g, groundWear);
@@ -620,28 +859,23 @@ function drawInitial(wrap) {
   wrap.paint(1);
 }
 
-// Hover: the ornament and ground clear, then grow back around the letter. Like Initialis, it plays as
-// 22 frames at 15 a second, which is what gives it the hand-animated cadence.
 const FRAMES = 22, FPS = 15;
 function drawIn(wrap) {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   clearTimeout(wrap.timer);
   let i = 0;
-  const tick = () => {
-    wrap.paint(ease(i / (FRAMES - 1)));
-    if (++i < FRAMES) wrap.timer = setTimeout(tick, 1000 / FPS);
-  };
+  const tick = () => { wrap.paint(ease(i / (FRAMES - 1))); if (++i < FRAMES) wrap.timer = setTimeout(tick, 1000 / FPS); };
   tick();
 }
 
-// Add an initial to every [data-initial] element and redraw as the display faces arrive.
+// Add an emblem to every [data-icon] element. The pH emblem is set in Fraunces, so refit and redraw once it arrives.
 function mount(root = document) {
-  const wraps = [...root.querySelectorAll('[data-initial]')].map((tile, n) => {
+  const wraps = [...root.querySelectorAll('[data-icon]')].map((tile, n) => {
     const wrap = document.createElement('span');
     wrap.className = 'init';
     wrap.setAttribute('aria-hidden', 'true');
     wrap.dataset.n = n;
-    wrap.dataset.letter = tile.dataset.initial;
+    wrap.dataset.icon = tile.dataset.icon;
     wrap.innerHTML = '<canvas width="300" height="300"></canvas><canvas class="ltr" width="300" height="300"></canvas>';
     tile.prepend(wrap);
     tile.addEventListener('mouseenter', () => drawIn(wrap));
@@ -650,16 +884,8 @@ function mount(root = document) {
   });
   const draw = () => wraps.forEach(drawInitial);
   draw();
-  // The font stylesheet loads without blocking, so faces can be declared late: keep asking until all are in.
-  let have = 0, tries = 0;
-  (function poll() {
-    Promise.all(FACES.map(face => document.fonts.load(face, 'A'))).then(sets => {
-      const count = sets.filter(set => set.length).length;
-      if (count > have) { have = count; draw(); }
-      if (count === FACES.length) document.documentElement.dataset.initials = 'ready';   // lets checks wait for the final drawing
-      if (count < FACES.length && ++tries < 30) setTimeout(poll, 500);
-    }, () => {});
-  })();
+  const ready = () => { document.documentElement.dataset.initials = 'ready'; };   // lets checks wait for the final drawing
+  document.fonts.load('900 76px Fraunces').then(faces => { if (faces.length) { for (const name in bounds) delete bounds[name]; draw(); } ready(); }, ready);
 }
 
 return { mount };

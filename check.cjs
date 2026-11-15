@@ -19,7 +19,7 @@ for (const html of [homepage, desktop]) {
   assert(html.includes('@view-transition{navigation:auto}'), 'Preserve page transitions');
 }
 assert.equal((homepage.match(/<a class="tile"/g) || []).length, 10);
-assert.equal((homepage.match(/data-initial="[A-Z]">/g) || []).length, 15);
+assert.equal((homepage.match(/data-icon="[a-z]+">/g) || []).length, 15);
 assert(homepage.includes('Initials.mount()') && !homepage.includes('src="initials.js"'), 'Homepage initials must ship inline');
 for (const id of ['about', 'research', 'teaching', 'for-fun', 'arrival', 'typed-description']) {
   assert(homepage.includes(`id="${id}"`), `Missing homepage section: ${id}`);
