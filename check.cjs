@@ -9,7 +9,7 @@ const desktop = fs.readFileSync(path.join(root, 'retro-desktop.html'), 'utf8');
 const simulationLicense = fs.readFileSync(path.join(root, 'simulations', 'LICENSE.md'), 'utf8');
 const links = [...homepage.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
 const launches = links.filter(link => link.startsWith('simulations/'));
-assert.equal(launches.length, 8);
+assert.equal(launches.length, 9);
 assert.equal((homepage.match(/<style\b/g) || []).length, 1);
 for (const html of [homepage, desktop]) {
   for (const [, attributes, contents] of html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)) {
@@ -18,8 +18,8 @@ for (const html of [homepage, desktop]) {
   }
   assert(html.includes('@view-transition{navigation:auto}'), 'Preserve page transitions');
 }
-assert.equal((homepage.match(/<a class="tile"/g) || []).length, 10);
-assert.equal((homepage.match(/data-icon="[a-z]+">/g) || []).length, 15);
+assert.equal((homepage.match(/<a class="tile"/g) || []).length, 11);
+assert.equal((homepage.match(/data-icon="[a-z]+">/g) || []).length, 16);
 assert(homepage.includes('Initials.mount()') && !homepage.includes('src="initials.js"'), 'Homepage initials must ship inline');
 for (const id of ['about', 'research', 'teaching', 'for-fun', 'arrival', 'typed-description']) {
   assert(homepage.includes(`id="${id}"`), `Missing homepage section: ${id}`);
@@ -83,7 +83,7 @@ for (const [symbol, element] of Object.entries(electrons.ELEMENTS)) {
 assert.equal(electrons.getSnapshot('Ca', 20).notation, '1s² 2s² 2p⁶ 3s² 3p⁶ 4s²');
 
 const gasHtml = fs.readFileSync(path.join(root, 'simulations/ideal-gas-law/index.html'), 'utf8');
-for (const slug of ['ideal-gas-law', 'electron-configuration', 'build-an-atom', 'molecular-shape-polarity', 'bond-models', 'le-chatelier', 'titration', 'acid-base-strength']) {
+for (const slug of ['ideal-gas-law', 'electron-configuration', 'build-an-atom', 'molecular-shape-polarity', 'bond-models', 'le-chatelier', 'titration', 'acid-base-strength', 'buffer']) {
   const html = fs.readFileSync(path.join(root, 'simulations', slug, 'index.html'), 'utf8');
   assert(!/folsom|losrios|chem[ _-]*305/i.test(html), `${slug} has institutional branding`);
   assert(html.includes('creativecommons.org/licenses/by-nc-sa/4.0/'), `${slug} must use the shared simulation license`);
@@ -172,6 +172,7 @@ for (const [key, intact, ion, left] of [['strongAcid', 'HCl', 'hydronium', 0], [
   assert.equal(acids.count(sim, ion), 75 - left, key);
 }
 assert(!/<script[^>]+src=|<link[^>]+rel="stylesheet"/.test(fs.readFileSync(path.join(root, 'simulations/acid-base-strength/index.html'), 'utf8')), 'Acid and base strength must remain standalone');
+assert(!/<script[^>]+src=|<link[^>]+rel="stylesheet"/.test(fs.readFileSync(path.join(root, 'simulations/buffer/index.html'), 'utf8')), 'Buffers must remain standalone');
 // Exile Catch-Up, both editions: every file a page and its image list name ships with it, each links home,
 // and the patch-note sources (which hold third-party text) are never published.
 assert(homepage.includes('href="exile-catch-up/index.html"'), 'Homepage must link to Exile Catch-Up');
@@ -187,4 +188,4 @@ for (const [edition, file, home] of [['exile-catch-up', 'poe1.html', '../index.h
   assert(editionFiles.length > 50, `${edition} files`);
   for (const file of editionFiles) assert(fs.existsSync(path.join(editionRoot, file)), `Missing ${edition} file: ${file}`);
 }
-console.log('Release checks passed: links, homepage, atom actions, H–Ca configurations, gas-law relationships, molecular geometry/polarity, covalent/ionic bonds, Le Chatelier equilibria, the titration endpoint, and acid and base strength.');
+console.log('Release checks passed: links, homepage, atom actions, H–Ca configurations, gas-law relationships, molecular geometry/polarity, covalent/ionic bonds, Le Chatelier equilibria, the titration endpoint, acid and base strength, and buffers.');
