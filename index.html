@@ -203,6 +203,7 @@ SOFTWARE.
 <li><a class="tile" href="simulations/acid-base-strength/index.html" data-icon="acid"><span class="tile-title">Acid and Base Strength</span><span class="sr-only">. Dissolve a strong or weak acid or base and see how much ionizes.</span></a></li>
 <li><a class="tile" href="simulations/buffer/index.html" data-icon="buffer"><span class="tile-title">Buffers</span><span class="sr-only">. Add acid or base to water and to a buffer and compare how far the pH moves.</span></a></li>
 <li><a class="tile" href="simulations/nuclear-decay/index.html" data-icon="decay"><span class="tile-title">Nuclear Decay</span><span class="sr-only">. Fire alpha, beta, and gamma radiation from a nucleus and watch a sample fall by half.</span></a></li>
+<li><a class="tile" href="simulations/iupac-naming/index.html" data-icon="iupac"><span class="tile-title">Naming Organic Compounds</span><span class="sr-only">. Name skeletal structures tier by tier, from alkanes to E/Z isomers.</span></a></li>
 </ul>
 </section>
 <section class="project-group reveal-item" id="for-fun" aria-labelledby="fun-title">
@@ -551,6 +552,11 @@ const ICONS = {
     },
     tint(p) { [0, 2, 4, 6].forEach(i => D(p, ...NUCLEUS[i], 10)); [0, 3].forEach(i => D(p, ...ALPHA[i], 6.5)); },
     cut(p) { NUCLEUS.forEach(([x, y]) => shine(p, x, y, 6)); ALPHA.forEach(([x, y]) => shine(p, x, y, 3.5)); L(p, 3, 6, -10, 16, -20); L(p, 3, 12, -2, 20, -10); }
+  },
+  iupac: { // a skeletal formula: a zigzag chain, one branch, and a C=O at the end
+    body(p) { L(p, 9, -46, 18, -23, 4, 0, 18, 23, 4, 23, -26); L(p, 9, 0, 18, 0, 46); D(p, 23, -38, 13); },
+    tint(p) { R(p, -50, 0, 100, 32); },
+    cut(p) { L(p, 4, 34, 0, 34, -22); shine(p, 23, -38, 8); }
   },
   acid: { // just the letters
     body(p) { p.text('pH', '900 76px Fraunces, Georgia, serif', 0, 18); },
