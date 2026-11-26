@@ -74,6 +74,7 @@ h1{font:500 clamp(45px,4.4vw,62px)/.96 var(--display);letter-spacing:-.045em;mar
 @keyframes plate-m{from{opacity:1;transform:translate(var(--mx),var(--my))}60%{opacity:1;transform:translate(calc(var(--mx) * .15),calc(var(--my) * .15))}to{opacity:0;transform:none}}
 .intro{margin:0;min-height:1.7em;color:var(--muted);font:16.5px/1.68 var(--body);max-width:500px}
 .typing:after{content:"";display:inline-block;height:.85em;border-right:1px solid currentColor;margin-left:3px;vertical-align:-.04em;animation:blink 1s steps(1) infinite}@keyframes blink{50%{opacity:0}}
+.tutor-link{display:inline-flex;align-items:center;gap:7px}.profile-links .tutor-link:after{left:24px}.tutor-atom{width:17px;height:17px;flex:none;overflow:visible;color:var(--accent)}.tutor-atom ellipse{fill:none;stroke:currentColor;stroke-width:1.1;opacity:.5}.tutor-atom .e,.tutor-atom .n{fill:currentColor}.tutor-link:is(:hover,:focus-visible) .tutor-atom ellipse{opacity:.9}
 .profile-links{display:flex;align-items:center;flex-wrap:wrap;gap:12px 20px;font:500 11px/1.4 var(--ui);letter-spacing:.08em;text-transform:uppercase;margin-top:20px}
 .profile-links a{text-decoration:none}
 .link-underline{position:relative;text-decoration:none}
@@ -170,7 +171,9 @@ SOFTWARE.
     <nav class="profile-links" aria-label="Profile links">
       <a class="link-underline" href="https://github.com/duyjimmypham">GITHUB</a>
       <a class="link-underline" href="mailto:duyphambao.career@gmail.com" aria-label="Email Duy Pham">EMAIL</a>
+      <a class="link-underline tutor-link" href="tutoring.html"><svg class="tutor-atom" viewBox="0 0 24 24" aria-hidden="true"><g><ellipse cx="12" cy="12" rx="10" ry="3.6"/><circle class="e" r="1.55"><animateMotion dur="6s" begin="0s" repeatCount="indefinite" path="M2 12a10 3.6 0 1 0 20 0a10 3.6 0 1 0-20 0"/></circle></g><g transform="rotate(60 12 12)"><ellipse cx="12" cy="12" rx="10" ry="3.6"/><circle class="e" r="1.55"><animateMotion dur="7.5s" begin="-2.5s" repeatCount="indefinite" path="M2 12a10 3.6 0 1 0 20 0a10 3.6 0 1 0-20 0"/></circle></g><g transform="rotate(-60 12 12)"><ellipse cx="12" cy="12" rx="10" ry="3.6"/><circle class="e" r="1.55"><animateMotion dur="9s" begin="-5.5s" repeatCount="indefinite" path="M2 12a10 3.6 0 1 0 20 0a10 3.6 0 1 0-20 0"/></circle></g><circle class="n" cx="12" cy="12" r="1.7"/></svg>CHEMISTRY TUTORING</a>
     </nav>
+    <script>(()=>{const a=document.querySelector(".tutor-atom"),m=matchMedia("(prefers-reduced-motion: reduce)");if(!a||!a.pauseAnimations)return;const sync=()=>{if(m.matches){a.pauseAnimations();a.setCurrentTime(1.2)}else a.unpauseAnimations()};sync();m.addEventListener("change",sync)})();</script>
     <div class="molecule-stage">
       <button class="molecule-viewer" id="molecule-viewer" type="button" aria-label="Pick up and turn the methane model" aria-describedby="molecule-instructions" aria-pressed="false" disabled>
         <img class="molecule-poster" data-src="molecule/assets/methane-poster.png" alt="A graphite and ivory molecular object resting on a white table" width="976" height="1240" hidden>
