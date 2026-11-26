@@ -5,6 +5,7 @@ A personal website and collection of interactive chemistry simulations.
 ## Projects
 
 - [Personal Homepage](index.html) — Research, teaching, and personal projects.
+- [Chemistry Tutoring](tutoring.html) — One-on-one chemistry tutoring over Zoom, high school through college.
 - [Retro Desktop](retro-desktop.html) — A Windows-style desktop with pets, games, and trash jokes.
 - [Ideal Gas Law](simulations/ideal-gas-law/index.html) — Explore pressure, volume, temperature, and amount of gas.
 - [Electron Configuration](simulations/electron-configuration/index.html) — Build electron configurations from hydrogen through calcium.
