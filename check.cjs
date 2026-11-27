@@ -6,6 +6,7 @@ const vm = require('node:vm');
 const root = path.resolve(process.argv[2] || __dirname);
 const homepage = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const desktop = fs.readFileSync(path.join(root, 'retro-desktop.html'), 'utf8');
+const tutoring = fs.readFileSync(path.join(root, 'tutoring.html'), 'utf8');
 const simulationLicense = fs.readFileSync(path.join(root, 'simulations', 'LICENSE.md'), 'utf8');
 const links = [...homepage.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
 const launches = links.filter(link => link.startsWith('simulations/'));
@@ -30,17 +31,19 @@ assert(homepage.includes('href="retro-desktop.html"'), 'Homepage must link to th
 assert(!homepage.includes('Compare the first version'), 'Do not publish mockup comparison links');
 assert(desktop.includes('id="homepage-project" href="index.html"'), 'Desktop must link back to the homepage');
 assert(desktop.includes('id="boot-screen"'), 'Preserve the desktop boot sequence');
+assert(homepage.includes('href="tutoring.html"'), 'Homepage must link to tutoring');
+assert(!tutoring.includes('data-placeholder'), 'Fill in the tutoring placeholders before publishing');
 assert(simulationLicense.includes('creativecommons.org/licenses/by-nc-sa/4.0/'), 'Missing shared simulation license');
 const jokes = desktop.match(/const trashJokes = (\[[^\n]+\]);/);
 assert(jokes, 'Preserve the original trash jokes');
 assert.equal(vm.runInNewContext(jokes[1]).length, 6);
-for (const html of [homepage, desktop]) {
+for (const html of [homepage, desktop, tutoring]) {
   for (const [, href] of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
     if (href.startsWith('#')) {
       assert(html.includes(`id="${href.slice(1)}"`), `Missing anchor: ${href}`);
     } else if (!/^(data:|https?:|mailto:)/.test(href)) {
       let directory = root;
-      for (const part of href.split('/')) {
+      for (const part of href.split('#')[0].split('/')) {
         assert(fs.readdirSync(directory).includes(part), `Missing or incorrectly cased path: ${href}`);
         directory = path.join(directory, part);
       }

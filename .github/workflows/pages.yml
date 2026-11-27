@@ -26,7 +26,7 @@ jobs:
       - name: Select public files
         run: |
           mkdir _site
-          cp index.html retro-desktop.html favicon.svg _site/
+          cp index.html tutoring.html retro-desktop.html favicon.svg _site/
           cp -R simulations molecule exile-catch-up _site/
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chemistry tutoring — Duy Pham</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#242624;--muted:#6d6f69;--line:#dedfd9;--accent:#31594d;--paper:#fafaf7;--display:"Cormorant Garamond",Georgia,serif;--body:"Source Serif 4",Georgia,serif;--ui:Inter,Arial,sans-serif;--glide:cubic-bezier(.2,.8,.2,1)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16.5px/1.68 var(--body);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-underline-offset:4px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:5px}
+.layout{max-width:960px;margin:auto;padding:40px 24px 32px}
+.nav a,.label,.book{font:500 11px/1.5 var(--ui);letter-spacing:.105em;text-transform:uppercase}
+.nav a{text-decoration:none;color:var(--muted);transition:color .25s}.nav a:hover{color:var(--accent)}
+header{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:40px;align-items:center;padding:28px 0 36px}
+.label{margin:0 0 14px;color:var(--muted)}
+h1{font:500 clamp(40px,5.6vw,60px)/.98 var(--display);letter-spacing:-.045em;margin:0 0 20px;text-wrap:balance}
+h1 em{font-weight:400;color:var(--accent)}
+.lede{margin:0;max-width:46ch;color:var(--muted)}
+section{padding:28px 0;border-top:1px solid var(--line)}
+h2{font:500 26px/1.15 var(--display);letter-spacing:-.025em;margin:0 0 14px}
+p{margin:0 0 12px;max-width:60ch}
+canvas{display:block}
+
+/* The hero figure sits on a plate with crop marks. */
+.plate{position:relative;padding:10px}
+.plate:before{content:"";position:absolute;inset:0;pointer-events:none;--m:linear-gradient(var(--line),var(--line));background:var(--m) 0 0/14px 1px no-repeat,var(--m) 0 0/1px 14px no-repeat,var(--m) 100% 0/14px 1px no-repeat,var(--m) 100% 0/1px 14px no-repeat,var(--m) 0 100%/14px 1px no-repeat,var(--m) 0 100%/1px 14px no-repeat,var(--m) 100% 100%/14px 1px no-repeat,var(--m) 100% 100%/1px 14px no-repeat}
+#hero{width:100%;height:auto}
+
+.levels{list-style:none;margin:0;padding:0}
+.levels li{display:grid;grid-template-columns:56px 180px minmax(0,1fr);gap:24px;align-items:center;padding:14px 0}
+.levels li+li{border-top:1px solid var(--line)}
+.levels canvas{width:56px;height:56px}
+.levels h3{margin:0;font:500 20px/1.3 var(--display);transition:color .3s}
+.levels li:hover h3{color:var(--accent)}
+.levels p,dd{margin:0;color:var(--muted)}
+dl{display:grid;grid-template-columns:200px minmax(0,1fr);gap:8px 24px;margin:0}
+dt{font-weight:500}
+.todo{background:none;color:#8a5a00;border-bottom:1px dashed currentColor;font-style:italic}
+.teach{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:40px;align-items:center}
+#titration{width:100%;height:auto}
+.book-row{display:flex;align-items:flex-end;gap:14px}
+#lens{width:78px;height:56px}
+.book{display:inline-block;padding:13px 20px;background:var(--ink);color:var(--paper);text-decoration:none;border-radius:2px;transition:background .3s}
+.book:is(:hover,:focus-visible){background:var(--accent)}
+
+/* Text eases up into place once, as on the homepage. */
+@media(prefers-reduced-motion:no-preference){
+  .js .rise{opacity:0;transform:translateY(14px);filter:blur(3px);transition:opacity .8s ease,transform .8s var(--glide),filter .8s ease;transition-delay:var(--d,0s)}
+  .js .rise.in{opacity:1;transform:none;filter:none}
+}
+@media(max-width:760px){
+  .layout{padding:26px 20px}header{grid-template-columns:1fr;gap:16px;padding:16px 0 24px}.stage{order:-1;width:min(100%,300px)}
+  .levels li{grid-template-columns:48px minmax(0,1fr);gap:4px 16px}.levels canvas{width:48px;height:48px;grid-row:span 2}
+  dl{grid-template-columns:1fr;gap:2px}dd+dt{margin-top:10px}.teach{grid-template-columns:1fr;gap:12px}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="nav"><a href="index.html">← Home</a></nav>
+<main>
+<header>
+  <div>
+    <p class="label rise">Chemistry tutoring</p>
+    <h1 class="rise" style="--d:.12s">One-on-one chemistry help.</h1>
+    <p class="lede rise" style="--d:.24s">I’m a chemist, researcher, and professor, but mostly I like helping chemistry make sense. Bring whatever class you’re taking, and we’ll go through it together at your pace. No question is too basic.</p>
+  </div>
+  <div class="stage" aria-hidden="true">
+    <div class="plate"><canvas id="hero" width="400" height="400"></canvas></div>
+  </div>
+</header>
+
+<section class="rise" aria-labelledby="levels-title">
+  <h2 id="levels-title">Who I tutor</h2>
+  <ul class="levels">
+    <li><canvas class="icon" data-icon="atom" width="64" height="64" aria-hidden="true"></canvas><h3>High school</h3><p>General, honors, AP, and IB chemistry. I help with homework, unit tests, and exam prep.</p></li>
+    <li><canvas class="icon" data-icon="lattice" width="64" height="64" aria-hidden="true"></canvas><h3>General chemistry</h3><p>College Chem I and II, including stoichiometry, gases, thermochemistry, bonding, equilibrium, acids and bases, and kinetics.</p></li>
+    <li><canvas class="icon" data-icon="ring" width="64" height="64" aria-hidden="true"></canvas><h3>Organic chemistry</h3><p>Organic I and II, including nomenclature, structure, reaction mechanisms, synthesis, and spectroscopy.</p></li>
+  </ul>
+</section>
+
+<section class="rise" aria-labelledby="sessions-title">
+  <h2 id="sessions-title">Sessions</h2>
+  <dl>
+    <dt>Where</dt><dd>Online, over Zoom</dd>
+    <dt>Length</dt><dd>By the hour</dd>
+    <dt>Rate</dt><dd>$35 an hour. Organic chemistry is $40 an hour.</dd>
+    <dt>Availability</dt><dd>Email me to ask</dd>
+  </dl>
+</section>
+
+<section class="teach rise" aria-labelledby="teach-title">
+  <div>
+    <h2 id="teach-title">How I teach</h2>
+    <p>I tailor each session to you: your class, where you’re stuck, and how you learn. I also build interactive simulations, so if you’re a visual learner, you can see what the equations are describing. We use them in sessions too.</p>
+    <p><a href="index.html#teaching">Try the simulations</a></p>
+  </div>
+  <canvas id="titration" width="400" height="200" aria-hidden="true"></canvas>
+</section>
+
+<section id="book" class="rise" aria-labelledby="book-title">
+  <h2 id="book-title">Book a session</h2>
+  <p>Email me with your class and what you’re working on, and let’s explore chemistry together.</p>
+  <div class="book-row">
+    <a class="book" href="mailto:duyphambao.career@gmail.com?subject=Chemistry%20tutoring">Email me</a>
+    <canvas id="lens" width="78" height="56" aria-hidden="true"></canvas>
+  </div>
+</section>
+</main>
+</div>
+<script>
+(() => {
+const root = document.documentElement;
+root.classList.add('js');
+try { const saved = localStorage.getItem('last-accent'); if (/^#[0-9a-f]{6}$/i.test(saved)) root.style.setProperty('--accent', saved); } catch {}
+const css = getComputedStyle(root), token = name => css.getPropertyValue(name).trim();
+const INK = token('--ink'), ACCENT = token('--accent'), LINE = token('--line'), MUTED = token('--muted'), PAPER = token('--paper');
+const PINK = '#d4458a'; // phenolphthalein above pH 8.2
+const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const capture = new URLSearchParams(location.search).has('capture');
+
+// Timing helpers. Every drawing is a pure function of time, so frames never depend on the frame before.
+const TAU = Math.PI * 2;
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const span = (t, start, length) => clamp((t - start) / length);
+const ease = t => (t = clamp(t), t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+const easeOut = t => 1 - (1 - clamp(t)) ** 3;
+const easeIn = t => clamp(t) ** 3;
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+const hash = i => { const x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+
+// Polylines with cumulative length, so any stroke can be drawn from one length to another.
+function polyline(pts) {
+  const cum = [0];
+  for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  return { pts, cum, len: cum[cum.length - 1] };
+}
+const sampler = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+sampler.setAttribute('width', 0); sampler.setAttribute('height', 0); sampler.style.position = 'absolute';
+document.body.append(sampler);
+function fromPath(d, step = 1.2) {
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', d); sampler.append(path);
+  const length = path.getTotalLength(), n = Math.max(2, Math.ceil(length / step)), pts = [];
+  for (let i = 0; i <= n; i++) { const p = path.getPointAtLength(length * i / n); pts.push([p.x, p.y]); }
+  path.remove();
+  return polyline(pts);
+}
+function locate(L, s) {
+  let lo = 0, hi = L.cum.length - 1;
+  while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (L.cum[mid] <= s) lo = mid; else hi = mid; }
+  return [lo, (s - L.cum[lo]) / ((L.cum[hi] - L.cum[lo]) || 1)];
+}
+function pointAt(L, s) {
+  const [i, t] = locate(L, clamp(s, 0, L.len)), a = L.pts[i], b = L.pts[Math.min(i + 1, L.pts.length - 1)];
+  return [lerp(a[0], b[0], t), lerp(a[1], b[1], t)];
+}
+function trace(ctx, L, from, to) {
+  from = clamp(from, 0, L.len); to = clamp(to, 0, L.len);
+  if (to - from < .05) return;
+  const [i0] = locate(L, from), [i1] = locate(L, to), a = pointAt(L, from), b = pointAt(L, to);
+  ctx.beginPath(); ctx.moveTo(a[0], a[1]);
+  for (let i = i0 + 1; i <= i1; i++) ctx.lineTo(L.pts[i][0], L.pts[i][1]);
+  ctx.lineTo(b[0], b[1]); ctx.stroke();
+}
+// A stroke whose opacity varies along its length (depth, trails, rising steam), batched into a few alpha levels.
+function shaded(ctx, pts, alphaOf) {
+  const levels = 8, paths = Array.from({ length: levels }, () => new Path2D());
+  let previous = -1;
+  for (let j = 1; j < pts.length; j++) {
+    const a = clamp(alphaOf(j));
+    if (a < .01) { previous = -1; continue; }
+    const level = Math.min(levels - 1, Math.floor(a * levels));
+    if (level !== previous) paths[level].moveTo(pts[j - 1][0], pts[j - 1][1]);
+    paths[level].lineTo(pts[j][0], pts[j][1]);
+    previous = level;
+  }
+  const base = ctx.globalAlpha, cap = ctx.lineCap;
+  ctx.lineCap = 'butt';
+  paths.forEach((path, level) => { ctx.globalAlpha = base * (level + .5) / levels; ctx.stroke(path); });
+  ctx.globalAlpha = base; ctx.lineCap = cap;
+}
+function circle(ctx, x, y, r, progress = 1, start = -Math.PI / 2) {
+  if (progress <= 0 || r <= 0) return;
+  ctx.beginPath(); ctx.arc(x, y, r, start, start + TAU * progress); ctx.stroke();
+}
+function arrowHead(ctx, tip, from, size) {
+  const angle = Math.atan2(tip[1] - from[1], tip[0] - from[0]);
+  ctx.beginPath();
+  ctx.moveTo(tip[0] - size * Math.cos(angle - .45), tip[1] - size * Math.sin(angle - .45));
+  ctx.lineTo(tip[0], tip[1]);
+  ctx.lineTo(tip[0] - size * Math.cos(angle + .45), tip[1] - size * Math.sin(angle + .45));
+  ctx.stroke();
+}
+
+/* ---------- Fig. 1: an atom turning slowly in 3D. Each electron is the pen that draws its own orbit. ---------- */
+const R = 150, TILT = 68 * Math.PI / 180;
+const orbits = [0, 1, 2].map(k => {
+  const node = k * Math.PI / 3;
+  return {
+    u: [Math.cos(node), Math.sin(node), 0],
+    w: [-Math.sin(node) * Math.cos(TILT), Math.cos(node) * Math.cos(TILT), Math.sin(TILT)],
+    dir: k === 1 ? -1 : 1, from: [-.5, 2.4, 4.3][k], start: .3 + k * .22,
+  };
+});
+const nucleons = [[-5.5, -3, 3, 1], [5.5, -2.5, -2, 0], [0, 5.5, 3.5, 1], [.5, -.5, -7, 0], [0, -1.5, 6.5, 0]];
+function atom(f, t, q) {
+  const { ctx } = f, out = ease(q), fade = 1 - out;
+  const yaw = .32 * Math.sin(.42 * t), pitch = .14 * Math.sin(.29 * t + .4);
+  const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+  const project = (x, y, z) => { const x1 = x * cy + z * sy, z1 = -x * sy + z * cy; return [200 + x1, 200 + y * cp - z1 * sp, y * sp + z1 * cp]; };
+  const onOrbit = (o, a) => { const c = Math.cos(a), s = Math.sin(a); return project(R * (c * o.u[0] + s * o.w[0]), R * (c * o.u[1] + s * o.w[1]), R * (c * o.u[2] + s * o.w[2])); };
+  const front = z => smooth(-70, 70, -z);
+
+  ctx.strokeStyle = LINE; ctx.globalAlpha = fade;
+  circle(ctx, 200, 200, 184, ease(span(t, 0, 2)));
+  ctx.globalAlpha = 1;
+
+  const electrons = [];
+  for (const o of orbits) {
+    const s = t - o.start;
+    if (s <= 0) continue;
+    // Fast off the mark, settling to a steady orbit: the velocity never jumps.
+    const travel = 1.25 * s + 4.2 * (1 - Math.exp(-s / .55));
+    const head = o.from + o.dir * travel;
+    const drawn = q > 0 ? TAU * (1 - out) : Math.min(TAU, travel);
+    if (drawn > .002) {
+      const n = Math.max(2, Math.ceil(drawn / TAU * 200)), pts = [];
+      for (let j = 0; j <= n; j++) pts.push(onOrbit(o, head - o.dir * drawn * (1 - j / n)));
+      ctx.strokeStyle = INK;
+      shaded(ctx, pts, j => .16 + .84 * front((pts[j][2] + pts[j - 1][2]) / 2));
+      const tail = Math.min(drawn, 1.2), m = 28, trail = [];
+      for (let j = 0; j <= m; j++) trail.push(onOrbit(o, head - o.dir * tail * (1 - j / m)));
+      ctx.strokeStyle = ACCENT; ctx.lineWidth = f.lw * 1.7;
+      shaded(ctx, trail, j => (j / m) ** 1.7 * (.35 + .65 * front(trail[j][2])));
+      ctx.lineWidth = f.lw;
+    }
+    electrons.push([onOrbit(o, head), smooth(0, .3, s) * (1 - smooth(.7, 1, q))]);
+  }
+
+  const nucleus = nucleons.map((n, i) => [project(n[0], n[1], n[2]), n[3], i]).sort((a, b) => b[0][2] - a[0][2]);
+  for (const [p, proton, i] of nucleus) {
+    const drawn = ease(span(t, .8 + i * .12, .6));
+    if (drawn <= 0) continue;
+    const r = 7.5 * (1 - .9 * out);
+    ctx.globalAlpha = drawn * fade; ctx.fillStyle = PAPER;
+    ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, TAU); ctx.fill();
+    ctx.globalAlpha = fade; ctx.strokeStyle = proton ? ACCENT : INK;
+    circle(ctx, p[0], p[1], r, drawn);
+  }
+  ctx.fillStyle = ACCENT;
+  for (const [p, alpha] of electrons) {
+    ctx.globalAlpha = alpha;
+    ctx.beginPath(); ctx.arc(p[0], p[1], 2.8 + 1.2 * front(p[2]), 0, TAU); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* ---------- Fig. 2: a rock-salt lattice turning slowly in 3D. Each Na+ sits among six Cl−, drawn to their real size ratio. ---------- */
+const SPACING = 82, R_NA = 6.5, R_CL = 11.5; // ionic radii 102 pm and 181 pm
+const ions = [], bonds = [];
+for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) for (let k = -1; k <= 1; k++) {
+  const index = ions.length, sodium = (i + j + k + 3) % 2 === 1; // the centre and edge midpoints are Na+
+  ions.push({ p: [i * SPACING, j * SPACING, k * SPACING], sodium, start: .2 + .42 * (Math.abs(i) + Math.abs(j) + Math.abs(k)) + .12 * hash(index) });
+}
+const ionAt = (i, j, k) => ions[(i + 1) * 9 + (j + 1) * 3 + (k + 1)];
+for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) for (let k = -1; k <= 1; k++) {
+  for (const [di, dj, dk] of [[1, 0, 0], [0, 1, 0], [0, 0, 1]]) {
+    if (i + di > 1 || j + dj > 1 || k + dk > 1) continue;
+    const a = ionAt(i, j, k), b = ionAt(i + di, j + dj, k + dk), m = (Math.abs(2 * i + di) + Math.abs(2 * j + dj) + Math.abs(2 * k + dk)) / 2;
+    bonds.push({ a, b, start: 1.2 + .3 * m + .15 * hash(bonds.length + 40), centre: a === ionAt(0, 0, 0) || b === ionAt(0, 0, 0) });
+  }
+}
+function lattice(f, t, q) {
+  const { ctx } = f, out = ease(q), fade = 1 - out;
+  const yaw = .42 + .1 * t, pitch = -.5 + .05 * Math.sin(.4 * t);
+  const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+  const project = ([x, y, z]) => { const x1 = x * cy + z * sy, z1 = -x * sy + z * cy; return [200 + x1, 204 + y * cp - z1 * sp, y * sp + z1 * cp]; };
+  const front = z => smooth(-110, 110, -z);
+  const shown = ions.map(ion => ({ ion, s: project(ion.p), r: (ion.sodium ? R_NA : R_CL) * (1 - .9 * out), drawn: ease(span(t, ion.start, .6)) }));
+  const screen = new Map(shown.map(item => [item.ion, item]));
+  // The six bonds round the central Na+ light up once, to show its octahedral neighbours.
+  const glow = smooth(3.7, 4.3, t) * (1 - smooth(6.3, 7.2, t)), reach = ease(span(t, 3.7, .8));
+
+  const items = [
+    ...shown.map(item => ({ z: item.s[2], draw: () => {
+      if (item.drawn <= 0) return;
+      const [x, y, z] = item.s, depth = .35 + .65 * front(z);
+      ctx.globalAlpha = item.drawn * fade; ctx.fillStyle = PAPER;
+      ctx.beginPath(); ctx.arc(x, y, item.r, 0, TAU); ctx.fill();
+      ctx.globalAlpha = depth * fade; ctx.strokeStyle = item.ion.sodium ? ACCENT : INK;
+      circle(ctx, x, y, item.r, item.drawn);
+    } })),
+    ...bonds.map(bond => {
+      const A = screen.get(bond.a), B = screen.get(bond.b);
+      return { z: (A.s[2] + B.s[2]) / 2 + .01, draw: () => {
+        const dx = B.s[0] - A.s[0], dy = B.s[1] - A.s[1], d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
+        const ra = (bond.a.sodium ? R_NA : R_CL) + 2.5, rb = (bond.b.sodium ? R_NA : R_CL) + 2.5;
+        if (d < ra + rb + 1) return;
+        const a = [A.s[0] + ux * ra, A.s[1] + uy * ra], b = [B.s[0] - ux * rb, B.s[1] - uy * rb];
+        const from = out, to = ease(span(t, bond.start, .55));
+        if (to <= from) return;
+        const p0 = [lerp(a[0], b[0], from), lerp(a[1], b[1], from)], p1 = [lerp(a[0], b[0], to), lerp(a[1], b[1], to)];
+        ctx.globalAlpha = .16 + .7 * front((A.s[2] + B.s[2]) / 2); ctx.strokeStyle = INK;
+        ctx.beginPath(); ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.stroke();
+        if (bond.centre && glow > 0) {
+          const centreFirst = bond.a === ionAt(0, 0, 0), s = centreFirst ? a : b, e = centreFirst ? b : a;
+          ctx.globalAlpha = glow * fade; ctx.strokeStyle = ACCENT; ctx.lineWidth = f.lw * 1.7;
+          ctx.beginPath(); ctx.moveTo(s[0], s[1]); ctx.lineTo(lerp(s[0], e[0], reach), lerp(s[1], e[1], reach)); ctx.stroke();
+          ctx.lineWidth = f.lw;
+        }
+      } };
+    }),
+  ].sort((m, n) => n.z - m.z);
+  items.forEach(item => item.draw());
+  ctx.globalAlpha = 1;
+}
+
+/* ---------- Fig. 3: phenol. Curly arrows push the π electrons and the double bonds slide one bond round the ring. ---------- */
+const C = [200, 216], RING = 88;
+const vertex = k => [C[0] + RING * Math.cos(-Math.PI / 2 + k * Math.PI / 3), C[1] + RING * Math.sin(-Math.PI / 2 + k * Math.PI / 3)];
+const HEX = polyline([0, 1, 2, 3, 4, 5, 0].map(vertex));
+const toward = (p, s) => [C[0] + (p[0] - C[0]) * s, C[1] + (p[1] - C[1]) * s];
+// Double bonds live on an inner hexagon (twice round, so a bond can slide past the start) and slide along it, round the corner.
+const INNER = polyline(Array.from({ length: 13 }, (_, k) => toward(vertex(k), .78))), EDGE = RING * .78;
+const middle = e => { const a = vertex(e), b = vertex(e + 1); return toward([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], .78); };
+const arrows = [0, 1].map(cycle => [0, 2, 4].map(e => {
+  e += cycle;
+  const a = middle(e), c = toward(vertex(e + 1), .42), b = middle(e + 1), pts = [];
+  for (let i = 0; i <= 30; i++) { const s = i / 30; pts.push([(1 - s) ** 2 * a[0] + 2 * (1 - s) * s * c[0] + s * s * b[0], (1 - s) ** 2 * a[1] + 2 * (1 - s) * s * c[1] + s * s * b[1]]); }
+  return { line: polyline(pts), tip: b, from: c };
+}));
+const OH = polyline([vertex(0), [200, vertex(0)[1] - 40]]);
+function phenol(f, t, q) {
+  const { ctx } = f, out = ease(q), fade = 1 - out;
+  const cycle = Math.min(1, Math.max(0, Math.floor((t - 2.6) / 2.6))), local = t - 2.6 - cycle * 2.6;
+  const shift = t < 2.6 ? 0 : cycle + ease(span(local, .9, .95));
+
+  ctx.strokeStyle = INK;
+  trace(ctx, HEX, HEX.len * out, HEX.len * ease(span(t, .1, 1.5)));
+  const ohOut = ease(span(q, 0, .6));
+  trace(ctx, OH, OH.len * ohOut, OH.len * ease(span(t, 1.3, .45)));
+  ctx.globalAlpha = smooth(1.6, 2.1, t) * (1 - smooth(0, .4, q)); ctx.fillStyle = INK;
+  ctx.font = f.font(13); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('OH', 200, vertex(0)[1] - 52);
+  ctx.textAlign = 'left';
+
+  ctx.globalAlpha = 1 - smooth(0, .5, q);
+  [0, 2, 4].forEach((e, i) => {
+    const from = (e + shift + .18) * EDGE;
+    trace(ctx, INNER, from, from + .64 * EDGE * ease(span(t, 1.5 + i * .15, .5)));
+  });
+
+  if (t >= 2.6 && local < 2) {
+    ctx.strokeStyle = ACCENT;
+    ctx.globalAlpha = 1 - smooth(1, 1.6, local);
+    arrows[cycle].forEach((arrow, i) => {
+      const drawn = ease(span(local, .05 + i * .1, .7));
+      trace(ctx, arrow.line, 0, arrow.line.len * drawn);
+      if (drawn > .85) arrowHead(ctx, arrow.tip, arrow.from, 7 * smooth(.85, 1, drawn));
+    });
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* ---------- The hero cycles the three figures, each drawn in, alive, then erased by its own pen. ---------- */
+const SCENE = 9.2, OUT_AT = 7.8, OUT_FOR = 1.2;
+const scenes = [['Atom', atom], ['Lattice', lattice], ['Phenol', phenol]];
+function hero(f, T) {
+  const n = Math.floor(T / SCENE), index = n % scenes.length, t = T - n * SCENE;
+  scenes[index][1](f, t, span(t, OUT_AT, OUT_FOR));
+}
+
+/* ---------- Level icons: drawn when they scroll in, redrawn on hover, with one small idle motion each. ---------- */
+const ellipse = (k, n = 80) => polyline(Array.from({ length: n + 1 }, (_, i) => {
+  const a = -Math.PI / 2 + TAU * i / n, x = 26 * Math.cos(a), y = 9.5 * Math.sin(a), r = k * Math.PI / 3;
+  return [32 + x * Math.cos(r) - y * Math.sin(r), 32 + x * Math.sin(r) + y * Math.cos(r)];
+}));
+const ICON_ORBITS = [0, 1, 2].map(k => ellipse(k));
+const ICON_CUBE = [];
+for (const i of [-1, 1]) for (const j of [-1, 1]) for (const k of [-1, 1]) ICON_CUBE.push({ p: [i * 13, j * 13, k * 13], sodium: i * j * k > 0 });
+const ICON_EDGES = ICON_CUBE.flatMap((a, m) => ICON_CUBE.slice(m + 1).filter(b => a.p.filter((v, n) => v !== b.p[n]).length === 1).map(b => [a, b]));
+const ICON_HEX = polyline([0, 1, 2, 3, 4, 5, 0].map(k => [32 + 24 * Math.cos(-Math.PI / 2 + k * Math.PI / 3), 32 + 24 * Math.sin(-Math.PI / 2 + k * Math.PI / 3)]));
+const icons = {
+  atom(f, t) {
+    const { ctx } = f;
+    ctx.strokeStyle = INK;
+    ICON_ORBITS.forEach((o, k) => trace(ctx, o, 0, o.len * ease(span(t, k * .15, .9))));
+    ctx.strokeStyle = ACCENT; circle(ctx, 32, 32, 3.2, ease(span(t, .6, .5)));
+    const a = .9 * t, p = [26 * Math.cos(a), 9.5 * Math.sin(a)];
+    ctx.globalAlpha = smooth(1.1, 1.6, t); ctx.fillStyle = ACCENT;
+    ctx.beginPath(); ctx.arc(32 + p[0], 32 + p[1], 2.2, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
+  },
+  lattice(f, t) {
+    const { ctx } = f, yaw = .62 + .22 * Math.sin(.6 * t), cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(-.5), sp = Math.sin(-.5);
+    const project = ([x, y, z]) => { const x1 = x * cy + z * sy, z1 = -x * sy + z * cy; return [32 + x1, 33 + y * cp - z1 * sp, y * sp + z1 * cp]; };
+    const at = new Map(ICON_CUBE.map(ion => [ion, project(ion.p)])), radius = ion => ion.sodium ? 2.4 : 4;
+    ctx.strokeStyle = INK;
+    ICON_EDGES.forEach(([a, b], n) => {
+      const A = at.get(a), B = at.get(b), dx = B[0] - A[0], dy = B[1] - A[1], d = Math.hypot(dx, dy) || 1;
+      const p = [A[0] + dx / d * (radius(a) + 1.5), A[1] + dy / d * (radius(a) + 1.5)], e = [B[0] - dx / d * (radius(b) + 1.5), B[1] - dy / d * (radius(b) + 1.5)];
+      const drawn = ease(span(t, .1 + .05 * n, .5));
+      ctx.globalAlpha = .3 + .7 * smooth(-14, 14, -(A[2] + B[2]) / 2);
+      ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(lerp(p[0], e[0], drawn), lerp(p[1], e[1], drawn)); ctx.stroke();
+    });
+    [...ICON_CUBE].sort((a, b) => at.get(b)[2] - at.get(a)[2]).forEach((ion, n) => {
+      const [x, y, z] = at.get(ion), drawn = ease(span(t, .5 + .06 * n, .5));
+      ctx.globalAlpha = .45 + .55 * smooth(-14, 14, -z); ctx.strokeStyle = ion.sodium ? ACCENT : INK;
+      circle(ctx, x, y, radius(ion), drawn);
+    });
+    ctx.globalAlpha = 1;
+  },
+  ring(f, t) {
+    const { ctx } = f;
+    ctx.strokeStyle = INK; trace(ctx, ICON_HEX, 0, ICON_HEX.len * ease(span(t, 0, 1)));
+    ctx.strokeStyle = ACCENT; circle(ctx, 32, 32, 13, ease(span(t, .6, .6)));
+    ctx.globalAlpha = smooth(1.2, 1.7, t); ctx.lineWidth = f.lw * 2.2;
+    ctx.beginPath(); ctx.arc(32, 32, 13, .9 * t, .9 * t + .8); ctx.stroke();
+    ctx.globalAlpha = 1; ctx.lineWidth = f.lw;
+  },
+};
+
+/* ---------- Titration: 25 mL of 0.10 M phosphoric acid with 0.10 M NaOH, solved from the charge balance, not drawn by hand. ---------- */
+const KW = 1e-14, KA = [7.1e-3, 6.3e-8, 4.5e-13]; // pKa 2.15, 7.20, 12.35
+function phAt(v) {
+  const P = 2.5 / (25 + v), Na = .1 * v / (25 + v);
+  // H+ + Na+ = OH− + H2PO4− + 2 HPO4²− + 3 PO4³−. Left minus right falls as pH rises, so bisect on pH.
+  let lo = 0, hi = 14;
+  for (let n = 0; n < 40; n++) {
+    const pH = (lo + hi) / 2, h = 10 ** -pH;
+    const a1 = h * h * KA[0], a2 = h * KA[0] * KA[1], a3 = KA[0] * KA[1] * KA[2], sum = h ** 3 + a1 + a2 + a3;
+    if (h + Na - KW / h - P * (a1 + 2 * a2 + 3 * a3) / sum > 0) lo = pH; else hi = pH;
+  }
+  return (lo + hi) / 2;
+}
+const VMAX = 60, vx = v => 34 + v / VMAX * 358, py = pH => 168 - pH / 14 * 150;
+const CURVE = Array.from({ length: VMAX * 10 + 1 }, (_, i) => { const v = i / 10, pH = phAt(v); return [vx(v), py(pH), pH]; });
+const AXES = polyline([[34, 12], [34, 168], [392, 168]]);
+const EQS = [25, 50].map(v => [vx(v), py(phAt(v)), phAt(v)]), PKA2 = [vx(37.5), py(phAt(37.5))], MID = (EQS[0][0] + EQS[1][0]) / 2;
+// Base goes in at a steady rate, so the point lingers on the buffer plateau and races up each jump.
+const RUN = 4.6, PERIOD = 5.8, added = run => VMAX * (.75 * run + .25 * (1 - Math.cos(Math.PI * run)) / 2);
+const reach = v => { let lo = 0, hi = 1; for (let n = 0; n < 30; n++) { const m = (lo + hi) / 2; if (added(m) < v) lo = m; else hi = m; } return lo * RUN; };
+const EQ_AT = [reach(25), reach(50)], PKA2_AT = reach(37.5);
+function titration(f, t) {
+  const { ctx } = f;
+  ctx.strokeStyle = INK; trace(ctx, AXES, 0, AXES.len * ease(span(t, 0, 1)));
+  ctx.fillStyle = MUTED; ctx.font = f.font(10.5); ctx.textBaseline = 'middle';
+  ctx.globalAlpha = smooth(.6, 1.1, t);
+  ctx.fillText('pH', 42, 18);
+  ctx.textAlign = 'right'; ctx.fillText('H₃PO₄ + NaOH', 392, 18); ctx.fillText('volume of base', 392, 186); ctx.textAlign = 'left';
+  ctx.globalAlpha = .9 * smooth(.7, 1.3, t); ctx.strokeStyle = LINE; ctx.setLineDash([3, 4]);
+  ctx.beginPath(); EQS.forEach(([x]) => { ctx.moveTo(x, 32); ctx.lineTo(x, 168); }); ctx.stroke();
+  ctx.setLineDash([]); ctx.globalAlpha = 1;
+
+  const u = t < 1 ? -1 : (t - 1) % PERIOD, firstDone = t >= 1 + RUN;
+  const v = u < 0 ? 0 : added(clamp(u / RUN));
+  const upTo = Math.round((firstDone ? VMAX : v) * 10);
+  if (upTo > 0) {
+    const green = new Path2D(), pink = new Path2D();
+    for (let i = 1; i <= upTo; i++) { const path = CURVE[i][2] > 8.2 ? pink : green; path.moveTo(CURVE[i - 1][0], CURVE[i - 1][1]); path.lineTo(CURVE[i][0], CURVE[i][1]); }
+    ctx.lineWidth = f.lw * 1.3; ctx.strokeStyle = ACCENT; ctx.stroke(green); ctx.strokeStyle = PINK; ctx.stroke(pink); ctx.lineWidth = f.lw;
+  }
+  if (u < 0) return;
+  EQS.forEach(([x, y, pH], k) => {
+    const pulse = (u - EQ_AT[k]) / .9;
+    if (!still && pulse > 0 && pulse < 1) { ctx.strokeStyle = pH > 8.2 ? PINK : ACCENT; ctx.globalAlpha = .55 * (1 - pulse); circle(ctx, x, y, 4 + 16 * easeOut(pulse)); }
+  });
+  // Each label appears the first time the point reaches it, then stays.
+  const seen = at => firstDone ? 1 : smooth(at, at + .5, u);
+  ctx.fillStyle = MUTED; ctx.textAlign = 'center';
+  ctx.globalAlpha = seen(EQ_AT[0]); ctx.fillText('equivalence points', MID, 150);
+  ctx.globalAlpha = seen(PKA2_AT); ctx.fillText('pH = pKa₂', PKA2[0], PKA2[1] - 15);
+  ctx.strokeStyle = MUTED; circle(ctx, PKA2[0], PKA2[1], 3.2);
+  ctx.textAlign = 'left';
+  const p = CURVE[Math.min(VMAX * 10, Math.round(v * 10))];
+  ctx.globalAlpha = u < RUN ? smooth(0, .15, u) : 1 - smooth(RUN, RUN + .6, u);
+  ctx.fillStyle = p[2] > 8.2 ? PINK : ACCENT;
+  ctx.beginPath(); ctx.arc(p[0], p[1], 3.6, 0, TAU); ctx.fill();
+  ctx.globalAlpha = 1;
+}
+
+/* ---------- Graph 2: molecular speeds of N2 at 300 K and a warmer, changing temperature (Maxwell–Boltzmann). ---------- */
+const K_B = 1.380649e-23, M_N2 = 28.0134 * 1.66054e-27, V_MAX = 2000, V_STAR = 1200, F_TOP = 2.15e-3;
+const vpOf = T => Math.sqrt(2 * K_B * T / M_N2);
+const mb = (v, T) => { const vp = vpOf(T); return 4 / Math.sqrt(Math.PI) * v * v / vp ** 3 * Math.exp(-(v * v) / (vp * vp)); };
+const erfc = x => { const t = 1 / (1 + .3275911 * x); return t * (.254829592 + t * (-.284496736 + t * (1.421413741 + t * (-1.453152027 + t * 1.061405429)))) * Math.exp(-x * x); };
+const fastShare = T => { const x = V_STAR / vpOf(T); return erfc(x) + 2 * x / Math.sqrt(Math.PI) * Math.exp(-x * x); };
+const sx = v => 34 + v / V_MAX * 358, sy = f => 168 - f / F_TOP * 148;
+const speedCurve = T => Array.from({ length: 401 }, (_, i) => { const v = i * 5; return [sx(v), sy(mb(v, T))]; });
+const COLD = polyline(speedCurve(300));
+function speeds(f, t) {
+  const { ctx } = f;
+  ctx.strokeStyle = INK; trace(ctx, AXES, 0, AXES.len * ease(span(t, 0, 1)));
+  ctx.fillStyle = MUTED; ctx.font = f.font(10.5); ctx.textBaseline = 'middle';
+  ctx.globalAlpha = smooth(.6, 1.1, t);
+  ctx.fillText('molecules', 42, 18);
+  ctx.textAlign = 'right'; ctx.fillText('N₂ gas', 392, 18); ctx.fillText('molecular speed', 392, 186); ctx.textAlign = 'left';
+  const xs = sx(V_STAR);
+  ctx.globalAlpha = .9 * smooth(.7, 1.3, t); ctx.strokeStyle = LINE; ctx.setLineDash([3, 4]);
+  ctx.beginPath(); ctx.moveTo(xs, 48); ctx.lineTo(xs, 168); ctx.stroke(); ctx.setLineDash([]);
+  ctx.globalAlpha = smooth(.9, 1.4, t); ctx.fillText('fast enough to react', xs + 7, 44);
+  ctx.globalAlpha = 1;
+
+  ctx.lineWidth = f.lw * 1.3; ctx.strokeStyle = INK;
+  trace(ctx, COLD, 0, COLD.len * ease(span(t, .9, 1.3)));
+  ctx.globalAlpha = smooth(2, 2.4, t); ctx.fillStyle = MUTED;
+  ctx.fillText('300 K', sx(vpOf(300)) + 12, sy(mb(vpOf(300), 300)) - 2);
+  ctx.globalAlpha = 1;
+
+  // The warm curve arrives at 1000 K, then the temperature drifts down to 500 K and back.
+  const T = t < 3.6 ? 1000 : 750 + 250 * Math.cos(.45 * (t - 3.6));
+  const warm = speedCurve(T), drawn = ease(span(t, 2.1, 1.3));
+  if (drawn > 0) {
+    const tail = new Path2D(), first = Math.round(V_STAR / 5);
+    tail.moveTo(xs, 168); for (let i = first; i <= 400; i++) tail.lineTo(warm[i][0], warm[i][1]); tail.lineTo(392, 168); tail.closePath();
+    ctx.globalAlpha = .14 * smooth(3, 3.6, t); ctx.fillStyle = ACCENT; ctx.fill(tail);
+    ctx.globalAlpha = 1; ctx.strokeStyle = ACCENT;
+    const W = polyline(warm); trace(ctx, W, 0, W.len * drawn);
+    const pct = T => { const share = fastShare(T) * 100; return `${share < 1 ? share.toFixed(1) : Math.round(share)}%`; };
+    ctx.globalAlpha = smooth(2.2, 2.7, t); ctx.fillStyle = MUTED; ctx.fillText(`${pct(300)} at 300 K`, xs + 7, 58);
+    ctx.globalAlpha = smooth(3, 3.5, t); ctx.fillStyle = ACCENT; ctx.fillText(`${pct(T)} at ${Math.round(T / 10) * 10} K`, xs + 7, 72);
+  }
+  ctx.globalAlpha = 1; ctx.lineWidth = f.lw;
+}
+
+/* ---------- Graph 3: hydrogen's visible emission lines. An electron drops to n = 2 and the line it emits appears at its real wavelength. ---------- */
+const RYD = 1.09678e7, LEVEL_E = n => -13.6057 / (n * n), ly = n => 18 + (-LEVEL_E(n)) / 3.6 * 150;
+const BALMER = [3, 4, 5, 6].map((n, k) => ({ n, k, nm: 1e9 / (RYD * (1 / 4 - 1 / (n * n))), color: ['#cf3f37', '#2a98b0', '#4158c8', '#7046b5'][k], x: 102 + k * 26 }));
+const wx = nm => 224 + (nm - 380) / 320 * 152;
+function hydrogen(f, t) {
+  const { ctx } = f;
+  ctx.strokeStyle = INK; trace(ctx, polyline([[34, 12], [34, 168]]), 0, 156 * ease(span(t, 0, .8)));
+  ctx.fillStyle = MUTED; ctx.font = f.font(10.5); ctx.textBaseline = 'middle';
+  ctx.globalAlpha = smooth(.6, 1.1, t);
+  ctx.fillText('energy', 42, 18);
+  ctx.textAlign = 'right'; ctx.fillText('hydrogen', 392, 18); ctx.fillText('wavelength (nm)', 392, 186);
+  [2, 3, 4].forEach(n => ctx.fillText(`n = ${n}`, 74, ly(n)));
+  ctx.textAlign = 'center'; [400, 500, 600, 700].forEach(nm => ctx.fillText(nm, wx(nm), 160));
+  ctx.textAlign = 'left'; ctx.globalAlpha = 1;
+  ctx.strokeStyle = INK;
+  [2, 3, 4, 5, 6].forEach((n, i) => { const L = polyline([[82, ly(n)], [196, ly(n)]]); ctx.globalAlpha = .35 + .65 * (n === 2); trace(ctx, L, 0, L.len * ease(span(t, .2 + i * .1, .7))); });
+  ctx.globalAlpha = 1; ctx.strokeStyle = LINE;
+  trace(ctx, polyline([[224, 146], [384, 146]]), 0, 160 * ease(span(t, .5, .8)));
+  ctx.beginPath(); [400, 500, 600, 700].forEach(nm => { ctx.moveTo(wx(nm), 146); ctx.lineTo(wx(nm), 150); }); ctx.globalAlpha = smooth(.9, 1.3, t); ctx.stroke(); ctx.globalAlpha = 1;
+  if (t < 1.4) return;
+  // Four drops per cycle, longest wavelength first; everything fades at the end and the cycle repeats.
+  const c = still ? 7.2 : (t - 1.4) % 8.4, fade = 1 - smooth(7.5, 8.2, c);
+  for (const line of BALMER) {
+    const s = c - (.2 + line.k * 1.6);
+    if (s < 0) continue;
+    const top = ly(line.n), bottom = ly(2) - 3, fall = easeIn(span(s, .45, .5)), y = top + (bottom - top) * fall;
+    ctx.strokeStyle = line.color; ctx.globalAlpha = fade * (fall > 0 ? .9 - .55 * smooth(1, 2, s) : 0);
+    ctx.beginPath(); ctx.moveTo(line.x, top); ctx.lineTo(line.x, y); ctx.stroke();
+    if (fall >= 1) arrowHead(ctx, [line.x, bottom], [line.x, top], 5);
+    if (s < 1.05) {
+      ctx.globalAlpha = fade * smooth(0, .3, s) * (1 - smooth(.95, 1.05, s)); ctx.fillStyle = ACCENT;
+      ctx.beginPath(); ctx.arc(line.x, y, 3.2, 0, TAU); ctx.fill();
+    }
+    const glow = smooth(.95, 1.05, s), x = wx(line.nm);
+    if (glow > 0) {
+      const flash = Math.exp(-(s - .95) * 3);
+      ctx.strokeStyle = line.color; ctx.lineCap = 'butt';
+      ctx.globalAlpha = fade * glow * .1 * (1 + 3 * flash); ctx.lineWidth = f.lw * 4.5; ctx.beginPath(); ctx.moveTo(x, 66); ctx.lineTo(x, 140); ctx.stroke();
+      ctx.globalAlpha = fade * glow; ctx.lineWidth = f.lw * 1.6; ctx.beginPath(); ctx.moveTo(x, 66); ctx.lineTo(x, 140); ctx.stroke();
+      ctx.lineWidth = f.lw; ctx.lineCap = 'round';
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* ---------- Graph 4: a two-step reaction with an intermediate, and the same reaction with a catalyst. A ball climbs each path. ---------- */
+const keyed = keys => s => {
+  let i = 1; while (i < keys.length - 1 && s > keys[i][0]) i++;
+  const [s0, e0] = keys[i - 1], [s1, e1] = keys[i], u = clamp((s - s0) / (s1 - s0));
+  return e0 + (e1 - e0) * u * u * (3 - 2 * u);
+};
+const UNCAT = keyed([[0, 0], [.1, 0], [.32, 1], [.5, .38], [.68, .78], [.88, -.42], [1, -.42]]);
+const CAT = keyed([[0, 0], [.1, 0], [.32, .55], [.5, .22], [.68, .42], [.88, -.42], [1, -.42]]);
+const ex = s => 44 + s * 342, ey = e => 160 - (e + .55) / 1.65 * 132;
+const PATHS = [UNCAT, CAT].map(E => polyline(Array.from({ length: 343 }, (_, i) => [ex(i / 342), ey(E(i / 342))])));
+const ROLL = [[{ to: .32, d: 1.5, e: easeOut }, { to: .5, d: .5, e: easeIn }, { to: .5, d: .5 }, { to: .68, d: .9, e: easeOut }, { to: 1, d: .9, e: easeIn }],
+              [{ to: .32, d: .8, e: easeOut }, { to: .5, d: .4, e: easeIn }, { to: .5, d: .4 }, { to: .68, d: .5, e: easeOut }, { to: 1, d: .8, e: easeIn }]];
+function roll(plan, time) {
+  let s = 0;
+  for (const step of plan) { if (time < step.d) return s + (step.to - s) * (step.e || (x => x))(time / step.d); time -= step.d; s = step.to; }
+  return 1;
+}
+function energy(f, t) {
+  const { ctx } = f;
+  ctx.strokeStyle = INK; trace(ctx, AXES, 0, AXES.len * ease(span(t, 0, 1)));
+  ctx.fillStyle = MUTED; ctx.font = f.font(10.5); ctx.textBaseline = 'middle';
+  ctx.globalAlpha = smooth(.6, 1.1, t);
+  ctx.fillText('energy', 42, 18);
+  ctx.textAlign = 'right'; ctx.fillText('reaction progress', 392, 186);
+  ctx.globalAlpha = smooth(3.2, 3.7, t); ctx.fillStyle = ACCENT; ctx.fillText('with a catalyst', 392, 18);
+  ctx.textAlign = 'left'; ctx.globalAlpha = 1;
+  ctx.lineWidth = f.lw * 1.3;
+  ctx.strokeStyle = INK; trace(ctx, PATHS[0], 0, PATHS[0].len * ease(span(t, .8, 1.6)));
+  ctx.strokeStyle = ACCENT; trace(ctx, PATHS[1], 0, PATHS[1].len * ease(span(t, 2.8, 1.4)));
+  ctx.lineWidth = f.lw;
+  // Activation energies: arrows from the reactants up to each first barrier.
+  const ea = smooth(2.2, 2.8, t);
+  if (ea > 0) {
+    ctx.globalAlpha = .9 * ea; ctx.strokeStyle = LINE; ctx.setLineDash([3, 4]);
+    ctx.beginPath(); ctx.moveTo(52, ey(1)); ctx.lineTo(ex(.32) - 4, ey(1)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.globalAlpha = ea; ctx.strokeStyle = INK;
+    ctx.beginPath(); ctx.moveTo(56, ey(0) - 2); ctx.lineTo(56, ey(1) + 2); ctx.stroke(); arrowHead(ctx, [56, ey(1) + 2], [56, ey(0)], 4.5);
+    ctx.fillStyle = MUTED; ctx.textAlign = 'right'; ctx.fillText('Eₐ', 51, (ey(0) + ey(1)) / 2); ctx.textAlign = 'left';
+  }
+  const eaCat = smooth(4, 4.5, t);
+  if (eaCat > 0) {
+    ctx.globalAlpha = .5 * eaCat; ctx.strokeStyle = ACCENT; ctx.setLineDash([3, 4]);
+    ctx.beginPath(); ctx.moveTo(80, ey(.55)); ctx.lineTo(ex(.32) - 4, ey(.55)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.globalAlpha = eaCat;
+    ctx.beginPath(); ctx.moveTo(84, ey(0) - 2); ctx.lineTo(84, ey(.55) + 2); ctx.stroke(); arrowHead(ctx, [84, ey(.55) + 2], [84, ey(0)], 4.5);
+  }
+  ctx.globalAlpha = smooth(2.4, 2.9, t); ctx.fillStyle = MUTED; ctx.textAlign = 'center';
+  ctx.fillText('reactants', ex(.07), ey(0) + 13);
+  ctx.fillText('intermediate', ex(.5), ey(.22) + 14);
+  ctx.fillText('products', ex(.95), ey(-.42) - 11);
+  ctx.textAlign = 'left'; ctx.globalAlpha = 1;
+  if (t < 4.4) return;
+  // The ball takes the uncatalysed path, then the catalysed one, which is quicker.
+  const c = still ? 2.2 : (t - 4.4) % 8.6, which = c < 4.7 ? 0 : 1, time = which ? c - 4.7 : c, total = ROLL[which].reduce((a, b) => a + b.d, 0);
+  const s = roll(ROLL[which], time), E = which ? CAT : UNCAT;
+  ctx.globalAlpha = smooth(0, .2, time) * (1 - smooth(total, total + .4, time));
+  ctx.fillStyle = which ? ACCENT : INK;
+  ctx.beginPath(); ctx.arc(ex(s), ey(E(s)) - 3.4, 3.2, 0, TAU); ctx.fill();
+  ctx.globalAlpha = 1;
+}
+
+/* ---------- The How I teach graph cycles through all four, each fading out before the next draws in. ---------- */
+const GRAPHS = [[titration, 6.8], [speeds, 9.5], [hydrogen, 9], [energy, 12.8]], GRAPH_OUT = .8;
+const GRAPH_CYCLE = GRAPHS.reduce((sum, [, length]) => sum + length, 0);
+function teaching(f, T) {
+  if (still) return titration(f, T);
+  let t = T % GRAPH_CYCLE, k = 0;
+  while (t >= GRAPHS[k][1]) t -= GRAPHS[k++][1];
+  const [draw, length] = GRAPHS[k], out = span(t, length - GRAPH_OUT, GRAPH_OUT);
+  draw(f, t);
+  if (out > 0) {
+    const { ctx } = f;
+    ctx.save(); ctx.globalCompositeOperation = 'destination-out'; ctx.globalAlpha = ease(out); ctx.fillRect(0, 0, f.w, f.h); ctx.restore();
+  }
+}
+
+/* ---------- A magnifying glass wanders over a skeletal formula, and the structure under it is drawn larger. ---------- */
+const BOND = 9, RING_C = [18, 31];
+const RING_V = k => [RING_C[0] + BOND * Math.cos(k * Math.PI / 3), RING_C[1] + BOND * Math.sin(k * Math.PI / 3)];
+const SMALL_RING = polyline([0, 1, 2, 3, 4, 5, 6].map(RING_V));
+const CHAIN_PTS = [0, 1, 2, 3, 4].map(n => [RING_V(0)[0] + n * BOND * Math.cos(Math.PI / 6), RING_C[1] - (n % 2) * BOND / 2]);
+const CHAIN = polyline(CHAIN_PTS);
+// Second lines of the double bonds: three round the ring and one in the chain.
+const trimmed = (a, b, trim) => [[lerp(a[0], b[0], trim), lerp(a[1], b[1], trim)], [lerp(a[0], b[0], 1 - trim), lerp(a[1], b[1], 1 - trim)]];
+const inward = p => [lerp(p[0], RING_C[0], .27), lerp(p[1], RING_C[1], .27)];
+const DOUBLES = [1, 3, 5].map(k => trimmed(inward(RING_V(k)), inward(RING_V(k + 1)), .12));
+{
+  const [a, b] = [CHAIN_PTS[2], CHAIN_PTS[3]], d = Math.hypot(b[0] - a[0], b[1] - a[1]);
+  const o = [(b[1] - a[1]) / d * 2.4, -(b[0] - a[0]) / d * 2.4];
+  DOUBLES.push(trimmed([a[0] + o[0], a[1] + o[1]], [b[0] + o[0], b[1] + o[1]], .16));
+}
+function molecule(ctx, t) {
+  ctx.strokeStyle = INK;
+  trace(ctx, SMALL_RING, 0, SMALL_RING.len * ease(span(t, 0, .9)));
+  trace(ctx, CHAIN, 0, CHAIN.len * ease(span(t, .75, .6)));
+  DOUBLES.forEach(([a, b], i) => {
+    const drawn = ease(span(t, 1.1 + i * .08, .35));
+    if (drawn <= 0) return;
+    ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(lerp(a[0], b[0], drawn), lerp(a[1], b[1], drawn)); ctx.stroke();
+  });
+}
+const LENS = 13.5, ZOOM = 1.4, HANDLE = Math.SQRT1_2;
+function explore(f, t) {
+  const { ctx } = f;
+  molecule(ctx, t);
+  if (t < 1.3) return;
+  // The glass eases into motion, then wanders on a slow Lissajous path that never quite repeats.
+  const s = Math.max(0, t - 2.1), p = .5 * (s - 1.4 * (1 - Math.exp(-s / 1.4)));
+  const x = 38 - 20 * Math.cos(p), y = 29.5 + 2.5 * Math.sin(1.3 * p + 1.1);
+  const zoom = smooth(1.8, 2.3, t);
+  if (zoom > 0) {
+    ctx.save();
+    ctx.beginPath(); ctx.arc(x, y, LENS - .5, 0, TAU); ctx.clip();
+    ctx.globalAlpha = zoom; ctx.fillStyle = PAPER; ctx.fillRect(x - LENS, y - LENS, 2 * LENS, 2 * LENS);
+    ctx.translate(x, y); ctx.scale(ZOOM, ZOOM); ctx.translate(-x, -y);
+    ctx.lineWidth = f.lw * .85;
+    molecule(ctx, t);
+    ctx.restore();
+  }
+  ctx.strokeStyle = ACCENT; ctx.lineWidth = f.lw * 1.3;
+  circle(ctx, x, y, LENS, ease(span(t, 1.3, .6)), -Math.PI * .75);
+  const grip = ease(span(t, 1.7, .4));
+  if (grip > 0) {
+    const a = [x + (LENS + 1) * HANDLE, y + (LENS + 1) * HANDLE], length = 10 * grip;
+    ctx.strokeStyle = INK; ctx.lineWidth = f.lw * 2.4;
+    ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(a[0] + length * HANDLE, a[1] + length * HANDLE); ctx.stroke();
+  }
+  ctx.globalAlpha = .45 * zoom; ctx.strokeStyle = ACCENT; ctx.lineWidth = f.lw;
+  ctx.beginPath(); ctx.arc(x, y, LENS - 3.5, -2.5, -1.75); ctx.stroke();
+  ctx.globalAlpha = 1;
+}
+
+/* ---------- One clock for everything. ---------- */
+function figure(canvas, w, h, draw) {
+  const f = { canvas, ctx: canvas.getContext('2d'), w, h, draw, start: undefined, k: 1, dpr: 1, lw: 1 };
+  f.font = px => `500 ${px / f.k}px Inter, Arial, sans-serif`;
+  f.resize = () => {
+    const width = canvas.getBoundingClientRect().width;
+    if (!width) return;
+    f.dpr = Math.min(2, devicePixelRatio || 1);
+    canvas.width = Math.round(width * f.dpr); canvas.height = Math.round(width * h / w * f.dpr);
+    f.k = width / w; f.lw = 1.25 / f.k;
+  };
+  return f;
+}
+const heroFigure = figure(document.getElementById('hero'), 400, 400, hero);
+heroFigure.start = 0;
+const figures = [
+  heroFigure,
+  ...[...document.querySelectorAll('.icon')].map(canvas => figure(canvas, 64, 64, icons[canvas.dataset.icon])),
+  figure(document.getElementById('titration'), 400, 200, teaching),
+  figure(document.getElementById('lens'), 78, 56, explore),
+];
+figures.forEach(f => f.resize());
+
+let clock = 0, last = null;
+function render(T, everything = false) {
+  const vh = innerHeight, boxes = figures.map(f => f.canvas.getBoundingClientRect());
+  figures.forEach((f, i) => {
+    const box = boxes[i];
+    if (f.start === undefined) { if (box.top < vh * .9 && box.bottom > 0) f.start = T; else return; }
+    if (!everything && (box.bottom < -40 || box.top > vh + 40)) return;
+    const { ctx } = f;
+    ctx.setTransform(f.dpr * f.k, 0, 0, f.dpr * f.k, 0, 0);
+    ctx.clearRect(0, 0, f.w, f.h);
+    ctx.lineWidth = f.lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.globalAlpha = 1;
+    f.draw(f, f === heroFigure ? T : T - f.start);
+  });
+}
+function tick(now) {
+  if (last !== null) clock += Math.min(.05, (now - last) / 1000); // a background tab resumes where it paused
+  last = now;
+  render(clock);
+  requestAnimationFrame(tick);
+}
+document.addEventListener('visibilitychange', () => { last = null; });
+new ResizeObserver(() => { figures.forEach(f => f.resize()); if (still) render(4.4, true); }).observe(document.body);
+document.querySelectorAll('.levels li').forEach((li, i) => li.addEventListener('mouseenter', () => {
+  const f = figures[1 + i];
+  if (f.start !== undefined && clock - f.start > 1.8) f.start = clock;
+}));
+
+const rising = document.querySelectorAll('.rise');
+if (still || capture || !('IntersectionObserver' in window)) rising.forEach(el => el.classList.add('in'));
+else {
+  const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (entry.isIntersecting) { entry.target.classList.add('in'); observer.unobserve(entry.target); }
+  }), { threshold: .15 });
+  rising.forEach(el => observer.observe(el));
+}
+
+if (still) { figures.forEach(f => { if (f !== heroFigure) f.start = -30; }); render(4.4, true); }
+else if (capture) window.__render = render;
+else requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
