@@ -16,6 +16,7 @@ A personal website and collection of interactive chemistry simulations.
 - [Titration](simulations/titration/index.html) — Titrate HCl with NaOH and stop at the first lasting pink of phenolphthalein.
 - [Acid and Base Strength](simulations/acid-base-strength/index.html) — Dissolve a strong acid, weak acid, strong base, or weak base and see how much of it ionizes.
 - [Buffers](simulations/buffer/index.html) — Add acid or base to water and to an acetic acid/acetate buffer and compare how far the pH moves.
+- [Nuclear Decay](simulations/nuclear-decay/index.html) — Fire alpha, beta, and gamma radiation, balance the nuclear equation, follow uranium-238 down to lead-206, and watch a sample decay by half-lives.
 - [Exile Catch-Up](exile-catch-up/index.html) — Path of Exile patch notes, one change at a time, with the backstory attached.
 
 ## Attribution
