@@ -1,0 +1,2361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Naming Organic Compounds</title>
+<link rel="icon" href="data:,">
+<style>
+:root{
+  --paper:#fff;--ink:#111;--rule:#b9bec6;--blue:#0039a6;--wash:#dfe7f5;--wrong:#a3122a;--muted:#555;
+  --font:Arial,"Helvetica Neue",Helvetica,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;min-height:100vh;display:grid;place-items:start center;background:var(--paper);color:var(--ink);font:400 17px/1.35 var(--font)}
+button,input{font:inherit;color:inherit}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.app{width:min(100% - 32px,1240px);margin:16px 0 28px}
+
+.bar{display:flex;align-items:flex-end;flex-wrap:wrap;gap:10px 18px;padding-bottom:10px}
+.site-nav a{display:flex;align-items:center;gap:6px;height:44px;color:inherit;text-decoration:none}
+.site-nav a:hover{text-decoration:underline}
+:is(a,button,input,summary):focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+h1{margin:0 auto 0 0;align-self:center;font-size:20px;font-weight:700;letter-spacing:-.01em}
+.session{display:flex;gap:8px}
+.session button{height:44px;padding:0 12px;background:none;border:1px solid var(--ink);border-radius:2px;cursor:pointer}
+.session button:hover{border-color:var(--blue);color:var(--blue)}
+.session button[aria-pressed=true]{border-color:var(--blue);background:var(--blue);color:var(--paper)}
+
+/* The tiers run left to right in the order schools teach them; the one in use is underlined. */
+.tiers{margin:0;padding:0 0 8px;list-style:none;display:flex;flex-wrap:wrap;gap:2px 14px;border-bottom:1.5px solid var(--ink)}
+.tiers button{display:flex;align-items:baseline;gap:6px;min-height:40px;padding:0 2px;background:none;border:0;border-bottom:2px solid transparent;cursor:pointer;font-size:15px}
+.tiers button:hover{border-bottom-color:var(--rule)}
+.tiers button[aria-current=true]{border-bottom-color:var(--blue);color:var(--blue)}
+.tiers .n{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tiers button[aria-current=true] .n{color:var(--blue)}
+.tiers .done{font-size:12px;color:var(--blue)}
+
+.card{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);border-bottom:1.5px solid var(--ink)}
+.stage{position:relative;min-height:340px;border-right:1px solid var(--ink);display:grid;place-items:center;padding:18px}
+#structure{width:100%;height:auto;max-height:440px;overflow:visible}
+.views{position:absolute;left:12px;bottom:10px;display:flex;gap:12px;font-size:14px}
+.views button{background:none;border:0;border-bottom:2px solid transparent;padding:6px 2px;cursor:pointer;color:var(--muted)}
+.views button:enabled:hover{color:var(--ink)}
+.views button[aria-pressed=true]{color:var(--blue);border-bottom-color:var(--blue)}
+.views button:disabled{color:var(--rule);cursor:default}
+.formula{position:absolute;right:12px;bottom:14px;font-size:14px;color:var(--muted)}
+/* "Pick structure": four drawings to choose from; the stage keeps room for the view toggles. */
+.picks{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:36px}
+.picks button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:150px;padding:22px 6px 8px;background:none;border:1px solid var(--rule);border-radius:2px;cursor:pointer}
+.picks button:enabled:hover{border-color:var(--blue)}
+.picks button:disabled{cursor:default}
+.picks svg{width:100%;height:auto;max-height:210px;overflow:visible}
+.picks .key{position:absolute;left:8px;top:4px;font-size:12px;color:var(--muted)}
+.picks .said{font-size:13px;overflow-wrap:anywhere}
+.picks button.right{border:2px solid var(--blue)}
+.picks button.right .said{color:var(--blue)}
+.picks button.wrong{border:2px solid var(--wrong)}
+.picks button.wrong .said{color:var(--wrong)}
+.ask .target{color:var(--blue);overflow-wrap:anywhere}
+
+.panel{padding:16px 18px 20px;display:flex;flex-direction:column;gap:12px}
+.blurb{margin:0;color:var(--muted);font-size:15px}
+.ask{margin:0;font-size:19px;font-weight:700}
+.choices{display:grid;gap:8px}
+.choices button{display:flex;gap:10px;align-items:baseline;text-align:left;min-height:46px;padding:10px 12px;background:none;border:1px solid var(--rule);border-radius:2px;cursor:pointer;overflow-wrap:anywhere}
+.choices button:enabled:hover{border-color:var(--blue)}
+.choices .key{font-size:12px;color:var(--muted)}
+.choices button.right{border:2px solid var(--blue);color:var(--blue)}
+.choices button.wrong{border:2px solid var(--wrong);color:var(--wrong);text-decoration:line-through}
+.choices button:disabled{cursor:default}
+.typed{display:flex;flex-wrap:wrap;gap:8px}
+.typed input{flex:1 1 220px;min-height:46px;padding:0 12px;border:1px solid var(--ink);border-radius:2px}
+.typed button{min-height:46px;padding:0 14px;border:1px solid var(--ink);border-radius:2px;background:none;cursor:pointer}
+.typed button.primary{border-color:var(--blue);background:var(--blue);color:var(--paper)}
+.feedback{margin:0;min-height:1.35em}
+.feedback.good{color:var(--blue)}
+.feedback.bad{color:var(--wrong)}
+.solution{border-top:1px solid var(--rule);padding-top:12px}
+.answer{margin:0 0 8px;font-size:20px;font-weight:700;overflow-wrap:anywhere}
+.steps{margin:0;padding-left:1.3em;display:grid;gap:6px;font-size:15px}
+.steps .why{display:block;color:var(--muted)}
+.also{margin:10px 0 0;font-size:14px;color:var(--muted);overflow-wrap:anywhere}
+.next{align-self:flex-start;min-height:44px;padding:0 14px;border:1px solid var(--blue);border-radius:2px;background:var(--blue);color:var(--paper);cursor:pointer}
+.score{margin:8px 0 0;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.notes{margin-top:14px;font-size:15px;max-width:80ch}
+.notes summary{cursor:pointer;min-height:32px}
+.notes p,.notes li{color:#333}
+.license{margin:10px 0 0;text-align:right;font-size:13px}
+.license a{color:#555}
+
+/* Structure drawing */
+.bond{stroke:var(--ink);stroke-width:2.2;stroke-linecap:round;fill:none}
+.hl{stroke:var(--wash);stroke-width:15;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.hl-dot{fill:var(--wash)}
+.atom{font:400 19px var(--font);fill:var(--ink);dominant-baseline:central}
+.atom .sub{font-size:13px}
+.loc{font:700 14px var(--font);fill:var(--blue);text-anchor:middle;dominant-baseline:central}
+.prio{fill:none;stroke:var(--blue);stroke-width:1.6;stroke-dasharray:3 3}
+
+@media(prefers-reduced-motion:no-preference){@view-transition{navigation:auto}}
+@media (max-width:800px){
+  .card{grid-template-columns:1fr}
+  .stage{border-right:0;border-bottom:1px solid var(--ink);min-height:260px}
+  .picks button{min-height:120px}
+  .session{width:100%}
+  .session button{flex:1;padding:0 6px;font-size:14px;white-space:nowrap}
+  .card.picking .panel{order:-1;border-bottom:1px solid var(--ink)}
+  .card.picking .stage{border-bottom:0}
+  h1{font-size:17px;flex-basis:100%;order:3}
+  .tiers{gap:0 10px}
+  .tiers button{font-size:14px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="bar">
+    <nav class="site-nav" aria-label="Site navigation"><a href="../../index.html#teaching"><span aria-hidden="true">←</span> Home</a></nav>
+    <h1>Naming Organic Compounds</h1>
+    <div class="session" role="group" aria-label="Answer mode">
+      <button type="button" id="mode-choose" aria-pressed="true">Choose name</button>
+      <button type="button" id="mode-type" aria-pressed="false">Type name</button>
+      <button type="button" id="mode-pick" aria-pressed="false">Pick structure</button>
+    </div>
+  </div>
+  <ol class="tiers" id="tiers" aria-label="Tiers"></ol>
+  <div class="card" id="card">
+    <div class="stage">
+      <svg id="structure" role="img" aria-labelledby="structure-label"><title id="structure-label">Skeletal structure</title></svg>
+      <div class="picks" id="picks" role="group" aria-labelledby="ask" hidden></div>
+      <div class="views" role="group" aria-label="Show on the structure">
+        <button type="button" id="show-parent" aria-pressed="false" disabled>Parent</button>
+        <button type="button" id="show-numbers" aria-pressed="false" disabled>Numbering</button>
+      </div>
+      <div class="formula" id="formula"></div>
+    </div>
+    <div class="panel">
+      <p class="blurb" id="blurb"></p>
+      <p class="ask" id="ask">Name this compound.</p>
+      <div class="choices" id="choices" role="group" aria-labelledby="ask"></div>
+      <form class="typed" id="typed" hidden autocomplete="off">
+        <label class="sr-only" for="answer">Name</label>
+        <input id="answer" spellcheck="false" autocapitalize="off" placeholder="e.g. 2-methylbutane">
+        <button type="submit" class="primary">Check</button>
+        <button type="button" id="reveal">Show answer</button>
+      </form>
+      <p class="feedback" id="feedback" aria-live="polite"></p>
+      <div class="solution" id="solution" hidden>
+        <p class="answer" id="solution-name"></p>
+        <ol class="steps" id="steps"></ol>
+        <p class="also" id="also"></p>
+      </div>
+      <button type="button" class="next" id="next">New compound</button>
+    </div>
+  </div>
+  <p class="score" id="score" aria-live="polite"></p>
+  <details class="notes">
+    <summary>About these names</summary>
+    <p>Names follow the IUPAC 2013 Recommendations (the Blue Book) and give the preferred IUPAC name. Two of its rules differ from many older textbooks: the longest chain is chosen before the chain with the most double or triple bonds, and a ring outranks a chain. The questions only use structures where the old and new rules pick the same parent, so either textbook gives the same answer.</p>
+    <ul>
+      <li>Locants sit next to the part they number: but-2-ene, propan-2-ol. The older forms 2-butene and 2-propanol are accepted when you type.</li>
+      <li>IUPAC keeps formic acid, acetic acid, formaldehyde, acetaldehyde and acetamide as preferred names; methanoic acid, ethanoic acid, methanal, ethanal and ethanamide are accepted too.</li>
+      <li>Branched substituents use the preferred prefixes propan-2-yl, butan-2-yl, 2-methylpropyl and tert-butyl; isopropyl, sec-butyl and isobutyl are accepted.</li>
+      <li>Benzene rings are drawn with alternating double bonds (one Kekulé structure). Phenol, aniline, benzoic acid, benzaldehyde and benzamide are preferred names even with other groups on the ring; toluene and anisole only when nothing else is attached, so a substituted one is named as a methyl- or methoxybenzene. o-, m- and p- are accepted for two groups.</li>
+      <li>Ethers are named with an alkoxy prefix (methoxyethane). The functional class names (ethyl methyl ether, diethyl ether) are accepted.</li>
+      <li>Skeletal drawings show no wedges, so ring cis/trans and R/S are not part of these names. In the E/Z tier the drawing fixes each double bond’s geometry.</li>
+    </ul>
+  </details>
+  <p class="license"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a></p>
+</div>
+
+<script id="iupac-model">
+(function () {
+  'use strict';
+
+  // ---------------------------------------------------------------------------------------------
+  // Naming engine. A molecule is { atoms: [{ el, x?, y? }], bonds: [{ a, b, order }], stereo? }.
+  // Hydrogens are implicit. The engine follows the IUPAC 2013 Recommendations (Blue Book) for the
+  // classes taught in school: alkanes, haloalkanes, cycloalkanes, alkenes, alkynes, alcohols,
+  // aldehydes, ketones, carboxylic acids, esters, amines and amides. Anything outside that scope
+  // throws Unsupported rather than guessing.
+  // ---------------------------------------------------------------------------------------------
+
+  const VALENCE = { C: 4, N: 3, O: 2, F: 1, Cl: 1, Br: 1, I: 1 };
+  const ATOMIC = { C: 6, N: 7, O: 8, F: 9, Cl: 17, Br: 35, I: 53 };
+  const STEM = [null, 'meth', 'eth', 'prop', 'but', 'pent', 'hex', 'hept', 'oct', 'non', 'dec',
+    'undec', 'dodec', 'tridec', 'tetradec', 'pentadec', 'hexadec', 'heptadec', 'octadec', 'nonadec', 'icos'];
+  const MULT = [null, '', 'di', 'tri', 'tetra', 'penta', 'hexa', 'hepta', 'octa', 'nona', 'deca'];
+  const HALO = { F: 'fluoro', Cl: 'chloro', Br: 'bromo', I: 'iodo' };
+
+  // P-41 seniority of classes, highest first, and the suffix each takes as the principal group.
+  const CLASSES = ['acid', 'ester', 'amide', 'aldehyde', 'ketone', 'alcohol', 'amine'];
+  const SUFFIX = { acid: 'oic acid', ester: 'oate', amide: 'amide', aldehyde: 'al', ketone: 'one', alcohol: 'ol', amine: 'amine' };
+  const CLASS_NAME = { acid: 'carboxylic acid', ester: 'ester', amide: 'amide', aldehyde: 'aldehyde', ketone: 'ketone', alcohol: 'alcohol', amine: 'amine' };
+  // Groups whose carbon is itself a chain atom, and so always sits at the end of the chain.
+  const TERMINAL = new Set(['acid', 'ester', 'amide', 'aldehyde']);
+
+  class Unsupported extends Error {}
+  const fail = (message) => { throw new Unsupported(message); };
+
+  const cmpNum = (a, b) => a - b;
+  // Lowest locants: compare term by term (P-14.3.5). Shorter sets never meet longer ones here
+  // because the counts were already compared.
+  function cmpLocants(a, b) {
+    for (let i = 0; i < Math.min(a.length, b.length); i++) if (a[i] !== b[i]) return a[i] - b[i];
+    return a.length - b.length;
+  }
+
+  function graph(mol) {
+    const adj = mol.atoms.map(() => []);
+    mol.bonds.forEach((bond, k) => {
+      adj[bond.a].push({ to: bond.b, order: bond.order, k });
+      adj[bond.b].push({ to: bond.a, order: bond.order, k });
+    });
+    const hydrogens = mol.atoms.map((atom, i) => {
+      const used = adj[i].reduce((s, e) => s + e.order, 0);
+      const h = VALENCE[atom.el] - used;
+      if (!(atom.el in VALENCE)) fail(`Element ${atom.el} is not covered`);
+      if (h < 0) fail(`Too many bonds on atom ${i}`);
+      return h;
+    });
+    return { adj, hydrogens };
+  }
+
+  // ------------------------------------------------------------------------------- perception --
+  function perceive(mol) {
+    const { adj, hydrogens } = graph(mol);
+    const el = (i) => mol.atoms[i].el;
+    const isC = (i) => el(i) === 'C';
+    const groups = [];          // characteristic groups
+    const owner = new Map();    // heteroatom -> group
+    const carbonyl = new Map(); // carbon -> its =O atom
+
+    for (let i = 0; i < mol.atoms.length; i++) {
+      if (el(i) !== 'O') continue;
+      const dbl = adj[i].filter((e) => e.order === 2);
+      if (dbl.length) {
+        if (adj[i].length !== 1 || !isC(dbl[0].to)) fail('Only C=O is covered');
+        if (carbonyl.has(dbl[0].to)) fail('Two =O on one carbon');
+        carbonyl.set(dbl[0].to, i);
+      }
+    }
+    for (let i = 0; i < mol.atoms.length; i++) {
+      const e = el(i);
+      if (e === 'C') continue;
+      if (adj[i].length === 0) fail('Lone heteroatom');
+      if (adj[i].some((x) => !isC(x.to))) fail('Heteroatoms bonded to each other are not covered');
+      if (e in HALO) groups.push({ cls: 'halo', carbon: adj[i][0].to, atoms: [i], name: HALO[e] });
+    }
+    // Carbonyl carbons decide acids, esters, amides, aldehydes and ketones.
+    for (const [c, o] of carbonyl) {
+      const hetero = adj[c].filter((x) => x.to !== o && !isC(x.to));
+      const carbons = adj[c].filter((x) => isC(x.to));
+      if (hetero.length > 1) fail('Carbonyl carbon with two other heteroatoms');
+      if (hetero.length === 1) {
+        const h = hetero[0].to;
+        if (hetero[0].order !== 1) fail('Unexpected multiple bond');
+        if (el(h) === 'O') {
+          const others = adj[h].filter((x) => x.to !== c);
+          if (others.length === 0) groups.push({ cls: 'acid', carbon: c, atoms: [o, h] });
+          else {
+            const r = others[0].to;
+            if (carbonyl.has(r)) fail('Anhydrides are not covered');
+            groups.push({ cls: 'ester', carbon: c, atoms: [o, h], alkoxy: r });
+          }
+        } else if (el(h) === 'N') {
+          const others = adj[h].filter((x) => x.to !== c).map((x) => x.to);
+          if (others.some((r) => carbonyl.has(r))) fail('Imides are not covered');
+          groups.push({ cls: 'amide', carbon: c, atoms: [o, h], nitrogen: h, nSubs: others });
+        } else fail('Acyl halides are not covered');
+      } else if (carbons.length <= 1) groups.push({ cls: 'aldehyde', carbon: c, atoms: [o] });
+      else groups.push({ cls: 'ketone', carbon: c, atoms: [o] });
+      for (const a of groups[groups.length - 1].atoms) owner.set(a, groups[groups.length - 1]);
+    }
+    for (let i = 0; i < mol.atoms.length; i++) {
+      if (owner.has(i)) continue;
+      if (el(i) === 'O') {
+        if (carbonyl.has(adj[i][0].to) || adj[i].some((x) => x.order !== 1)) continue;
+        if (adj[i].length === 1) { const g = { cls: 'alcohol', carbon: adj[i][0].to, atoms: [i] }; groups.push(g); owner.set(i, g); }
+        else { const g = { cls: 'ether', oxygen: i, carbons: adj[i].map((x) => x.to), atoms: [i] }; groups.push(g); owner.set(i, g); }
+      } else if (el(i) === 'N') {
+        if (adj[i].some((x) => x.order !== 1)) fail('Imines and nitriles are not covered');
+        const g = { cls: 'amine', nitrogen: i, carbons: adj[i].map((x) => x.to), atoms: [i] };
+        groups.push(g); owner.set(i, g);
+      }
+    }
+    const present = CLASSES.filter((c) => groups.some((g) => g.cls === c));
+    const principal = present[0] || null;
+    return { mol, adj, hydrogens, groups, principal, carbonyl, el, isC, aromatic: aromaticAtoms(mol, adj) };
+  }
+
+  // Carbons of benzene rings drawn as Kekulé structures: six carbons, bonds alternating 2,1,2,1,2,1.
+  function aromaticAtoms(mol, adj = null) {
+    if (!adj) { adj = mol.atoms.map(() => []); mol.bonds.forEach((b) => { adj[b.a].push({ to: b.b, order: b.order }); adj[b.b].push({ to: b.a, order: b.order }); }); }
+    const out = new Set();
+    const C = (i) => mol.atoms[i].el === 'C';
+    const walk = (start, path, want) => {
+      const u = path[path.length - 1];
+      for (const e of adj[u]) {
+        if (e.order !== want || !C(e.to)) continue;
+        if (path.length === 6) { if (e.to === start) path.forEach((x) => out.add(x)); continue; }
+        if (path.includes(e.to)) continue;
+        walk(start, [...path, e.to], want === 2 ? 1 : 2);
+      }
+    };
+    for (let i = 0; i < mol.atoms.length; i++) if (C(i) && !out.has(i)) walk(i, [i], 2);
+    return out;
+  }
+  const aromaticBond = (info, a, b) => info.aromatic.has(a) && info.aromatic.has(b);
+
+  // Carbons joined by C–C bonds, starting from `start`, never crossing `blocked`.
+  function carbonComponent(info, start, blocked = new Set()) {
+    const seen = new Set([start]);
+    const stack = [start];
+    while (stack.length) {
+      const u = stack.pop();
+      for (const e of info.adj[u]) {
+        if (!info.isC(e.to) || seen.has(e.to) || blocked.has(e.to)) continue;
+        seen.add(e.to); stack.push(e.to);
+      }
+    }
+    return seen;
+  }
+
+  // The single ring of a carbon set, in ring order, or null. More than one ring is not covered.
+  function findRing(info, atoms) {
+    let edges = 0;
+    for (const u of atoms) for (const e of info.adj[u]) if (atoms.has(e.to) && u < e.to) edges++;
+    const cyclomatic = edges - atoms.size + 1;
+    if (cyclomatic > 1) fail('Only one ring is covered');
+    if (cyclomatic === 0) return null;
+    const degree = new Map([...atoms].map((u) => [u, info.adj[u].filter((e) => atoms.has(e.to)).length]));
+    const left = new Set(atoms);
+    let pruned = true;
+    while (pruned) {
+      pruned = false;
+      for (const u of [...left]) {
+        if (degree.get(u) <= 1) {
+          left.delete(u); pruned = true;
+          for (const e of info.adj[u]) if (left.has(e.to)) degree.set(e.to, degree.get(e.to) - 1);
+        }
+      }
+    }
+    const ring = [[...left][0]];
+    while (ring.length < left.size) {
+      const u = ring[ring.length - 1];
+      const next = info.adj[u].find((e) => left.has(e.to) && !ring.includes(e.to) && (ring.length > 1 || true));
+      ring.push(next.to);
+    }
+    if (ring.length < 3) fail('Ring too small');
+    return ring;
+  }
+
+  // ------------------------------------------------------------------------------- substituents --
+  // Name of a carbon substituent that starts at `root` and hangs off `from`. Styles: 'pin' uses
+  // the preferred prefixes (propan-2-yl, butan-2-yl, 2-methylpropyl, tert-butyl); 'common' uses
+  // isopropyl, sec-butyl, isobutyl, tert-butyl.
+  function alkylName(info, root, from, style = 'pin') {
+    const atoms = carbonComponent(info, root, new Set([from]));
+    for (const u of atoms) {
+      for (const e of info.adj[u]) {
+        if (u === root && e.to === from) continue;
+        if (!info.isC(e.to)) return { bad: 'A substituent carries a functional group' };
+        if (e.order !== 1 && !aromaticBond(info, u, e.to)) return { bad: 'A substituent contains a multiple bond' };
+      }
+    }
+    const ring = findRing(info, atoms);
+    if (ring) {
+      if (ring.length !== atoms.size || !ring.includes(root)) return { bad: 'A substituted ring as a substituent' };
+      if (ring.length === 6 && ring.every((x) => info.aromatic.has(x))) return { name: 'phenyl', atoms };
+      return { name: `cyclo${STEM[ring.length]}yl`, atoms };
+    }
+    const children = (u, p) => info.adj[u].filter((e) => e.to !== p && atoms.has(e.to)).map((e) => e.to);
+    const n = atoms.size;
+    // A straight chain from the attachment point.
+    let path = true, u = root, p = from;
+    for (;;) {
+      const c = children(u, p);
+      if (c.length > 1) { path = false; break; }
+      if (!c.length) break;
+      p = u; u = c[0];
+    }
+    if (path) return { name: `${STEM[n]}yl`, atoms };
+    const kids = children(root, from);
+    const sizes = kids.map((k) => carbonComponent(info, k, new Set([root])).size);
+    const common = style === 'common';
+    if (n === 3 && kids.length === 2) return { name: common ? 'isopropyl' : 'propan-2-yl', atoms };
+    if (n === 4 && kids.length === 3) return { name: 'tert-butyl', atoms };
+    if (n === 4 && kids.length === 2 && sizes.sort(cmpNum).join() === '1,2') {
+      const ethyl = kids.find((k) => carbonComponent(info, k, new Set([root])).size === 2);
+      if (children(ethyl, root).length === 1) return { name: common ? 'sec-butyl' : 'butan-2-yl', atoms };
+    }
+    if (n === 4 && kids.length === 1 && children(kids[0], root).length === 2) return { name: common ? 'isobutyl' : '2-methylpropyl', atoms };
+    return { bad: 'This branched substituent is beyond the tiers' };
+  }
+
+  // P-63.2.2.2: methoxy, ethoxy, propoxy, butoxy, phenoxy and tert-butoxy are contracted preferred
+  // prefixes; longer straight chains add -oxy (pentyloxy). Branched ones such as (propan-2-yl)oxy
+  // need enclosing marks and are left out of the tiers.
+  function alkoxy(alkyl) {
+    const short = { methyl: 'methoxy', ethyl: 'ethoxy', propyl: 'propoxy', butyl: 'butoxy', phenyl: 'phenoxy', 'tert-butyl': 'tert-butoxy' };
+    if (short[alkyl]) return short[alkyl];
+    if (/^(pent|hex|hept|oct|non|dec)yl$/.test(alkyl)) return alkyl + 'oxy';
+    return null;
+  }
+
+  // Alphanumerical ordering key (P-14.5): italic sec-/tert- and locants are ignored, and a
+  // compound prefix is alphabetized at the first letter of its complete name.
+  const alphaKey = (name) => name.replace(/\b(sec|tert)-/g, '').replace(/[^a-z]/g, '');
+  const needsParens = (name) => /\d/.test(name);
+
+  // --------------------------------------------------------------------------------- candidates --
+  function candidates(info) {
+    const { groups, principal } = info;
+    const principals = groups.filter((g) => g.cls === principal);
+    let pool; // carbons that may hold the parent
+    const external = new Set(); // carbons named separately (ester alkyl, N-substituents)
+    if (!principal) {
+      const carbons = info.mol.atoms.map((a, i) => i).filter(info.isC);
+      if (!carbons.length) fail('No carbon');
+      // Skeletons joined through an ether oxygen: the parent is one of them, the rest is alkoxy.
+      pool = carbonComponent(info, carbons[0]);
+      for (let grew = true; grew;) {
+        grew = false;
+        for (const g of info.groups) {
+          if (g.cls !== 'ether') continue;
+          const [x, y] = g.carbons;
+          if (pool.has(x) !== pool.has(y)) { carbonComponent(info, pool.has(x) ? y : x).forEach((c) => pool.add(c)); grew = true; }
+        }
+      }
+      if (pool.size !== carbons.length) fail('Disconnected carbon skeletons need a principal group');
+    } else {
+      const seeds = new Set();
+      for (const g of principals) {
+        if (g.cls === 'amine') g.carbons.forEach((c) => seeds.add(c));
+        else seeds.add(g.carbon);
+      }
+      // All seeds must share one carbon skeleton, unless they meet at an amine nitrogen.
+      const comps = [...seeds].map((s) => carbonComponent(info, s));
+      if (principal === 'amine') {
+        if (principals.length > 1 && principals.some((g) => g.carbons.length > 1)) fail('Polyamines with N-substituents are not covered');
+        pool = new Set(); comps.forEach((c) => c.forEach((x) => pool.add(x)));
+      } else {
+        pool = comps[0];
+        if (comps.some((c) => !c.has([...pool][0]))) fail('Principal groups on separate skeletons');
+      }
+      for (const g of groups) {
+        if (g.cls === 'ester') {
+          const alk = carbonComponent(info, g.alkoxy);
+          if (alk.has(g.carbon)) fail('Lactones are not covered');
+          alk.forEach((x) => external.add(x));
+        }
+        if (g.cls === 'amide') g.nSubs.forEach((r) => carbonComponent(info, r).forEach((x) => external.add(x)));
+      }
+      if (principals.filter((g) => g.cls === 'ester').length > 1) fail('Diesters are not covered');
+      for (const g of groups) {
+        if (g.cls !== 'ether') continue;
+        const [x, y] = g.carbons;
+        if (pool.has(x) !== pool.has(y)) carbonComponent(info, pool.has(x) ? y : x).forEach((c) => external.add(c));
+      }
+    }
+    for (const g of groups) if (g.cls === 'ether' && carbonComponent(info, g.carbons[0]).has(g.carbons[1])) fail('Cyclic ethers are not covered');
+    // Every carbon must be the parent's skeleton or a named-separately part.
+    for (let i = 0; i < info.mol.atoms.length; i++) {
+      if (info.isC(i) && !pool.has(i) && !external.has(i)) {
+        if (principal !== 'amine') fail('Disconnected carbon skeletons');
+      }
+    }
+
+    const out = [];
+    // The pool may be several skeletons (amine N-substituents); a parent lies in one of them.
+    const skeletons = [];
+    const left = new Set(pool);
+    while (left.size) {
+      const s = [...left][0];
+      const comp = carbonComponent(info, s);
+      comp.forEach((x) => left.delete(x));
+      skeletons.push(comp);
+    }
+    for (const comp of skeletons) {
+      const ring = findRing(info, comp);
+      const ringSet = new Set(ring || []);
+      if (ring) {
+        const n = ring.length;
+        for (let s = 0; s < n; s++) {
+          for (const dir of [1, -1]) {
+            const order = Array.from({ length: n }, (_, k) => ring[(s + dir * k + n * 2) % n]);
+            out.push({ atoms: order, ring: true, comp });
+          }
+        }
+      }
+      const chainAtoms = [...comp].filter((x) => !ringSet.has(x));
+      const chainSet = new Set(chainAtoms);
+      // Paths in the acyclic part are unique, so each ordered pair of ends gives one chain.
+      for (const s of chainAtoms) {
+        const prev = new Map([[s, -1]]);
+        const queue = [s];
+        while (queue.length) {
+          const u = queue.shift();
+          for (const e of info.adj[u]) {
+            if (chainSet.has(e.to) && !prev.has(e.to)) { prev.set(e.to, u); queue.push(e.to); }
+          }
+        }
+        for (const t of chainAtoms) {
+          if (!prev.has(t)) continue; // separated by the ring
+          const path = [];
+          for (let x = t; x !== -1; x = prev.get(x)) path.push(x);
+          // A chain is worth naming only when it cannot be extended at either end.
+          out.push({ atoms: path, ring: false, comp });
+        }
+      }
+    }
+    return out.map((c) => describe(info, c)).filter(Boolean);
+  }
+
+  // Everything the selection rules need to know about one parent with one numbering.
+  function describe(info, cand) {
+    const { atoms } = cand;
+    const loc = new Map(atoms.map((a, i) => [a, i + 1]));
+    const inParent = (x) => loc.has(x);
+    const n = atoms.length;
+    const d = { ...cand, n, loc, principalLocs: [], ene: [], yne: [], prefixes: [], problems: [], nSubstituents: [] };
+    d.aromatic = cand.ring && n === 6 && atoms.every((a) => info.aromatic.has(a));
+    const acyl = new Set(); // -COOH, -CHO, -CONH2, -COOR carbons named by a benzene parent's retained name
+    const { groups, principal } = info;
+    // Principal groups the parent carries.
+    for (const g of groups) {
+      if (g.cls !== principal) continue;
+      if (g.cls === 'amine') {
+        const on = g.carbons.filter(inParent);
+        if (on.length) {
+          d.principalLocs.push(loc.get(on[0]));
+          for (const r of g.carbons) if (r !== on[0]) d.nSubstituents.push({ root: r, from: g.nitrogen });
+        }
+      } else if (d.aromatic && TERMINAL.has(g.cls) && !inParent(g.carbon)) {
+        const on = info.adj[g.carbon].find((e) => inParent(e.to));
+        if (on) { d.principalLocs.push(loc.get(on.to)); acyl.add(g.carbon); if (g.cls === 'amide') for (const r of g.nSubs) d.nSubstituents.push({ root: r, from: g.nitrogen }); }
+      } else if (inParent(g.carbon)) {
+        if (TERMINAL.has(g.cls) && (d.ring || (loc.get(g.carbon) !== 1 && loc.get(g.carbon) !== n))) d.problems.push('A terminal group inside a chain');
+        d.principalLocs.push(loc.get(g.carbon));
+        if (g.cls === 'amide') for (const r of g.nSubs) d.nSubstituents.push({ root: r, from: g.nitrogen });
+      }
+    }
+    d.principalLocs.sort(cmpNum);
+    if (TERMINAL.has(principal) && d.ring && !d.aromatic && d.principalLocs.length) d.problems.push('Ring acids and aldehydes are not covered');
+    if (d.aromatic && d.principalLocs.length > 1) d.problems.push('Several principal groups on a benzene ring are not covered');
+    // Multiple bonds of the parent.
+    for (const bond of info.mol.bonds) {
+      if (bond.order === 1) continue;
+      if (!info.isC(bond.a) || !info.isC(bond.b)) continue;
+      if (aromaticBond(info, bond.a, bond.b)) continue;
+      const ia = inParent(bond.a), ib = inParent(bond.b);
+      if (ia && ib) {
+        let la = loc.get(bond.a), lb = loc.get(bond.b);
+        if (la > lb) [la, lb] = [lb, la];
+        const l = (lb - la === 1) ? la : lb; // ring closure n–1 takes locant n
+        (bond.order === 2 ? d.ene : d.yne).push(l);
+        if (bond.order === 3 && d.ring) d.problems.push('Cycloalkynes are not covered');
+      } else if (cand.comp.has(bond.a) && cand.comp.has(bond.b)) {
+        d.problems.push('A double or triple bond outside the parent chain');
+      }
+    }
+    d.ene.sort(cmpNum); d.yne.sort(cmpNum);
+    d.multiple = [...d.ene, ...d.yne].sort(cmpNum);
+    // Substituent prefixes.
+    const groupOn = new Map(); // carbon -> groups attached
+    for (const g of groups) {
+      if (g.cls === 'amine' || g.cls === 'ether') continue;
+      if (!groupOn.has(g.carbon)) groupOn.set(g.carbon, []);
+      groupOn.get(g.carbon).push(g);
+    }
+    for (const a of atoms) {
+      for (const g of groupOn.get(a) || []) {
+        if (g.cls === principal) continue;
+        const l = loc.get(a);
+        if (g.cls === 'halo') d.prefixes.push({ locant: l, name: g.name });
+        else if (g.cls === 'alcohol') d.prefixes.push({ locant: l, name: 'hydroxy' });
+        else if (g.cls === 'ketone') d.prefixes.push({ locant: l, name: 'oxo' });
+        else d.problems.push(`A lower-ranking ${CLASS_NAME[g.cls]} group`);
+      }
+      for (const e of info.adj[a]) {
+        if (inParent(e.to)) continue;
+        if (info.isC(e.to)) {
+          if (cand.comp.has(e.to) && !acyl.has(e.to)) d.prefixes.push({ locant: loc.get(a), branch: e.to, from: a });
+        } else if (info.el(e.to) === 'N') {
+          const g = groups.find((x) => x.cls === 'amine' && x.nitrogen === e.to);
+          if (g && principal !== 'amine') {
+            if (g.carbons.length > 1) d.problems.push('Substituted amino groups are not covered');
+            d.prefixes.push({ locant: loc.get(a), name: 'amino' });
+          }
+        } else if (info.el(e.to) === 'O') {
+          const g = groups.find((x) => x.cls === 'ether' && x.oxygen === e.to);
+          if (g) d.prefixes.push({ locant: loc.get(a), branch: g.carbons.find((c) => c !== a), from: e.to, oxy: true });
+        }
+      }
+    }
+    // Any principal group not on this parent must be counted; it would become a prefix.
+    const total = groups.filter((g) => g.cls === principal).length;
+    if (d.principalLocs.length < total) d.problems.push('A principal group off the parent chain');
+    // Groups on branches make the branch unnameable within these tiers.
+    for (const p of d.prefixes) {
+      if (p.branch === undefined) continue;
+      const branch = carbonComponent(info, p.branch, new Set([p.from]));
+      for (const g of groups) {
+        if (g.cls === 'ether') continue; // alkylName refuses an oxygen inside a substituent
+        const c = g.cls === 'amine' ? g.carbons : [g.carbon];
+        if (c.some((x) => branch.has(x))) d.problems.push('A functional group on a substituent');
+      }
+    }
+    d.prefixCount = d.prefixes.length + d.nSubstituents.length;
+    d.prefixLocs = d.prefixes.map((p) => p.locant).sort(cmpNum);
+    return d;
+  }
+
+  // Branch names depend on the style, so they are filled in per style.
+  function prefixList(info, d, style) {
+    const list = [];
+    for (const p of d.prefixes) {
+      if (p.branch === undefined) { list.push({ locant: p.locant, name: p.name }); continue; }
+      const r = alkylName(info, p.branch, p.from, style);
+      if (r.bad) return { bad: r.bad };
+      if (p.oxy) {
+        const o = alkoxy(r.name);
+        if (!o) return { bad: 'This alkoxy group is beyond the tiers' };
+        list.push({ locant: p.locant, name: o, oxy: true });
+      } else list.push({ locant: p.locant, name: r.name });
+    }
+    for (const s of d.nSubstituents) {
+      const r = alkylName(info, s.root, s.from, style);
+      if (r.bad) return { bad: r.bad };
+      list.push({ locant: 'N', name: r.name });
+    }
+    return { list };
+  }
+
+  // ------------------------------------------------------------------------------------ rules --
+  // Each rule compares two candidates; negative means `a` wins. The 2013 order is P-44.1
+  // (principal groups, then ring over chain), P-44.3 (length, then multiple bonds, then double
+  // bonds), then P-31.1.4 numbering (suffix, ene+yne together, ene) and P-45.2 (most prefixes,
+  // lowest prefix locants, first-cited prefix lowest).
+  const RULES = {
+    principal: { cmp: (a, b) => b.principalLocs.length - a.principalLocs.length },
+    ring: { cmp: (a, b) => (a.ring === b.ring ? 0 : a.ring ? -1 : 1) },
+    length: { cmp: (a, b) => (a.ring || b.ring ? 0 : b.n - a.n) },
+    multiple: { cmp: (a, b) => b.multiple.length - a.multiple.length },
+    double: { cmp: (a, b) => b.ene.length - a.ene.length },
+    principalLocants: { cmp: (a, b) => cmpLocants(a.principalLocs, b.principalLocs) },
+    multipleLocants: { cmp: (a, b) => cmpLocants(a.multiple, b.multiple) },
+    doubleLocants: { cmp: (a, b) => cmpLocants(a.ene, b.ene) },
+    prefixCount: { cmp: (a, b) => b.prefixCount - a.prefixCount },
+    prefixLocants: { cmp: (a, b) => cmpLocants(a.prefixLocs, b.prefixLocs) },
+    alphabetical: { cmp: (a, b) => cmpLocants(a.citedLocs, b.citedLocs) },
+  };
+  // The 1979/1993 order many textbooks still teach: unsaturation before length, and the bigger
+  // of ring and chain as parent. Used only to keep questions where both orders agree.
+  const OLD_RULES = {
+    oldSize: { cmp: (a, b) => (a.ring === b.ring ? (a.ring ? 0 : b.n - a.n) : (b.n - a.n) || (a.ring ? -1 : 1)) },
+  };
+  const ORDER_2013 = ['principal', 'ring', 'length', 'multiple', 'double', 'principalLocants', 'multipleLocants', 'doubleLocants', 'prefixCount', 'prefixLocants', 'alphabetical'];
+  const ORDER_OLD = ['principal', 'multiple', 'double', 'oldSize', 'principalLocants', 'multipleLocants', 'doubleLocants', 'prefixCount', 'prefixLocants', 'alphabetical'];
+
+  function compare(a, b, order = ORDER_2013) {
+    for (const key of order) {
+      const r = (RULES[key] || OLD_RULES[key]).cmp(a, b);
+      if (r) return { r, rule: key };
+    }
+    return { r: 0, rule: null };
+  }
+
+  // Locants in order of citation (P-31.1.4.3.4 / P-45.2.3), computed with the pin style.
+  function cite(info, d) {
+    const p = prefixList(info, d, 'pin');
+    if (p.bad) { d.citedLocs = []; d.problems.push(p.bad); return; }
+    d.pinPrefixes = p.list;
+    const sorted = [...p.list].sort((x, y) => alphaKey(x.name).localeCompare(alphaKey(y.name)) || (x.name < y.name ? -1 : x.name > y.name ? 1 : 0) || (x.locant === 'N' ? -1 : y.locant === 'N' ? 1 : x.locant - y.locant));
+    d.citedLocs = sorted.filter((x) => x.locant !== 'N').map((x) => x.locant);
+  }
+
+  function pick(cands, order) {
+    let best = cands[0];
+    for (const c of cands.slice(1)) if (compare(c, best, order).r < 0) best = c;
+    return best;
+  }
+
+  // ------------------------------------------------------------------------------- stereo (CIP) --
+  // Hierarchical digraph for rule 1a (atomic number), with duplicate atoms for multiple bonds and
+  // ring closures (P-92.1.4). Nodes are built lazily.
+  function cipNode(info, atom, parent, path, dup = false) {
+    return { atom, parent, path, dup, z: atom < 0 ? (atom === -1 ? 1 : 0) : ATOMIC[info.el(atom)], kids: null };
+  }
+  function cipKids(info, node) {
+    if (node.kids) return node.kids;
+    const kids = [];
+    if (node.atom < 0 || node.dup) {
+      // Hydrogens and duplicates carry phantom atoms (Z = 0) to fill their valence.
+      if (node.dup) for (let k = 0; k < 3; k++) kids.push(cipNode(info, -2, node.atom, node.path));
+      node.kids = kids; return kids;
+    }
+    const path = new Set(node.path); path.add(node.atom);
+    for (const e of info.adj[node.atom]) {
+      if (e.to === node.parent) {
+        for (let k = 1; k < e.order; k++) kids.push(cipNode(info, e.to, node.atom, path, true));
+        continue;
+      }
+      if (path.has(e.to)) { kids.push(cipNode(info, e.to, node.atom, path, true)); continue; }
+      kids.push(cipNode(info, e.to, node.atom, path));
+      for (let k = 1; k < e.order; k++) kids.push(cipNode(info, e.to, node.atom, path, true));
+    }
+    for (let k = 0; k < info.hydrogens[node.atom]; k++) kids.push(cipNode(info, -1, node.atom, path));
+    kids.sort((x, y) => -cipCompare(info, x, y));
+    node.kids = kids; return kids;
+  }
+  // Positive when x outranks y. Explores sphere by sphere, branches in order of rank.
+  function cipCompare(info, x, y, depth = 0) {
+    if (x.z !== y.z) return x.z - y.z;
+    let A = [[x]], B = [[y]];
+    for (let sphere = 0; sphere < 24; sphere++) {
+      const nextA = [], nextB = [];
+      for (const set of A) for (const node of set) nextA.push(cipKids(info, node));
+      for (const set of B) for (const node of set) nextB.push(cipKids(info, node));
+      const len = Math.max(nextA.length, nextB.length);
+      for (let i = 0; i < len; i++) {
+        const za = (nextA[i] || []).map((k) => k.z), zb = (nextB[i] || []).map((k) => k.z);
+        for (let j = 0; j < Math.max(za.length, zb.length); j++) {
+          const p = za[j] ?? -1, q = zb[j] ?? -1;
+          if (p !== q) return p - q;
+        }
+      }
+      if (!nextA.some((s) => s.length) && !nextB.some((s) => s.length)) return 0;
+      A = nextA; B = nextB;
+    }
+    return 0;
+  }
+
+  // Which side of the line a→b the point p lies on.
+  function side(mol, a, b, p) {
+    const A = mol.atoms[a], B = mol.atoms[b], P = mol.atoms[p];
+    const s = (B.x - A.x) * (P.y - A.y) - (B.y - A.y) * (P.x - A.x);
+    return Math.abs(s) < 1e-6 ? 0 : Math.sign(s);
+  }
+
+  // E or Z for the double bond a=b, null when it is not stereogenic, 'unknown' if no geometry.
+  function doubleBondStereo(info, a, b) {
+    const top = (u, v) => {
+      const subs = info.adj[u].filter((e) => e.to !== v).map((e) => e.to);
+      const h = info.hydrogens[u];
+      if (subs.length + h !== 2) return null;
+      if (h === 2) return null;
+      const nodes = subs.map((s) => cipNode(info, s, u, new Set([u])));
+      if (h === 1) return { hi: subs[0], other: null };
+      const c = cipCompare(info, nodes[0], nodes[1]);
+      if (c === 0) return null;
+      return c > 0 ? { hi: subs[0], other: subs[1] } : { hi: subs[1], other: subs[0] };
+    };
+    const ta = top(a, b), tb = top(b, a);
+    if (!ta || !tb) return null;
+    const mol = info.mol;
+    const given = (mol.stereo || []).find((s) => (s.a === a && s.b === b) || (s.a === b && s.b === a));
+    let same;
+    if (given) {
+      // `rel` relates neighbour x of s.a to neighbour y of s.b.
+      const [x, y] = given.a === a ? [given.x, given.y] : [given.y, given.x];
+      same = given.rel === 'cis';
+      if (x !== ta.hi) same = !same;
+      if (y !== tb.hi) same = !same;
+    } else if (mol.atoms[a].x !== undefined) {
+      const sa = side(mol, a, b, ta.hi), sb = side(mol, a, b, tb.hi);
+      if (!sa || !sb) return 'unknown';
+      same = sa === sb;
+    } else return 'unknown';
+    return { mark: same ? 'Z' : 'E', same, hiA: ta.hi, otherA: ta.other, hiB: tb.hi, otherB: tb.other };
+  }
+
+  // ------------------------------------------------------------------------------ assembling --
+  // P-14.3.4 and P-31.1: when a locant may be left out of a PIN.
+  function locantPolicy(info, d, prefixes) {
+    const things = prefixes.filter((p) => p.locant !== 'N').length + d.principalLocs.length;
+    const terminal = TERMINAL.has(info.principal);
+    const policy = { prefixes: true, unsat: true, suffix: !terminal };
+    if (!d.ring && d.n === 1) return { prefixes: false, unsat: false, suffix: false };
+    if (!d.ring && d.n === 2) {
+      policy.unsat = false; // ethene, ethyne
+      if (things <= 1) { policy.prefixes = false; policy.suffix = false; }
+      // Acetic/ethanoic derivatives: the acid end is C1, so a lone prefix needs no locant either.
+      return policy;
+    }
+    if (!d.ring && d.n === 3 && things === 0 && d.multiple.length === 1) policy.unsat = false; // propene, propyne
+    if (d.ring) {
+      if (things === 0 && d.multiple.length === 1) policy.unsat = false; // cyclohexene
+      if (things === 1 && d.multiple.length === 0) { policy.prefixes = false; policy.suffix = false; } // cyclohexanol, methylcyclohexane
+    }
+    return policy;
+  }
+
+  const RETAINED = {
+    // 2013 PINs that replace the systematic names of the smallest acids, aldehydes and amides.
+    acid: { 1: 'formic acid', 2: 'acetic acid' },
+    aldehyde: { 1: 'formaldehyde', 2: 'acetaldehyde' },
+    amide: { 1: 'formamide', 2: 'acetamide' },
+    ester: { 1: 'formate', 2: 'acetate' },
+  };
+
+  const AROMATIC_RETAINED = { alcohol: 'phenol', amine: 'aniline', acid: 'benzoic acid', aldehyde: 'benzaldehyde', amide: 'benzamide', ester: 'benzoate' };
+  const AROMATIC_SYSTEMATIC = { alcohol: 'benzenol', amine: 'benzenamine', acid: 'benzenecarboxylic acid', aldehyde: 'benzenecarbaldehyde', amide: 'benzenecarboxamide', ester: 'benzenecarboxylate' };
+
+  // Build the name of one candidate in one style. `style` = { prefixes: 'pin'|'common',
+  // locants: 'modern'|'old', retained: bool, stereo: 'EZ'|'cistrans'|'none', omit: bool }.
+  function assemble(info, d, style) {
+    const p = prefixList(info, d, style.prefixes);
+    if (p.bad) fail(p.bad);
+    const policy = locantPolicy(info, d, p.list);
+    if (style.omit === false) {
+      // Over-specified but unambiguous forms many courses accept: prop-1-ene, cyclohexan-1-ol.
+      policy.unsat = !(d.n <= 2 && !d.ring);
+      policy.suffix = !TERMINAL.has(info.principal) && !(d.n === 1 && !d.ring);
+    }
+    if (style.omp) policy.prefixes = false;
+    if (style.short && !d.ring) {
+      // Short forms courses use where only one position is possible: propene, butanone, methylpropane.
+      if (d.n === 3 && d.multiple.length === 1 && !info.principal) policy.unsat = false;
+      if (info.principal === 'ketone' && d.n <= 4 && d.principalLocs.length === 1 && (d.n === 2 || d.principalLocs[0] === 2)) policy.suffix = false;
+      if (d.n === 3 && p.list.length === 1 && !info.principal && !d.multiple.length && /yl$/.test(p.list[0].name)) policy.prefixes = false;
+    }
+    // Group identical prefixes.
+    const byName = new Map();
+    for (const x of p.list) {
+      if (!byName.has(x.name)) byName.set(x.name, []);
+      byName.get(x.name).push(x.locant);
+    }
+    const items = [...byName.entries()].map(([name, locs]) => {
+      locs.sort((x, y) => (x === 'N' ? -1 : y === 'N' ? 1 : x - y));
+      const show = locs.map((l) => (l === 'N' ? true : policy.prefixes));
+      const shown = locs.filter((l, i) => show[i]);
+      const complex = needsParens(name);
+      const mult = complex ? ['', '', 'di', 'tri', 'tetra'][locs.length] : MULT[locs.length];
+      const body = complex ? `${mult}(${name})` : mult + name;
+      return { name, key: alphaKey(name), text: (shown.length ? shown.join(',') + '-' : '') + body, locs };
+    });
+    items.sort((x, y) => x.key.localeCompare(y.key) || (x.name < y.name ? -1 : 1));
+    let prefixText = '';
+    for (const it of items) {
+      if (prefixText && /^[\dN]/.test(it.text)) prefixText += '-';
+      prefixText += it.text;
+    }
+
+    const principal = info.principal;
+    const count = d.principalLocs.length;
+    // Retained names (P-65.1.1.1, P-66.1.1.1, P-66.6.1.1).
+    if (RETAINED[principal] && RETAINED[principal][d.n] && !d.ring && count === 1 && p.list.some((x) => x.locant !== 'N')) {
+      fail('Substituted formic and acetic derivatives are not covered');
+    }
+    if (style.retained && RETAINED[principal] && RETAINED[principal][d.n] && !d.ring && count === 1) {
+      const ok = d.n === 1 ? p.list.filter((x) => x.locant !== 'N').length === 0 : p.list.filter((x) => x.locant !== 'N').length === 0 && !d.multiple.length;
+      if (ok) {
+        const word = RETAINED[principal][d.n];
+        if (principal === 'ester') return { text: `${esterAlkyl(info, style)} ${word}`, items };
+        return { text: prefixText + word, items };
+      }
+    }
+
+    if (d.aromatic) {
+      // Benzene parents (P-22.1.3, P-62.2.1.1.1, P-63.1.1.1, P-63.2.3, P-65.1.1.1, P-66.1.1.1, P-66.6.1.1).
+      // Toluene and anisole are PINs only when nothing else is on the ring.
+      const ring = p.list.filter((x) => x.locant !== 'N');
+      let word = 'benzene';
+      if (principal) word = (style.retained ? AROMATIC_RETAINED : AROMATIC_SYSTEMATIC)[principal];
+      else if (style.retained && ring.length === 1 && ring[0].name === 'methyl') return { text: 'toluene', items };
+      else if (style.retained && ring.length === 1 && ring[0].name === 'methoxy') return { text: 'anisole', items };
+      let text = (style.omp ? `${style.omp}-` : '') + prefixText + word;
+      if (principal === 'ester') text = `${esterAlkyl(info, style)} ${text}`;
+      return { text, items };
+    }
+    const stem = (d.ring ? 'cyclo' : '') + STEM[d.n];
+    const segs = [];
+    if (d.ene.length) segs.push({ locs: d.ene, base: MULT[d.ene.length] + 'en' });
+    if (d.yne.length) segs.push({ locs: d.yne, base: MULT[d.yne.length] + 'yn' });
+    if (!segs.length) segs.push({ locs: [], base: 'an' });
+    let suffix = null;
+    if (principal && count) {
+      const word = SUFFIX[principal];
+      const mult = MULT[count];
+      // Dicarboxylic acids and dials keep the 'e' of 'ane': hexanedioic acid, butanedial.
+      suffix = { locs: d.principalLocs, base: mult + word, show: policy.suffix };
+    }
+    const first = segs[0];
+    const pieces = []; // [locants or null, text]
+    let core = stem + (first.base.startsWith('di') || first.base.startsWith('tri') || first.base.startsWith('tetra') ? 'a' : '');
+    pieces.push({ locs: null, text: core });
+    segs.forEach((s) => pieces.push({ locs: s.locs.length && policy.unsat ? s.locs : null, text: s.base }));
+    if (suffix) pieces.push({ locs: suffix.show ? suffix.locs : null, text: suffix.base });
+    // Elision (P-16.7.1 / P-31.1.1.1): the 'e' of 'ane', 'ene', 'yne' goes before a vowel or 'y'.
+    for (let i = 1; i < pieces.length; i++) {
+      if (/(an|en|yn)$/.test(pieces[i].text) || pieces[i].text === 'an') {
+        const next = pieces[i + 1];
+        const elide = next && /^[aeiouy]/.test(next.text);
+        if (!elide) pieces[i].text += 'e';
+      }
+    }
+    let parent;
+    if (style.locants === 'old') {
+      // Older style: the first set of locants moves in front of the parent (2-butene, 3-buten-2-ol).
+      const withLocs = pieces.filter((x) => x.locs);
+      let front = '';
+      if (withLocs.length) { front = withLocs[0].locs.join(',') + '-'; withLocs[0].locs = null; }
+      parent = front + pieces.map((x) => (x.locs ? `-${x.locs.join(',')}-` : '') + x.text).join('');
+    } else {
+      parent = pieces.map((x) => (x.locs ? `-${x.locs.join(',')}-` : '') + x.text).join('');
+    }
+    parent = parent.replace(/^-|--/g, '-').replace(/^-/, '');
+    if (suffix && /oic acid$/.test(suffix.base) === false && principal === 'acid') parent += '';
+    let text;
+    if (principal === 'ester') text = `${esterAlkyl(info, style)} ${prefixText}${parent}`;
+    else text = prefixText + parent;
+    if (/^\d/.test(parent) && prefixText) text = (principal === 'ester' ? `${esterAlkyl(info, style)} ` : '') + prefixText + '-' + parent;
+    return { text, items };
+  }
+
+  function esterAlkyl(info, style) {
+    const g = info.groups.find((x) => x.cls === 'ester');
+    const r = alkylName(info, g.alkoxy, g.atoms[1], style.prefixes);
+    if (r.bad) fail(r.bad);
+    return r.name;
+  }
+
+  function stereoPrefix(info, d, style) {
+    const marks = [];
+    let unknown = false;
+    for (const bond of info.mol.bonds) {
+      if (bond.order !== 2 || !info.isC(bond.a) || !info.isC(bond.b)) continue;
+      if (!d.loc.has(bond.a) || !d.loc.has(bond.b)) continue;
+      if (d.ring && d.n < 8) continue; // only cis is possible in small rings
+      const s = doubleBondStereo(info, bond.a, bond.b);
+      if (!s) continue;
+      if (s === 'unknown') { unknown = true; continue; }
+      const la = d.loc.get(bond.a), lb = d.loc.get(bond.b);
+      marks.push({ locant: Math.min(la, lb), ...(la < lb ? s : { ...s, hiA: s.hiB, otherA: s.otherB, hiB: s.hiA, otherB: s.otherA }), a: la < lb ? bond.a : bond.b, b: la < lb ? bond.b : bond.a, la: Math.min(la, lb), lb: Math.max(la, lb) });
+    }
+    marks.sort((x, y) => x.locant - y.locant);
+    return { marks, unknown };
+  }
+
+  function cisTrans(info, d, m) {
+    // cis/trans only for a double bond inside the chain with one hydrogen on each carbon.
+    if (info.hydrogens[m.a] !== 1 || info.hydrogens[m.b] !== 1) return null;
+    const la = d.loc.get(m.a), lb = d.loc.get(m.b);
+    if (Math.abs(la - lb) !== 1 || Math.min(la, lb) === 1 || Math.max(la, lb) === d.n) return null;
+    // Both chain neighbours are the CIP-higher substituents only if they outrank the other one,
+    // which here is H, so Z = cis.
+    return m.mark === 'Z' ? 'cis' : 'trans';
+  }
+
+  // Common names courses use, keyed by the PIN.
+  const COMMON = { 'propan-2-one': 'acetone', '1-phenylethan-1-one': 'acetophenone', phenylmethanol: 'benzyl alcohol', phenylmethanamine: 'benzylamine' };
+
+  // ------------------------------------------------------------------------------------ name --
+  function name(mol, options = {}) {
+    const info = perceive(mol);
+    if (info.groups.filter((g) => g.cls === 'amine').length && info.principal === 'amine') {
+      // fine
+    }
+    const cands = candidates(info);
+    if (!cands.length) fail('Nothing to name');
+    cands.forEach((c) => cite(info, c));
+    const best = pick(cands, ORDER_2013);
+    if (best.problems.length) fail(best.problems[0]);
+    const oldBest = pick(cands, ORDER_OLD);
+    const sameParentAsOld = new Set(oldBest.atoms).size === best.atoms.length && best.atoms.every((a) => oldBest.atoms.includes(a)) && best.ring === oldBest.ring;
+    // Every candidate that ties with the best must give the same name (symmetry).
+    const ties = cands.filter((c) => compare(c, best).r === 0);
+    const pin = { prefixes: 'pin', locants: 'modern', retained: true };
+    const base = assemble(info, best, pin).text;
+    for (const t of ties) {
+      if (t.problems.length) continue;
+      if (assemble(info, t, pin).text !== base) fail('Tie between different names');
+    }
+    const stereo = stereoPrefix(info, best, pin);
+    const ELN = { C: 'carbon', N: 'nitrogen', O: 'oxygen', F: 'fluorine', Cl: 'chlorine', Br: 'bromine', I: 'iodine' };
+    const rank = (hi, other) => {
+      if (other === null) return `${ELN[info.el(hi)]} outranks H`;
+      if (info.el(hi) !== info.el(other)) return `${ELN[info.el(hi)]} (Z = ${ATOMIC[info.el(hi)]}) outranks ${ELN[info.el(other)]} (Z = ${ATOMIC[info.el(other)]})`;
+      return 'both groups start with carbon, so compare the atoms one bond further out; the bigger set wins';
+    };
+    const stereoSteps = stereo.marks.map((m) => ({ kind: 'stereo', atoms: [m.a, m.b], hi: [m.hiA, m.hiB],
+      text: `Double bond C${m.la}=C${m.lb}: on C${m.la}, ${rank(m.hiA, m.otherA)}; on C${m.lb}, ${rank(m.hiB, m.otherB)}. The higher-ranked groups are on ${m.same ? 'the same side: Z (zusammen)' : 'opposite sides: E (entgegen)'}.` }));
+    // Locants go into the descriptor only when the name cites them: (2E)-but-2-ene but (E)-1,2-dichloroethene.
+    const citesUnsat = locantPolicy(info, best, best.pinPrefixes || []).unsat;
+    const stereoText = stereo.marks.length ? `(${stereo.marks.map((m) => (citesUnsat ? m.locant : '') + m.mark).join(',')})-` : '';
+    const text = stereoText + base;
+
+    // Other forms IUPAC accepts in general nomenclature, and forms many courses use.
+    const variants = new Set();
+    const styles = [];
+    for (const prefixes of ['pin', 'common']) for (const locants of ['modern', 'old']) for (const retained of [true, false]) for (const omit of [true, false]) styles.push({ prefixes, locants, retained, omit });
+    styles.push({ prefixes: 'pin', locants: 'modern', retained: false, short: true }, { prefixes: 'pin', locants: 'old', retained: false, short: true });
+    const stereoForms = [stereoText];
+    if (stereo.marks.length) {
+      stereoForms.push(`(${stereo.marks.map((m) => m.mark).join(',')})-`);
+      stereoForms.push(`${stereo.marks.map((m) => m.mark).join(',')}-`);
+      if (stereo.marks.length === 1) {
+        stereoForms.push(`${stereo.marks[0].locant}${stereo.marks[0].mark}-`);
+        const ct = cisTrans(info, best, stereo.marks[0]);
+        if (ct) stereoForms.push(`${ct}-`);
+      }
+    }
+    for (const s of styles) {
+      let t;
+      try { t = assemble(info, best, s).text; } catch (e) { continue; }
+      for (const sf of stereoForms) variants.add(sf + t);
+    }
+    if (COMMON[base]) variants.add(COMMON[base]);
+    // ortho/meta/para for two groups on a benzene ring (general nomenclature; PINs use numbers).
+    if (best.aromatic && info.principal !== 'ester' && !stereo.marks.length) {
+      const where = [...best.principalLocs, ...(best.pinPrefixes || []).filter((x) => x.locant !== 'N').map((x) => x.locant)].sort(cmpNum);
+      if (where.length === 2) {
+        const gap = Math.min(where[1] - where[0], 6 - (where[1] - where[0]));
+        const [short, long] = [['o', 'ortho'], ['m', 'meta'], ['p', 'para']][gap - 1];
+        // Without locants, 'chloromethylbenzene' would read as (chloromethyl)benzene, so a second
+        // prefix that is itself a carbon group is not run together; p-chlorotoluene is used instead.
+        const ring = (best.pinPrefixes || []).filter((x) => x.locant !== 'N').map((x) => x.name).sort((x, y) => alphaKey(x).localeCompare(alphaKey(y)));
+        const halo = (x) => Object.values(HALO).includes(x);
+        const runTogether = ring.length < 2 || ring[0] === ring[1] || halo(ring[1]);
+        for (const omp of [short, long]) {
+          if (runTogether) for (const retained of [true, false]) for (const prefixes of ['pin', 'common']) {
+            try { variants.add(assemble(info, best, { prefixes, locants: 'modern', retained, omp }).text); } catch (e) { /* skip */ }
+          }
+          if (!info.principal && ring.length === 2) {
+            const parent = { methyl: 'toluene', methoxy: 'anisole' };
+            for (const [i, j] of [[0, 1], [1, 0]]) if (parent[ring[i]] && halo(ring[j])) variants.add(`${omp}-${ring[j]}${parent[ring[i]]}`);
+          }
+        }
+        if (!info.principal && (best.pinPrefixes || []).every((x) => x.name === 'methyl')) { variants.add(`${short}-xylene`); variants.add(`${long}-xylene`); }
+      }
+    }
+    // Functional class names of simple ethers: ethyl methyl ether, diethyl ether.
+    const ethers = info.groups.filter((g) => g.cls === 'ether');
+    if (ethers.length === 1 && info.groups.length === 1) {
+      for (const st of ['pin', 'common']) {
+        const parts = ethers[0].carbons.map((c) => alkylName(info, c, ethers[0].oxygen, st));
+        if (parts.some((x) => x.bad)) continue;
+        const names = parts.map((x) => x.name).sort((x, y) => alphaKey(x).localeCompare(alphaKey(y)));
+        const wrap = (x) => (needsParens(x) ? `(${x})` : x);
+        variants.add(names[0] === names[1] ? `di${wrap(names[0])} ether` : `${wrap(names[0])} ${wrap(names[1])} ether`);
+      }
+    }
+    variants.delete(text);
+
+    return {
+      text, info, best, cands, ties, stereo, sameParentAsOld,
+      variants: [...variants],
+      principal: info.principal,
+      steps: (() => { const st = explain(info, best, cands, text); st.splice(st.length - 1, 0, ...stereoSteps); return st; })(),
+    };
+  }
+
+  // ----------------------------------------------------------------------------- explanation --
+  const WHY = {
+    principal: (b, o, info) => `The parent must carry every ${SUFFIX[info.principal] === 'ol' ? '–OH' : CLASS_NAME[info.principal]} group it can (${b.principalLocs.length} here, not ${o.principalLocs.length}).`,
+    ring: () => 'A ring outranks a chain when both carry the same principal groups (IUPAC 2013, P-44.1.2.2).',
+    length: (b, o) => `The parent chain is the longest chain: ${b.n} carbons, not ${o.n}.`,
+    multiple: (b, o) => `Among chains of equal length, the parent has the most multiple bonds (${b.multiple.length}, not ${o.multiple.length}).`,
+    double: () => 'Among chains of equal length and unsaturation, the parent has the most double bonds.',
+    principalLocants: (b, o, info) => `Number from the end that gives the principal group (-${SUFFIX[info.principal]}) the lowest locant (${b.principalLocs.join(',')}, not ${o.principalLocs.join(',')}).`,
+    multipleLocants: (b, o) => `Number so the multiple bonds get the lowest locants (${b.multiple.join(',')}, not ${o.multiple.join(',')}).`,
+    doubleLocants: (b, o) => `When there is still a choice, the double bond gets the lower locant (${b.ene.join(',')}, not ${o.ene.join(',')}).`,
+    prefixCount: (b, o) => `Among equal chains, the parent has the most substituents (${b.prefixCount}, not ${o.prefixCount}).`,
+    prefixLocants: (b, o) => `Number so the substituents get the lowest locants, compared at the first point of difference (${b.prefixLocs.join(',')}, not ${o.prefixLocs.join(',')}).`,
+    alphabetical: () => 'The locant sets tie, so the substituent cited first alphabetically gets the lower number.',
+  };
+
+  function explain(info, best, cands, text) {
+    const steps = [];
+    const principal = info.principal;
+    steps.push({ kind: 'class', text: principal ? `Principal group: ${CLASS_NAME[principal]}, named by the suffix “-${SUFFIX[principal]}”.` : 'No functional group outranks the others: name it as a hydrocarbon with prefixes.' });
+    // Why this parent: the deciding rule against the strongest different-parent rival.
+    const sameParent = (c) => c.ring === best.ring && c.atoms.length === best.atoms.length && c.atoms.every((a) => best.loc.has(a));
+    const rivals = cands.filter((c) => !sameParent(c));
+    let parentWhy = null;
+    if (rivals.length) {
+      const strongest = pick(rivals, ORDER_2013);
+      parentWhy = WHY[compare(best, strongest).rule]?.(best, strongest, info);
+    }
+    const parentText = best.aromatic
+      ? (principal ? `Parent: a benzene ring carrying the ${CLASS_NAME[principal]} group, which has the retained name ${AROMATIC_RETAINED[principal]}.` : 'Parent: a benzene ring (benzene).')
+      : `Parent: ${best.ring ? 'a ring of' : 'a chain of'} ${best.n} carbon${best.n > 1 ? 's' : ''} (${best.ring ? 'cyclo' : ''}${STEM[best.n]}-).`;
+    steps.push({ kind: 'parent', atoms: best.atoms, ring: best.ring, text: parentText, why: parentWhy });
+    const flips = cands.filter((c) => sameParent(c) && compare(best, c).r < 0);
+    let numberWhy = null;
+    if (flips.length) {
+      const strongest = pick(flips, ORDER_2013);
+      numberWhy = WHY[compare(best, strongest).rule]?.(best, strongest, info);
+    }
+    steps.push({ kind: 'number', atoms: best.atoms, text: 'Number the parent.', why: numberWhy });
+    const pins = best.pinPrefixes || [];
+    if (pins.length) steps.push({ kind: 'prefixes', text: `Substituents: ${pins.map((p) => `${p.name} at ${p.locant}`).join(', ')}.`, why: pins.length > 1 ? 'Prefixes are cited in alphabetical order; di-, tri- and sec-/tert- are ignored when alphabetizing.' : null });
+    steps.push({ kind: 'name', text });
+    return steps;
+  }
+
+  // Why a wrong answer is wrong, if it is the name of a numbering or chain the rules rejected.
+  const STEREO_HEAD = /^(\((\d*[ez],?)+\)-?|(\d*[ez],?)+-|cis-|trans-)/;
+  const stripStereo = (n) => n.replace(STEREO_HEAD, '');
+
+  // Why a wrong answer is wrong, when the mistake is one the rules name.
+  function diagnose(result, answer) {
+    const norm = normalize(answer);
+    if (normalize(result.text) === norm || result.variants.some((v) => normalize(v) === norm)) return { correct: true };
+    const info = result.info;
+    const base = stripStereo(norm);
+    const rightBase = stripStereo(normalize(result.text));
+    const accepted = [result.text, ...result.variants].map((v) => stripStereo(normalize(v)));
+    if (result.stereo.marks.length && accepted.includes(base)) {
+      if (base === norm) return { correct: false, why: 'The name needs an E/Z descriptor in front, such as (2E)-, because this double bond can be E or Z.' };
+      return { correct: false, why: 'The skeleton is named correctly, but check E/Z: on each carbon of the double bond rank the two groups by atomic number; higher groups on the same side is Z, on opposite sides E.' };
+    }
+    if (!result.stereo.marks.length && base !== norm && accepted.includes(base)) {
+      return { correct: false, why: 'This double bond cannot be E or Z (one of its carbons carries two identical groups), so the name takes no E/Z descriptor.' };
+    }
+    const styles = [PIN_STYLE, { prefixes: 'common', locants: 'modern', retained: true }, { prefixes: 'pin', locants: 'old', retained: true }, { prefixes: 'pin', locants: 'modern', retained: false }];
+    for (const c of result.cands) {
+      if (c.problems.length) continue;
+      for (const st of styles) {
+        let t; try { t = assemble(info, c, st).text; } catch (e) { continue; }
+        if (normalize(t) === base) {
+          const { rule } = compare(result.best, c);
+          if (rule) return { correct: false, why: WHY[rule](result.best, c, info) };
+        }
+      }
+    }
+    const letters = (x) => x.replace(/[^a-z]/g, '');
+    if (letters(base) !== letters(rightBase) && [...letters(base)].sort().join('') === [...letters(rightBase)].sort().join('')) {
+      return { correct: false, why: 'Check the order of the prefixes: they are cited alphabetically, ignoring di-, tri-, sec- and tert-.' };
+    }
+    if (letters(base) === letters(rightBase)) return { correct: false, why: 'The parts are right; check the locants, commas and hyphens.' };
+    return { correct: false, why: null };
+  }
+
+  const PIN_STYLE = { prefixes: 'pin', locants: 'modern', retained: true };
+
+  // Wrong answers for a multiple-choice question: names the rules reject for this structure.
+  function distractors(result, count = 3, random = Math.random) {
+    const info = result.info;
+    const taken = new Set([result.text, ...result.variants].map(normalize));
+    const pool = [];
+    const offer = (t) => { const k = normalize(t); if (!taken.has(k)) { taken.add(k); pool.push(t); } };
+    const marks = result.stereo.marks;
+    const head = (cand, flip = []) => {
+      if (!marks.length) return '';
+      const cites = locantPolicy(info, cand, cand.pinPrefixes || []).unsat;
+      const list = marks.map((m, i) => ({ l: Math.min(cand.loc.get(m.a), cand.loc.get(m.b)), m: flip[i] ? (m.mark === 'E' ? 'Z' : 'E') : m.mark }))
+        .sort((x, y) => x.l - y.l);
+      return `(${list.map((x) => (cites ? x.l : '') + x.m).join(',')})-`;
+    };
+    const stereoWrong = [];
+    if (marks.length) {
+      for (let mask = 1; mask < 1 << marks.length; mask++) stereoWrong.push(head(result.best, marks.map((_, i) => !!(mask & (1 << i)))) + stripStereoText(result.text));
+      stereoWrong.push(stripStereoText(result.text));
+    }
+    // Other parents and numberings, best-ranked first: these are the classic mistakes. Chains that
+    // stop short of a chain end (a "1-methyl" name) are too easy to spot, so they are left out.
+    const maximal = (c) => {
+      if (c.ring) return true;
+      const ends = [c.atoms[0], c.atoms[c.atoms.length - 1]];
+      return ends.every((e) => !info.adj[e].some((x) => info.isC(x.to) && !info.aromatic.has(x.to) && c.comp.has(x.to) && !c.loc.has(x.to)) || c.atoms.length === 1);
+    };
+    const ranked = result.cands.filter((c) => !c.problems.length && c !== result.best && maximal(c) && c.principalLocs.length === result.best.principalLocs.length && (c.n > 1 || c.ring))
+      .sort((a, b) => compare(a, b).r);
+    const rival = [];
+    for (const c of ranked) { try { rival.push(head(c) + assemble(info, c, PIN_STYLE).text); } catch (e) { /* skip */ } }
+    // Prefixes out of alphabetical order.
+    const items = assemble(info, result.best, PIN_STYLE).items;
+    const shuffled = [];
+    if (items.length > 1) {
+      const rev = [...items].reverse();
+      let t = '';
+      for (const it of rev) { if (t && /^[\dN]/.test(it.text)) t += '-'; t += it.text; }
+      const prefixText = items.reduce((acc, it) => acc + (acc && /^[\dN]/.test(it.text) ? '-' : '') + it.text, '');
+      shuffled.push(result.text.replace(prefixText, t));
+    }
+    // Correct names of near neighbours: isomers, homologues, and the next functional class.
+    const near = [];
+    for (const m of mutants(result)) {
+      try {
+        const r = name(m);
+        if (!r.stereo.unknown) near.push(r.text);
+      } catch (e) { if (!(e instanceof Unsupported)) throw e; }
+    }
+    for (let i = near.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [near[i], near[j]] = [near[j], near[i]]; }
+    // Last resort for the smallest names: the next ring or chain size, and the other bond endings.
+    const plain = [];
+    const bare = stripStereoText(result.text);
+    if (!/\d/.test(bare)) {
+      const m = bare.match(/(meth|eth|prop|but|pent|hex|hept|oct|non|dec)(?=(an|en|yn|ol|al|oic|amine|amide|oate))/);
+      if (m) for (const j of [STEM.indexOf(m[1]) - 1, STEM.indexOf(m[1]) + 1, STEM.indexOf(m[1]) + 2, STEM.indexOf(m[1]) + 3]) if (STEM[j] && (j > 2 || !/cyclo/.test(bare))) plain.push(bare.replace(m[0], STEM[j]));
+      for (const [a, b] of [['ane', 'ene'], ['ene', 'ane'], ['ene', 'yne'], ['yne', 'ene']]) if (bare.endsWith(a) && !/meth[aey]ne$|benzene$/.test(bare)) plain.push(bare.slice(0, -3) + b);
+      const ending = bare.match(/an(ol|al|amine|amide)$/);
+      if (ending) for (const e of { ol: ['al'], al: ['ol'], amine: ['amide'], amide: ['amine'] }[ending[1]]) plain.push(bare.slice(0, -ending[1].length) + e);
+    } else {
+      // Suffix swaps that keep every locant valid, so each is the right name of another compound.
+      const SWAP = [['oic acid', 'al'], ['al', 'oic acid'], ['amide', 'oic acid'], ['one', 'ol'], ['ol', 'amine'], ['amine', 'ol'], ['ene', 'yne'], ['yne', 'ene']];
+      for (const [a, b] of SWAP) if (bare.endsWith(a) && !/benzene$|phenol$|aniline$|toluene$|anisole$|en-[\d,]+-(di|tri)?yne$/.test(bare)) { plain.push(bare.slice(0, -a.length) + b); break; }
+      const m = bare.match(/(meth|eth|prop|but|pent|hex|hept|oct|non)(?=(an|en|yn|a-|e-|-))(?!.*(meth|eth|prop|but|pent|hex|hept|oct|non)(an|en|yn|a-|e-|-))/);
+      if (m && !/cyclo$/.test(bare.slice(0, m.index))) plain.push(bare.slice(0, m.index) + STEM[STEM.indexOf(m[1]) + 1] + bare.slice(m.index + m[1].length));
+    }
+    const order = [stereoWrong, rival.slice(0, 2), shuffled, near, rival.slice(2), swaps(bare), plain];
+    for (const list of order) for (const t of list) offer(t);
+    // Shuffle lightly so the classic mistake is not always first.
+    const chosen = pool.slice(0, count);
+    for (let i = chosen.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [chosen[i], chosen[j]] = [chosen[j], chosen[i]]; }
+    return chosen;
+  }
+  const stripStereoText = (t) => t.replace(/^\([\dEZ,]+\)-/, '');
+
+  // Names of related compounds for when the rules offer too few rivals: another halogen, and the
+  // retained names students mix up (phenol and phenylmethanol, formic and acetic acid).
+  const MIX_UP = {
+    phenol: ['phenylmethanol', 'aniline', 'cyclohexanol'], aniline: ['phenylmethanamine', 'phenol', 'cyclohexanamine'],
+    'benzoic acid': ['benzaldehyde', 'benzamide', 'cyclohexanecarboxylic acid'], benzaldehyde: ['benzoic acid', 'phenylmethanol', 'cyclohexanecarbaldehyde'],
+    benzamide: ['benzoic acid', 'aniline', 'cyclohexanecarboxamide'], benzene: ['cyclohexane', 'cyclohexene', 'toluene'],
+    toluene: ['methylcyclohexane', 'benzene', 'phenylmethanol'], anisole: ['phenol', 'methoxycyclohexane', 'ethoxybenzene'],
+    'formic acid': ['acetic acid', 'formaldehyde', 'methanol'], 'acetic acid': ['formic acid', 'acetaldehyde', 'ethanol'],
+    formaldehyde: ['acetaldehyde', 'formic acid', 'methanol'], acetaldehyde: ['formaldehyde', 'acetic acid', 'ethanol'],
+    formamide: ['acetamide', 'formic acid', 'methanamine'], acetamide: ['formamide', 'acetic acid', 'ethanamine'],
+    acetate: ['formate', 'propanoate'], formate: ['acetate', 'propanoate'], benzoate: ['acetate', 'formate'],
+  };
+  function swaps(text) {
+    const out = [];
+    const HAL = ['fluoro', 'chloro', 'bromo', 'iodo'];
+    const h = HAL.find((x) => text.includes(x));
+    if (h) for (const x of HAL) if (x !== h && !text.includes(x)) out.push(text.replace(h, x));
+    if (/(^|[\d-])tert-butyl/.test(text)) out.push(text.replace('tert-butyl', 'butyl'));
+    if (text.startsWith('(propan-2-yl)')) out.push(text.replace('(propan-2-yl)', 'propyl'));
+    for (const [word, list] of Object.entries(MIX_UP)) {
+      if (!text.endsWith(word)) continue;
+      const head = text.slice(0, -word.length);
+      for (const w of list) if (!head || !/cyclo|toluene/.test(w) || (word === 'benzene' && /^[a-z-]+yl$/.test(head) && w === 'cyclohexane')) out.push(head + w);
+      break;
+    }
+    return out;
+  }
+
+  // Copies of the molecule changed in one small way, each still inside the tiers' scope.
+  function mutants(result) {
+    const info = result.info, mol = info.mol, best = result.best;
+    const copy = () => ({ atoms: mol.atoms.map((a) => ({ ...a })), bonds: mol.bonds.map((b) => ({ ...b })), stereo: mol.stereo });
+    const out = [];
+    const without = (m, idx) => {
+      const map = new Map(); m.atoms.forEach((_, i) => { if (i !== idx) map.set(i, map.size); });
+      return { atoms: m.atoms.filter((_, i) => i !== idx), bonds: m.bonds.filter((b) => b.a !== idx && b.b !== idx).map((b) => ({ ...b, a: map.get(b.a), b: map.get(b.b) })) };
+    };
+    const freeOn = (m, u) => VALENCE[m.atoms[u].el] - m.bonds.filter((b) => b.a === u || b.b === u).reduce((t, b) => t + b.order, 0);
+    const place = (m, u, from) => {
+      // Put a new atom where a skeletal drawing would: away from u's other neighbours.
+      const A = m.atoms[u];
+      const nb = m.bonds.filter((b) => b.a === u || b.b === u).map((b) => m.atoms[b.a === u ? b.b : b.a]);
+      let dx = 0, dy = 0; for (const q of nb) { dx += A.x - q.x; dy += A.y - q.y; }
+      const len = Math.hypot(dx, dy) || 1;
+      return { x: A.x + dx / len, y: A.y + dy / len };
+    };
+    const ends = [best.atoms[0], best.atoms[best.atoms.length - 1]];
+    // Homologue: one more carbon on an end of the parent chain.
+    if (!best.ring) for (const e of ends) {
+      if (info.el(e) !== 'C' || freeOn(mol, e) < 1) continue;
+      const m = copy(); const c = m.atoms.push({ el: 'C', ...place(m, e) }) - 1; m.bonds.push({ a: e, b: c, order: 1 });
+      out.push(m); break;
+    }
+    // A substituent one carbon longer (methyl to ethyl), on a branch, on N, or on the ester oxygen.
+    for (let u = 0; u < mol.atoms.length; u++) {
+      if (info.el(u) !== 'C' || best.loc.has(u) || info.adj[u].length !== 1 || info.hydrogens[u] !== 3) continue;
+      const m = copy(); const c = m.atoms.push({ el: 'C', ...place(m, u) }) - 1; m.bonds.push({ a: u, b: c, order: 1 });
+      out.push(m); break;
+    }
+    // One carbon fewer: drop a bare CH3 end of the chain.
+    if (!best.ring && best.n > 2) for (const e of ends) {
+      const nb = info.adj[e];
+      if (nb.length === 1 && nb[0].order === 1 && info.hydrogens[e] === 3) { out.push(without(copy(), e)); break; }
+    }
+    // Isomer: move one substituent to the next carbon along.
+    for (const pfx of best.prefixes) {
+      const atom = best.atoms[pfx.locant - 1];
+      const root = pfx.oxy ? pfx.from : pfx.branch !== undefined ? pfx.branch : info.adj[atom].find((x) => !info.isC(x.to) && info.groups.some((g) => ['halo', 'alcohol', 'ketone', 'amine'].includes(g.cls) && g.cls !== info.principal && g.atoms[0] === x.to))?.to;
+      if (root === undefined) continue;
+      const target = best.atoms[pfx.locant] ?? best.atoms[pfx.locant - 2];
+      const order = info.adj[atom].find((x) => x.to === root).order;
+      if (target === undefined || freeOn(mol, target) < order) continue;
+      const m = copy();
+      const bond = m.bonds.find((b) => (b.a === atom && b.b === root) || (b.b === atom && b.a === root));
+      if (bond.a === atom) bond.a = target; else bond.b = target;
+      out.push(m); break;
+    }
+    // The neighbouring class: acid to aldehyde, aldehyde/ketone to alcohol, alcohol to ketone.
+    const g = info.groups.find((x) => x.cls === info.principal);
+    if (g) {
+      const m = copy();
+      if (g.cls === 'acid') out.push(without(m, g.atoms[1]));
+      else if (g.cls === 'aldehyde' || g.cls === 'ketone') { m.bonds.find((b) => (b.a === g.atoms[0] || b.b === g.atoms[0])).order = 1; out.push(m); }
+      else if (g.cls === 'alcohol' && freeOn(mol, g.carbon) >= 1 && info.adj[g.carbon].filter((x) => info.isC(x.to)).length === 2) { m.bonds.find((b) => b.a === g.atoms[0] || b.b === g.atoms[0]).order = 2; out.push(m); }
+      else if (g.cls === 'ester') {
+        // Swap the halves: the classic ester mistake.
+        const acyl = carbonComponent(info, g.carbon).size, alkyl = carbonComponent(info, g.alkoxy).size;
+        const ringed = [...carbonComponent(info, g.carbon), ...carbonComponent(info, g.alkoxy)].some((x) => info.aromatic.has(x));
+        if (acyl !== alkyl && alkyl <= 10 && !ringed) {
+          const b = builder(); const c = b.chain(alkyl); b.attach(c[0], 'oxo'); const o = b.add('O'); b.bond(c[0], o);
+          const r = b.chain(acyl); b.bond(o, r[0]);
+          out.push(b.mol);
+        }
+      }
+    }
+    return out;
+  }
+
+  // Isomers and near neighbours for "pick the structure": every move of a group along the parent,
+  // a chain end turned into a branch, another halogen, plus the mutants above.
+  function relatives(result) {
+    const info = result.info, mol = info.mol, best = result.best;
+    const copy = () => ({ atoms: mol.atoms.map((a) => ({ el: a.el })), bonds: mol.bonds.map((b) => ({ ...b })) });
+    const free = (m, u) => VALENCE[m.atoms[u].el] - m.bonds.filter((b) => b.a === u || b.b === u).reduce((t, b) => t + b.order, 0);
+    const out = [...mutants(result)];
+    const moveBond = (from, root, to) => {
+      const m = copy();
+      const bond = m.bonds.find((b) => (b.a === from && b.b === root) || (b.b === from && b.a === root));
+      if (!bond || free(m, to) < bond.order) return;
+      if (bond.a === from) bond.a = to; else bond.b = to;
+      out.push(m);
+    };
+    // Groups hanging off the parent: alkyl branches, halogens, -OH, =O, -NH2, alkoxy.
+    for (const a of best.atoms) {
+      for (const e of info.adj[a]) {
+        if (best.loc.has(e.to)) continue;
+        const g = info.groups.find((x) => x.atoms[0] === e.to || x.oxygen === e.to || (x.cls === 'amine' && x.nitrogen === e.to && x.carbons.length === 1));
+        const movable = info.isC(e.to) ? !info.aromatic.has(e.to) : g && ['halo', 'alcohol', 'ketone', 'amine', 'ether'].includes(g.cls);
+        if (!movable) continue;
+        for (const t of best.atoms) if (t !== a) moveBond(a, e.to, t);
+      }
+    }
+    // A chain end becomes a methyl branch one carbon in (pentane to 2-methylbutane).
+    if (!best.ring && best.n >= 4) {
+      const [e, n1, n2] = best.atoms;
+      if (info.hydrogens[e] === 3 && info.adj[e].length === 1) moveBond(n1, e, n2);
+    }
+    // Another halogen.
+    for (const g of info.groups) {
+      if (g.cls !== 'halo') continue;
+      for (const x of ['F', 'Cl', 'Br', 'I']) if (x !== info.el(g.atoms[0])) { const m = copy(); m.atoms[g.atoms[0]].el = x; out.push(m); }
+      break;
+    }
+    // A methyl group added at each free position of the parent.
+    for (const a of best.atoms) {
+      const m = copy(); if (!info.isC(a) || free(m, a) < 1) continue;
+      const c = m.atoms.push({ el: 'C' }) - 1; m.bonds.push({ a, b: c, order: 1 }); out.push(m);
+    }
+    // A double or triple bond moved along the parent.
+    for (const bond of mol.bonds) {
+      if (bond.order === 1 || !best.loc.has(bond.a) || !best.loc.has(bond.b) || aromaticBond(info, bond.a, bond.b)) continue;
+      for (const other of mol.bonds) {
+        if (other === bond || other.order !== 1 || !best.loc.has(other.a) || !best.loc.has(other.b) || !info.isC(other.a) || !info.isC(other.b)) continue;
+        const m = copy(); const k = mol.bonds.indexOf(bond), j = mol.bonds.indexOf(other);
+        m.bonds[k].order = 1;
+        if (free(m, other.a) < bond.order - 1 || free(m, other.b) < bond.order - 1) continue;
+        m.bonds[j].order = bond.order; out.push(m);
+      }
+    }
+    // The heteroatom of the principal group swapped: amide to acid, amine to alcohol and back.
+    for (const g of info.groups) {
+      const swap = { amide: ['N', 'O'], acid: ['O', 'N'], amine: ['N', 'O'], alcohol: ['O', 'N'] }[g.cls];
+      if (!swap || g.cls !== info.principal) continue;
+      const at = g.cls === 'amine' || g.cls === 'amide' ? g.nitrogen : g.atoms[g.atoms.length - 1];
+      if (g.cls === 'amine' && g.carbons.length > 1) continue;
+      if (g.cls === 'amide' && g.nSubs.length) continue;
+      const m = copy(); m.atoms[at].el = swap[1]; out.push(m);
+      break;
+    }
+    // A ring one carbon bigger or smaller.
+    if (best.ring && !best.aromatic) {
+      const k = mol.bonds.findIndex((b) => b.order === 1 && best.loc.has(b.a) && best.loc.has(b.b));
+      if (k >= 0 && best.n < 8) {
+        const m = copy(); const [b] = m.bonds.splice(k, 1); const c = m.atoms.push({ el: 'C' }) - 1;
+        m.bonds.push({ a: b.a, b: c, order: 1 }, { a: c, b: b.b, order: 1 }); out.push(m);
+      }
+      const u = best.atoms.find((x) => info.adj[x].length === 2 && info.adj[x].every((e) => e.order === 1));
+      if (u !== undefined && best.n > 3) {
+        const [p, q] = info.adj[u].map((e) => e.to);
+        const map = new Map(); mol.atoms.forEach((_, i) => { if (i !== u) map.set(i, map.size); });
+        out.push({ atoms: mol.atoms.filter((_, i) => i !== u).map((a) => ({ el: a.el })),
+          bonds: [...mol.bonds.filter((b) => b.a !== u && b.b !== u).map((b) => ({ a: map.get(b.a), b: map.get(b.b), order: b.order })), { a: map.get(p), b: map.get(q), order: 1 }] });
+      }
+    }
+    // Two and three carbons longer, for the smallest molecules.
+    if (!best.ring && best.n <= 3) {
+      const end = best.atoms[best.n - 1];
+      for (const extra of [2, 3]) {
+        const m = copy(); if (free(m, end) < 1) break;
+        let prev = end; for (let k = 0; k < extra; k++) { const c = m.atoms.push({ el: 'C' }) - 1; m.bonds.push({ a: prev, b: c, order: 1 }); prev = c; }
+        out.push(m);
+      }
+    }
+    return out.map((m) => ({ atoms: m.atoms.map((a) => ({ el: a.el })), bonds: m.bonds.map((b) => ({ a: b.a, b: b.b, order: b.order })) }));
+  }
+
+  // Every atom reached from `start` without passing `blocked`.
+  function carbonSide(info, start, blocked) {
+    const seen = new Set([start]); const stack = [start];
+    while (stack.length) { const u = stack.pop(); for (const e of info.adj[u]) if (e.to !== blocked && !seen.has(e.to)) { seen.add(e.to); stack.push(e.to); } }
+    return seen;
+  }
+
+  // Up to `count` other structures, laid out and named, for "pick the structure".
+  function structureChoices(result, count = 3, random = Math.random) {
+    const right = new Set([result.text, ...result.variants].map(normalize));
+    const out = [], names = new Set();
+    const stereo = result.stereo.marks.length > 0;
+    const consider = (mol) => {
+      let r;
+      try { r = name(mol); } catch (e) { if (e instanceof Unsupported) return; throw e; }
+      const pos = layout(mol, random, r.best.ring ? null : r.best.atoms);
+      if (!pos) return;
+      mol.atoms.forEach((a, i) => { a.x = pos[i].x; a.y = pos[i].y; });
+      try { r = name(mol); } catch (e) { if (e instanceof Unsupported) return; throw e; }
+      if (r.stereo.unknown || (!stereo && r.stereo.marks.length) || !plausible(mol)) return;
+      if (right.has(normalize(r.text)) || names.has(r.text)) return;
+      names.add(r.text); out.push({ mol, result: r });
+    };
+    const fresh = (m) => ({ atoms: m.atoms.map((a) => ({ el: a.el })), bonds: m.bonds.map((b) => ({ ...b })) });
+    // For E/Z, the other geometry of the same skeleton is the classic wrong pick: mirror one end of
+    // the double bond across the bond axis.
+    const pinned = (mol) => {
+      let r;
+      try { r = name(mol); } catch (e) { if (e instanceof Unsupported) return; throw e; }
+      if (r.stereo.unknown || right.has(normalize(r.text)) || names.has(r.text) || crowded(mol, mol.atoms)) return;
+      names.add(r.text); out.push({ mol, result: r });
+    };
+    for (const mk of result.stereo.marks) for (const [near, far] of [[mk.a, mk.b], [mk.b, mk.a]]) {
+      const src = result.info.mol;
+      const mol = { atoms: src.atoms.map((a) => ({ ...a })), bonds: src.bonds.map((b) => ({ ...b })) };
+      const side = carbonSide(result.info, far, near);
+      const A = src.atoms[near], B = src.atoms[far];
+      const dx = B.x - A.x, dy = B.y - A.y, L = dx * dx + dy * dy;
+      for (const u of side) {
+        const t = ((src.atoms[u].x - A.x) * dx + (src.atoms[u].y - A.y) * dy) / L;
+        const fx = A.x + t * dx, fy = A.y + t * dy;
+        mol.atoms[u].x = 2 * fx - src.atoms[u].x; mol.atoms[u].y = 2 * fy - src.atoms[u].y;
+      }
+      const before = out.length;
+      pinned(mol);
+      if (out.length > before) break;
+    }
+    const rel = relatives(result);
+    for (let i = rel.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [rel[i], rel[j]] = [rel[j], rel[i]]; }
+    for (const m of rel) { if (out.length >= count) break; consider(m); }
+    if (stereo) for (let k = 0; k < 24 && out.length < count; k++) consider(fresh(result.info.mol));
+    return out.slice(0, count);
+  }
+
+  function normalize(s) {
+    return String(s).toLowerCase().normalize('NFKC')
+      .replace(/[‐-―−]/g, '-')
+      .replace(/\s+/g, '')
+      .replace(/^\((\d*[ez])\)-?/, '($1)-');
+  }
+
+  // ------------------------------------------------------------------------------------ SMILES --
+  // A small SMILES reader for presets and tests: organic subset, branches, ring closures,
+  // = and #, and / \ for double-bond geometry. No aromatics, charges or brackets beyond [nH].
+  function fromSmiles(smiles) {
+    const atoms = [], bonds = [], stereoBonds = [];
+    const stack = [];
+    const rings = new Map();
+    let prev = -1, order = 1, dir = null;
+    for (let i = 0; i < smiles.length;) {
+      const ch = smiles[i];
+      if (ch === '(') { stack.push(prev); i++; continue; }
+      if (ch === ')') { prev = stack.pop(); i++; continue; }
+      if (ch === '=') { order = 2; i++; continue; }
+      if (ch === '#') { order = 3; i++; continue; }
+      if (ch === '/' || ch === '\\') { dir = ch; i++; continue; }
+      if (/\d/.test(ch)) {
+        const d = ch;
+        if (rings.has(d)) {
+          const r = rings.get(d);
+          bonds.push({ a: r.atom, b: prev, order: Math.max(order, r.order) });
+          rings.delete(d);
+        } else rings.set(d, { atom: prev, order });
+        order = 1; i++; continue;
+      }
+      const two = smiles.slice(i, i + 2);
+      let el;
+      if (two === 'Cl' || two === 'Br') { el = two; i += 2; } else if ('CNOFI'.includes(ch)) { el = ch; i++; } else throw new Error(`SMILES: ${ch}`);
+      atoms.push({ el });
+      const idx = atoms.length - 1;
+      if (prev >= 0) {
+        bonds.push({ a: prev, b: idx, order });
+        if (dir) stereoBonds.push({ u: prev, v: idx, dir });
+      }
+      prev = idx; order = 1; dir = null;
+    }
+    const mol = { atoms, bonds };
+    // Turn directional single bonds into cis/trans relations across each double bond.
+    const stereo = [];
+    for (const bond of bonds) {
+      if (bond.order !== 2) continue;
+      const signAt = (atom) => {
+        const sb = stereoBonds.find((s) => (s.u === atom && s.v !== bond.a && s.v !== bond.b) || (s.v === atom && s.u !== bond.a && s.u !== bond.b));
+        if (!sb) return null;
+        const neighbour = sb.u === atom ? sb.v : sb.u;
+        let sign = sb.dir === '/' ? 1 : -1;
+        if (sb.u === atom) sign = -sign; // the double-bond atom comes first in the string
+        return { neighbour, sign };
+      };
+      const sa = signAt(bond.a), sb = signAt(bond.b);
+      if (sa && sb) stereo.push({ a: bond.a, b: bond.b, x: sa.neighbour, y: sb.neighbour, rel: sa.sign === sb.sign ? 'cis' : 'trans' });
+    }
+    if (stereo.length) mol.stereo = stereo;
+    return mol;
+  }
+
+
+  // ------------------------------------------------------------------------------------ layout --
+  // Skeletal 2D coordinates, bond length 1: chains zigzag at 120°, sp carbons stay linear, rings
+  // are regular polygons with substituents pointing outward. Random choices of which way each
+  // zigzag turns give variety (and both E and Z alkenes); a layout with crowded atoms or
+  // crossing bonds is thrown away.
+  const DEG = Math.PI / 180;
+  function layout(mol, random = Math.random, hint = null) {
+    const n = mol.atoms.length;
+    const adj = mol.atoms.map(() => []);
+    mol.bonds.forEach((b) => { adj[b.a].push({ to: b.b, order: b.order }); adj[b.b].push({ to: b.a, order: b.order }); });
+    if (n === 1) return [{ x: 0, y: 0 }];
+    const linear = (u) => adj[u].some((e) => e.order === 3) || adj[u].filter((e) => e.order === 2).length > 1;
+    // The ring, if any (all atoms here, not just carbons).
+    const deg = adj.map((l) => l.length);
+    const alive = new Set(mol.atoms.map((_, i) => i));
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const u of [...alive]) if (deg[u] <= 1) { alive.delete(u); changed = true; for (const e of adj[u]) if (alive.has(e.to)) deg[e.to]--; }
+    }
+    let ring = null;
+    if (alive.size) {
+      ring = [[...alive][0]];
+      while (ring.length < alive.size) ring.push(adj[ring[ring.length - 1]].find((e) => alive.has(e.to) && !ring.includes(e.to)).to);
+    }
+    // Size of the subtree hanging from v when entered from u, to send the bulk along the main line.
+    const weight = (v, u) => {
+      let count = 0; const stack = [[v, u]]; const seen = new Set([u]);
+      while (stack.length) { const [x] = stack.pop(); if (seen.has(x)) continue; seen.add(x); count++; for (const e of adj[x]) if (!seen.has(e.to)) stack.push([e.to, x]); }
+      return count;
+    };
+    const longestFrom = (s) => {
+      const dist = new Map([[s, 0]]), prev = new Map(); const q = [s];
+      while (q.length) { const u = q.shift(); for (const e of adj[u]) if (!dist.has(e.to)) { dist.set(e.to, dist.get(u) + 1); prev.set(e.to, u); q.push(e.to); } }
+      let far = s; for (const [k, v] of dist) if (v > dist.get(far)) far = k;
+      const path = [far]; while (path[path.length - 1] !== s) path.push(prev.get(path[path.length - 1]));
+      return path;
+    };
+    for (let attempt = 0; attempt < 80; attempt++) {
+      const pos = new Array(n);
+      const main = new Set(hint || []);
+      const place = (u, from, dir, turn) => {
+        const kids = adj[u].filter((e) => pos[e.to] === undefined).map((e) => e.to);
+        if (!kids.length) return;
+        kids.sort((a, b) => (main.has(b) - main.has(a)) || (weight(b, u) - weight(a, u)));
+        let dirs, turns;
+        const flip = attempt > 0 && random() < 0.35;
+        const s = flip ? turn : -turn;
+        if (linear(u)) { dirs = [dir]; turns = [turn]; }
+        else if (kids.length === 1) { dirs = [dir + s * 60]; turns = [s]; }
+        else if (kids.length === 2) { dirs = [dir + s * 60, dir - s * 60]; turns = [s, -s]; }
+        else { dirs = [dir, dir + 90, dir - 90]; turns = [turn, 1, -1]; }
+        kids.forEach((k, i) => {
+          const a = dirs[i] * DEG;
+          pos[k] = { x: pos[u].x + Math.cos(a), y: pos[u].y + Math.sin(a) };
+          place(k, u, dirs[i], turns[i]);
+        });
+      };
+      if (ring) {
+        const m = ring.length, R = 1 / (2 * Math.sin(Math.PI / m));
+        const offset = (m % 2 ? -90 : -90 + 180 / m) + (attempt ? random() * 360 : 0);
+        ring.forEach((u, i) => { const a = (offset + i * 360 / m) * DEG; pos[u] = { x: R * Math.cos(a), y: R * Math.sin(a) }; });
+        ring.forEach((u, i) => {
+          const kids = adj[u].filter((e) => pos[e.to] === undefined).map((e) => e.to);
+          const out = offset + i * 360 / m;
+          const spread = kids.length === 2 ? [out + 30, out - 30] : [out];
+          kids.forEach((k, j) => {
+            const a = spread[j] * DEG;
+            pos[k] = { x: pos[u].x + Math.cos(a), y: pos[u].y + Math.sin(a) };
+            place(k, u, spread[j], j ? -1 : 1);
+          });
+        });
+      } else {
+        const path = hint && hint.length > 1 ? hint : longestFrom(longestFrom(0)[0]);
+        path.forEach((u) => main.add(u));
+        const start = path[0];
+        pos[start] = { x: 0, y: 0 };
+        // Grow from the start of the main line; it heads right with a gentle zigzag.
+        const first = path[1];
+        const startKids = adj[start].map((e) => e.to);
+        const order = [first, ...startKids.filter((k) => k !== first)];
+        const startDirs = [[-30], [-30, 210], [-30, 90, 210], [-30, 60, 150, 240]][order.length - 1];
+        order.forEach((k, i) => {
+          if (pos[k] !== undefined) return;
+          const a = startDirs[i] * DEG;
+          pos[k] = { x: Math.cos(a), y: Math.sin(a) };
+          place(k, start, startDirs[i], i === 0 ? -1 : 1);
+        });
+      }
+      if (pos.some((p) => p === undefined || !Number.isFinite(p.x) || !Number.isFinite(p.y))) continue;
+      if (crowded(mol, pos)) continue;
+      return pos;
+    }
+    return null;
+  }
+
+  function crowded(mol, pos) {
+    const n = pos.length;
+    const bonded = new Set(mol.bonds.map((b) => `${Math.min(b.a, b.b)}-${Math.max(b.a, b.b)}`));
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+      const d = Math.hypot(pos[i].x - pos[j].x, pos[i].y - pos[j].y);
+      if (d < (bonded.has(`${i}-${j}`) ? 0.5 : 0.8)) return true;
+    }
+    const cross = (p, q, r, s) => {
+      const o = (a, b, c) => Math.sign((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x));
+      return o(p, q, r) * o(p, q, s) < 0 && o(r, s, p) * o(r, s, q) < 0;
+    };
+    const B = mol.bonds;
+    for (let i = 0; i < B.length; i++) for (let j = i + 1; j < B.length; j++) {
+      const [a, b, c, d] = [B[i].a, B[i].b, B[j].a, B[j].b];
+      if (a === c || a === d || b === c || b === d) continue;
+      if (cross(pos[a], pos[b], pos[c], pos[d])) return true;
+    }
+    return false;
+  }
+
+  // --------------------------------------------------------------------------------- generator --
+  function mulberry32(a) {
+    return () => {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  function builder() {
+    const mol = { atoms: [], bonds: [] };
+    const used = [];
+    const api = {
+      mol,
+      add(el) { mol.atoms.push({ el }); used.push(0); return mol.atoms.length - 1; },
+      free: (u) => VALENCE[mol.atoms[u].el] - used[u],
+      bond(a, b, order = 1) {
+        if (api.free(a) < order || api.free(b) < order) return false;
+        mol.bonds.push({ a, b, order }); used[a] += order; used[b] += order; return true;
+      },
+      upgrade(bond, order) {
+        const extra = order - bond.order;
+        if (api.free(bond.a) < extra || api.free(bond.b) < extra) return false;
+        used[bond.a] += extra; used[bond.b] += extra; bond.order = order; return true;
+      },
+      chain(n) { const c = []; for (let i = 0; i < n; i++) { c.push(api.add('C')); if (i) api.bond(c[i - 1], c[i]); } return c; },
+      ring(n) { const c = api.chain(n); api.bond(c[n - 1], c[0]); return c; },
+      // Attach a group to atom u; returns false when u has no room.
+      attach(u, kind) {
+        const need = kind === 'oxo' ? 2 : 1;
+        if (api.free(u) < need) return false;
+        if (kind in HALO || kind === 'OH' || kind === 'NH2' || kind === 'oxo') {
+          const el = kind === 'OH' || kind === 'oxo' ? 'O' : kind === 'NH2' ? 'N' : kind;
+          return api.bond(u, api.add(el), need) && true;
+        }
+        const alkyl = { methyl: 1, ethyl: 2, propyl: 3, butyl: 4 }[kind];
+        if (alkyl) { const c = api.chain(alkyl); return api.bond(u, c[0]); }
+        if (kind === 'isopropyl') { const c = api.chain(3); return api.bond(u, c[1]); }
+        if (kind === 'tert-butyl') { const c = api.add('C'); for (let i = 0; i < 3; i++) api.bond(c, api.add('C')); return api.bond(u, c); }
+        throw new Error(kind);
+      },
+    };
+    return api;
+  }
+
+  const pickOne = (r, list) => list[Math.floor(r() * list.length)];
+  const between = (r, lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
+  const weighted = (r, table) => { let x = r() * table.reduce((s, [, w]) => s + w, 0); for (const [v, w] of table) if ((x -= w) < 0) return v; return table[0][0]; };
+  const halogen = (r) => pickOne(r, ['F', 'Cl', 'Cl', 'Br', 'Br', 'I']);
+  const smallAlkyl = (r) => weighted(r, [['methyl', 6], ['ethyl', 3], ['propyl', 1]]);
+
+  // Put `count` groups from `make` on random atoms of `atoms`, skipping full ones.
+  function sprinkle(b, r, atoms, count, make) {
+    if (!atoms.length) return;
+    for (let k = 0, tries = 0; k < count && tries < 30; tries++) if (b.attach(pickOne(r, atoms), make(r))) k++;
+  }
+  // Place double/triple bonds on a chain without cumulating them.
+  function unsaturate(b, r, chain, order, count) {
+    const mol = b.mol;
+    const multi = new Set(mol.bonds.filter((x) => x.order > 1).flatMap((x) => [x.a, x.b]));
+    for (let k = 0, tries = 0; k < count && tries < 30; tries++) {
+      const i = between(r, 0, chain.length - 2);
+      const a = chain[i], c = chain[i + 1];
+      if (multi.has(a) || multi.has(c)) continue;
+      const bond = mol.bonds.find((x) => (x.a === a && x.b === c) || (x.a === c && x.b === a));
+      if (!bond || !b.upgrade(bond, order)) continue;
+      multi.add(a); multi.add(c);
+      k++;
+    }
+  }
+
+  const TIERS = [
+    { id: 'alkanes', title: 'Straight-chain alkanes', blurb: 'Count the carbons: meth-, eth-, prop-, but- … dec-, then -ane.' },
+    { id: 'branched', title: 'Branched alkanes', blurb: 'Find the longest chain, number from the end nearer a branch, and list the alkyl groups alphabetically.' },
+    { id: 'halo', title: 'Haloalkanes', blurb: 'Fluoro, chloro, bromo and iodo are prefixes, alphabetized with the alkyl groups.' },
+    { id: 'cyclo', title: 'Cycloalkanes', blurb: 'A ring takes cyclo-. Number around the ring to give substituents the lowest locants.' },
+    { id: 'alkenes', title: 'Alkenes', blurb: 'The double bond takes -ene and the lowest locant it can.' },
+    { id: 'alkynes', title: 'Alkynes', blurb: 'A triple bond takes -yne; with both, -ene comes before -yne.' },
+    { id: 'alcohols', title: 'Alcohols', blurb: 'The –OH group is the suffix -ol and gets the lowest locant first.' },
+    { id: 'ethers', title: 'Ethers', blurb: 'R–O–R′: the bigger side is the parent and the other becomes an alkoxy prefix such as methoxy- or ethoxy-.' },
+    { id: 'carbonyls', title: 'Aldehydes & ketones', blurb: 'An aldehyde (-al) is always carbon 1; a ketone (-one) sits inside the chain.' },
+    { id: 'acids', title: 'Carboxylic acids', blurb: 'The –COOH carbon is carbon 1 and the name ends in -oic acid.' },
+    { id: 'esters', title: 'Esters', blurb: 'Two words: the alkyl group on the oxygen, then the acid with -oate.' },
+    { id: 'nitrogen', title: 'Amines & amides', blurb: 'Amines end in -amine, amides in -amide; groups on nitrogen take the locant N.' },
+    { id: 'benzene', title: 'Benzene rings', blurb: 'Benzene is the parent for groups on the ring. Phenol, aniline, benzoic acid, benzaldehyde and benzamide keep their names; a benzene ring on a chain is phenyl.' },
+    { id: 'priority', title: 'Several functional groups', blurb: 'The highest-ranking group is the suffix; the others become prefixes such as hydroxy-, oxo- and amino-.' },
+    { id: 'stereo', title: 'E/Z isomers', blurb: 'Rank the two groups on each end of the double bond (CIP rules): same side is Z, opposite is E.' },
+  ];
+
+  const MAKERS = {
+    alkanes(r) { const b = builder(); const c = b.chain(between(r, 1, 10)); return { b, hint: c }; },
+    branched(r) {
+      const b = builder(); const c = b.chain(between(r, 4, 8));
+      const inner = c.slice(1, -1);
+      sprinkle(b, r, inner, between(r, 1, 3), (q) => (q() < 0.12 ? pickOne(q, ['isopropyl', 'tert-butyl']) : smallAlkyl(q)));
+      return { b, hint: c };
+    },
+    halo(r) {
+      const b = builder(); const c = b.chain(between(r, 1, 6));
+      sprinkle(b, r, c, between(r, 1, 3), halogen);
+      if (c.length > 2 && r() < 0.4) sprinkle(b, r, c.slice(1, -1), 1, () => 'methyl');
+      return { b, hint: c };
+    },
+    cyclo(r) {
+      const b = builder(); const c = b.ring(between(r, 3, 7));
+      sprinkle(b, r, c, between(r, 0, 3), (q) => (q() < 0.3 ? halogen(q) : weighted(q, [['methyl', 6], ['ethyl', 3], ['propyl', 1], ['isopropyl', 1]])));
+      return { b };
+    },
+    alkenes(r) {
+      const b = builder();
+      if (r() < 0.3) {
+        const c = b.ring(between(r, 4, 6)); unsaturate(b, r, [...c, c[0]], 2, 1);
+        sprinkle(b, r, c, between(r, 0, 2), (q) => (q() < 0.3 ? halogen(q) : 'methyl'));
+        return { b };
+      }
+      const c = b.chain(between(r, 2, 7)); unsaturate(b, r, c, 2, r() < 0.25 ? 2 : 1);
+      sprinkle(b, r, c, between(r, 0, 2), (q) => (q() < 0.25 ? halogen(q) : smallAlkyl(q)));
+      return { b, hint: c };
+    },
+    alkynes(r) {
+      const b = builder(); const c = b.chain(between(r, 2, 7)); unsaturate(b, r, c, 3, 1);
+      if (r() < 0.2) unsaturate(b, r, c, 2, 1);
+      sprinkle(b, r, c, between(r, 0, 2), (q) => (q() < 0.25 ? halogen(q) : smallAlkyl(q)));
+      return { b, hint: c };
+    },
+    alcohols(r) {
+      const b = builder();
+      if (r() < 0.25) {
+        const c = b.ring(between(r, 5, 6)); sprinkle(b, r, c, 1, () => 'OH');
+        sprinkle(b, r, c, between(r, 0, 2), (q) => (q() < 0.3 ? halogen(q) : 'methyl'));
+        return { b };
+      }
+      const c = b.chain(between(r, 1, 6));
+      sprinkle(b, r, c, r() < 0.15 ? 2 : 1, () => 'OH');
+      if (c.length > 2 && r() < 0.15) unsaturate(b, r, c, 2, 1);
+      sprinkle(b, r, c.length > 2 ? c.slice(1, -1) : c, between(r, 0, 2), (q) => (q() < 0.3 ? halogen(q) : smallAlkyl(q)));
+      return { b, hint: c };
+    },
+    ethers(r) {
+      const b = builder();
+      const ring = r() < 0.2;
+      const c = ring ? b.ring(between(r, 5, 6)) : b.chain(between(r, 1, 6));
+      const o = b.add('O'); b.bond(pickOne(r, c), o);
+      b.attach(o, weighted(r, [['methyl', 5], ['ethyl', 4], ['propyl', 2], ['butyl', 1], ['tert-butyl', 1]]));
+      if (c.length > 2 && r() < 0.35) sprinkle(b, r, ring ? c : c.slice(1, -1), 1, (q) => (q() < 0.5 ? halogen(q) : 'methyl'));
+      return { b, hint: ring ? null : c };
+    },
+    benzene(r) {
+      const b = builder(); const c = b.ring(6);
+      for (let i = 0; i < 6; i += 2) b.upgrade(b.mol.bonds.find((x) => (x.a === c[i] && x.b === c[i + 1]) || (x.a === c[i + 1] && x.b === c[i])), 2);
+      const sub = (q) => weighted(q, [['methyl', 4], ['ethyl', 2], ['Cl', 2], ['Br', 2], ['F', 1], ['I', 1], ['propyl', 1], ['isopropyl', 1], ['tert-butyl', 1]]);
+      const roll = r();
+      if (roll < 0.4) { sprinkle(b, r, c, weighted(r, [[1, 3], [2, 4], [3, 1]]), sub); return { b }; }
+      if (roll < 0.8) {
+        const kind = pickOne(r, ['OH', 'NH2', 'COOH', 'COOH', 'CHO', 'CONH2', 'COOR', 'OMe']);
+        if (kind === 'OH' || kind === 'NH2') b.attach(c[0], kind);
+        else if (kind === 'OMe') { const o = b.add('O'); b.bond(c[0], o); b.attach(o, 'methyl'); }
+        else {
+          const k = b.add('C'); b.bond(c[0], k); b.attach(k, 'oxo');
+          if (kind === 'COOH') b.attach(k, 'OH');
+          if (kind === 'CONH2') b.attach(k, 'NH2');
+          if (kind === 'COOR') { const o = b.add('O'); b.bond(k, o); b.attach(o, weighted(r, [['methyl', 3], ['ethyl', 2], ['propyl', 1]])); }
+        }
+        sprinkle(b, r, c.slice(1), weighted(r, [[0, 2], [1, 3]]), sub);
+        return { b };
+      }
+      // A phenyl group on a short chain that carries the principal group, or an alkylbenzene.
+      const chain = b.chain(between(r, 1, 4));
+      b.bond(pickOne(r, chain), c[0]);
+      const extra = pickOne(r, ['OH', 'OH', 'oxo', 'NH2', 'none']);
+      if (extra !== 'none') sprinkle(b, r, chain, 1, () => extra);
+      return { b, hint: chain };
+    },
+    carbonyls(r) {
+      const b = builder();
+      const roll = r();
+      if (roll < 0.15) {
+        const c = b.ring(between(r, 5, 6)); b.attach(c[0], 'oxo');
+        sprinkle(b, r, c.slice(1), between(r, 0, 2), (q) => (q() < 0.3 ? halogen(q) : 'methyl'));
+        return { b };
+      }
+      const c = b.chain(between(r, roll < 0.55 ? 1 : 3, 7));
+      if (roll < 0.55) { b.attach(c[0], 'oxo'); if (r() < 0.15) b.attach(c[c.length - 1], 'oxo'); }
+      else { sprinkle(b, r, c.slice(1, -1), r() < 0.15 ? 2 : 1, () => 'oxo'); }
+      if (c.length > 3 && r() < 0.15) unsaturate(b, r, c, 2, 1);
+      sprinkle(b, r, c.slice(1, -1), between(r, 0, 2), (q) => (q() < 0.3 ? halogen(q) : smallAlkyl(q)));
+      return { b, hint: c };
+    },
+    acids(r) {
+      const b = builder(); const c = b.chain(between(r, 1, 7));
+      const acid = (u) => { b.attach(u, 'oxo'); b.attach(u, 'OH'); };
+      acid(c[0]); if (c.length > 1 && r() < 0.15) acid(c[c.length - 1]);
+      if (c.length > 3 && r() < 0.15) unsaturate(b, r, c, 2, 1);
+      sprinkle(b, r, c.slice(1), between(r, 0, 2), (q) => (q() < 0.35 ? halogen(q) : smallAlkyl(q)));
+      return { b, hint: c };
+    },
+    esters(r) {
+      const b = builder(); const c = b.chain(between(r, 1, 6));
+      b.attach(c[0], 'oxo');
+      const o = b.add('O'); b.bond(c[0], o);
+      const alkyl = weighted(r, [['methyl', 4], ['ethyl', 4], ['propyl', 2], ['isopropyl', 1], ['butyl', 1]]);
+      b.attach(o, alkyl);
+      if (c.length > 3 && r() < 0.15) unsaturate(b, r, c, 2, 1);
+      if (c.length > 2) sprinkle(b, r, c.slice(1), between(r, 0, 1), (q) => (q() < 0.3 ? halogen(q) : 'methyl'));
+      return { b, hint: [...c].reverse().concat([o]) };
+    },
+    nitrogen(r) {
+      const b = builder();
+      if (r() < 0.4) {
+        const c = b.chain(between(r, 1, 5));
+        b.attach(c[0], 'oxo'); const n = b.add('N'); b.bond(c[0], n);
+        sprinkle(b, r, [n], weighted(r, [[0, 3], [1, 2], [2, 1]]), (q) => pickOne(q, ['methyl', 'methyl', 'ethyl']));
+        if (c.length > 2) sprinkle(b, r, c.slice(1), between(r, 0, 1), () => 'methyl');
+        return { b, hint: [...c].reverse().concat([n]) };
+      }
+      const c = b.chain(between(r, 1, 6));
+      const n = b.add('N'); b.bond(pickOne(r, c), n);
+      sprinkle(b, r, [n], weighted(r, [[0, 4], [1, 2], [2, 1]]), (q) => pickOne(q, ['methyl', 'methyl', 'ethyl']));
+      if (c.length > 2) sprinkle(b, r, c.slice(1, -1), between(r, 0, 1), (q) => (q() < 0.3 ? halogen(q) : 'methyl'));
+      return { b, hint: c };
+    },
+    priority(r) {
+      const b = builder(); const c = b.chain(between(r, 2, 6));
+      const combo = pickOne(r, ['acid+OH', 'acid+oxo', 'acid+NH2', 'ketone+OH', 'aldehyde+OH', 'alcohol+NH2', 'ketone+ene', 'alcohol+ene', 'amide+OH', 'acid+ene', 'ketone+halo']);
+      const [main, extra] = combo.split('+');
+      const end = c[0], inner = c.slice(1, -1).length ? c.slice(1, -1) : c.slice(1);
+      if (main === 'acid') { b.attach(end, 'oxo'); b.attach(end, 'OH'); }
+      if (main === 'aldehyde') b.attach(end, 'oxo');
+      if (main === 'amide') { b.attach(end, 'oxo'); b.attach(end, 'NH2'); }
+      if (main === 'ketone') { if (c.length < 3) return null; sprinkle(b, r, inner, 1, () => 'oxo'); }
+      if (main === 'alcohol') sprinkle(b, r, c, 1, () => 'OH');
+      const rest = main === 'alcohol' || main === 'ketone' ? c : c.slice(1);
+      if (extra === 'ene') unsaturate(b, r, c, 2, 1);
+      else if (extra === 'halo') sprinkle(b, r, rest, 1, halogen);
+      else sprinkle(b, r, rest, 1, () => extra);
+      return { b, hint: c };
+    },
+    stereo(r) {
+      const b = builder(); const c = b.chain(between(r, 4, 7));
+      unsaturate(b, r, c.slice(1, -1).length > 1 ? c.slice(1, -1) : c, 2, r() < 0.2 ? 2 : 1);
+      sprinkle(b, r, c, between(r, 0, 2), (q) => (q() < 0.4 ? halogen(q) : smallAlkyl(q)));
+      return { b, hint: c };
+    },
+  };
+
+  // A molecule for a tier, named, laid out and checked against the tier's rules.
+  function generate(tierId, seed = Math.floor(Math.random() * 2 ** 31), avoid = new Set()) {
+    const r = mulberry32(seed);
+    for (let attempt = 0; attempt < 400; attempt++) {
+      const made = MAKERS[tierId](r);
+      if (!made) continue;
+      const mol = made.b.mol;
+      const pos = layout(mol, r, made.hint);
+      if (!pos) continue;
+      mol.atoms.forEach((a, i) => { a.x = pos[i].x; a.y = pos[i].y; });
+      let result;
+      try { result = name(mol); } catch (e) { if (e instanceof Unsupported) continue; throw e; }
+      if (!plausible(mol)) continue;
+      if (!result.sameParentAsOld) continue;     // keep to structures where older textbooks agree
+      if (avoid.has(result.text) && attempt < 60) continue; // repeats are fine once fresh ones run out
+      const stereo = result.stereo.marks.length;
+      if (tierId === 'stereo' ? !stereo : stereo || result.stereo.unknown) continue;
+      if (!fits(tierId, result)) continue;
+      return { mol, result, tier: tierId, seed };
+    }
+    return null;
+  }
+
+  // No enols, gem-diols, hemiaminals or halohydrins on one carbon: they do not survive in a bottle.
+  function plausible(mol) {
+    const adj = mol.atoms.map(() => []);
+    mol.bonds.forEach((b) => { adj[b.a].push(b); adj[b.b].push(b); });
+    const ring = aromaticAtoms(mol);
+    for (let u = 0; u < mol.atoms.length; u++) {
+      if (mol.atoms[u].el !== 'C') continue;
+      const other = (b) => (b.a === u ? b.b : b.a);
+      const carbonyl = adj[u].some((b) => b.order === 2 && mol.atoms[other(b)].el === 'O');
+      if (carbonyl) continue;
+      const hetero = adj[u].filter((b) => mol.atoms[other(b)].el !== 'C');
+      const polar = hetero.filter((b) => 'ON'.includes(mol.atoms[other(b)].el));
+      if (polar.length > 1 || (polar.length && hetero.length > 1)) return false;
+      if (polar.length && !ring.has(u) && adj[u].some((b) => b.order > 1)) return false; // phenols are fine
+    }
+    return true;
+  }
+
+  // Keep each tier to the ideas it teaches.
+  function fits(tierId, res) {
+    const p = res.principal, d = res.best;
+    const has = (name) => (d.pinPrefixes || []).some((x) => x.name === name);
+    // N- and C-locants on the same prefix (N,2-dimethyl…) are left out: their citation order is a fine point.
+    const names = new Map();
+    for (const x of d.pinPrefixes || []) names.set(x.name, (names.get(x.name) || '') + (x.locant === 'N' ? 'N' : 'C'));
+    if ([...names.values()].some((v) => v.includes('N') && v.includes('C'))) return false;
+    const halos = Object.values(HALO).some(has);
+    switch (tierId) {
+      case 'alkanes': return !p && !d.ring && !d.multiple.length && !d.prefixCount;
+      case 'branched': return !p && !d.ring && !d.multiple.length && d.prefixCount > 0 && !halos;
+      case 'halo': return !p && !d.ring && !d.multiple.length && halos;
+      case 'cyclo': return !p && d.ring && !d.aromatic && !d.multiple.length && !has('phenyl');
+      case 'ethers': return !p && (d.pinPrefixes || []).some((x) => x.oxy) && !d.aromatic && !has('phenyl') && !has('phenoxy');
+      case 'benzene': return d.aromatic || has('phenyl');
+      case 'alkenes': return !p && d.ene.length && !d.yne.length;
+      case 'alkynes': return !p && d.yne.length;
+      case 'alcohols': return p === 'alcohol';
+      case 'carbonyls': return (p === 'aldehyde' || p === 'ketone') && !has('hydroxy');
+      case 'acids': return p === 'acid' && !has('hydroxy') && !has('oxo') && !has('amino');
+      case 'esters': return p === 'ester';
+      case 'nitrogen': return p === 'amine' || p === 'amide';
+      case 'priority': return !!p && (has('hydroxy') || has('oxo') || has('amino') || (d.multiple.length > 0 && p !== 'amine') || (halos && p === 'ketone'));
+      case 'stereo': return true;
+    }
+    return false;
+  }
+
+  window.IupacModel = { structureChoices, aromaticAtoms, distractors, plausible, name, diagnose, normalize, fromSmiles, perceive, alkylName, layout, generate, TIERS, mulberry32, Unsupported, STEM, CLASSES };
+})();
+</script>
+<script>
+(function () {
+  'use strict';
+  const M = window.IupacModel;
+  const $ = (id) => document.getElementById(id);
+  const NS = 'http://www.w3.org/2000/svg';
+  const S = 46; // pixels per bond
+  const KEY = 'iupac-naming-progress';
+
+  let progress = {};
+  try { progress = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { progress = {}; }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(progress)); } catch (e) { /* private window */ } };
+
+  const state = { tier: M.TIERS[0].id, mode: 'choose', item: null, picks: [], answered: false, misses: 0, seen: [], showParent: false, showNumbers: false };
+  try { const saved = localStorage.getItem(KEY + '-tier'); if (M.TIERS.some((t) => t.id === saved)) state.tier = saved; } catch (e) { /* ignore */ }
+
+  // ------------------------------------------------------------------------------- tiers ----
+  function drawTiers() {
+    const list = $('tiers');
+    list.textContent = '';
+    M.TIERS.forEach((t, i) => {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('aria-current', String(t.id === state.tier));
+      const p = progress[t.id];
+      b.innerHTML = `<span class="n">${i + 1}</span><span>${t.title}</span>${p && p.mastered ? '<span class="done" aria-label="mastered">✓</span>' : ''}`;
+      b.addEventListener('click', () => { state.tier = t.id; state.seen = []; try { localStorage.setItem(KEY + '-tier', t.id); } catch (e) { /* ignore */ } drawTiers(); next(); });
+      li.append(b); list.append(li);
+    });
+  }
+
+  // ---------------------------------------------------------------------------- structure ---
+  function formula(mol) {
+    const count = {}; let h = 0;
+    const used = mol.atoms.map(() => 0);
+    mol.bonds.forEach((b) => { used[b.a] += b.order; used[b.b] += b.order; });
+    const V = { C: 4, N: 3, O: 2, F: 1, Cl: 1, Br: 1, I: 1 };
+    mol.atoms.forEach((a, i) => { count[a.el] = (count[a.el] || 0) + 1; h += V[a.el] - used[i]; });
+    if (h) count.H = h;
+    const order = ['C', 'H', ...Object.keys(count).filter((e) => e !== 'C' && e !== 'H').sort()];
+    return order.filter((e) => count[e]).map((e) => e + (count[e] > 1 ? `<sub>${count[e]}</sub>` : '')).join('');
+  }
+
+  function el(tag, attrs, parent) {
+    const node = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+    if (parent) parent.append(node);
+    return node;
+  }
+
+  // A condensed structural formula for screen readers, written along the parent:
+  // CH3–CH(OH)–CH2–CH3. Rings say where they close.
+  function condensed(mol, best) {
+    const V = { C: 4, N: 3, O: 2, F: 1, Cl: 1, Br: 1, I: 1 };
+    const adj = mol.atoms.map(() => []);
+    const used = mol.atoms.map(() => 0);
+    mol.bonds.forEach((b) => { adj[b.a].push(b); adj[b.b].push(b); used[b.a] += b.order; used[b.b] += b.order; });
+    const other = (b, u) => (b.a === u ? b.b : b.a);
+    const sym = (o) => (o === 2 ? '=' : o === 3 ? '≡' : '');
+    const label = (i) => { const h = V[mol.atoms[i].el] - used[i]; return mol.atoms[i].el + (h ? `H${h > 1 ? h : ''}` : ''); };
+    const ring = M.aromaticAtoms(mol);
+    const seen = new Set(best.atoms);
+    const branch = (u, from) => {
+      // An unsubstituted benzene ring as a branch is just C6H5.
+      if (ring.has(u) && !ring.has(from)) {
+        const block = new Set([u]); const stack = [u];
+        while (stack.length) { const x = stack.pop(); for (const b of adj[x]) { const y = other(b, x); if (ring.has(y) && !block.has(y)) { block.add(y); stack.push(y); } } }
+        const extra = [...block].some((x) => x !== u && adj[x].some((b) => !block.has(other(b, x))));
+        if (!extra) { block.forEach((x) => seen.add(x)); return 'C6H5'; }
+      }
+      seen.add(u);
+      const kids = adj[u].filter((b) => other(b, u) !== from && !seen.has(other(b, u)));
+      let s = label(u);
+      kids.forEach((b, k) => { const t = sym(b.order) + branch(other(b, u), u); s += k < kids.length - 1 ? `(${t})` : t; });
+      return s;
+    };
+    const parts = best.atoms.map((a, i) => {
+      let s = label(a);
+      const kids = adj[a].filter((b) => !seen.has(other(b, a)));
+      kids.forEach((b, k) => {
+        const t = sym(b.order) + branch(other(b, a), a);
+        s += i === best.atoms.length - 1 && k === kids.length - 1 && !best.ring ? t : `(${t})`;
+      });
+      return s;
+    });
+    let text = parts[0];
+    for (let i = 1; i < parts.length; i++) {
+      const b = mol.bonds.find((x) => (x.a === best.atoms[i - 1] && x.b === best.atoms[i]) || (x.b === best.atoms[i - 1] && x.a === best.atoms[i]));
+      text += (b.order === 1 ? '–' : sym(b.order)) + parts[i];
+    }
+    if (best.ring) {
+      const b = mol.bonds.find((x) => (x.a === best.atoms[0] && x.b === best.atoms[best.n - 1]) || (x.b === best.atoms[0] && x.a === best.atoms[best.n - 1]));
+      text = `${best.aromatic ? 'benzene ring' : 'ring'}: ${text}, and the last ring carbon bonds ${b.order === 2 ? 'with a double bond ' : ''}back to the first`;
+    }
+    // The drawing fixes each double bond's geometry; say it in words for the parent's neighbours.
+    const where = new Map(best.atoms.map((a, i) => [a, i]));
+    for (const b of mol.bonds) {
+      if (b.order !== 2 || !where.has(b.a) || !where.has(b.b) || best.ring) continue;
+      const [a, c] = where.get(b.a) < where.get(b.b) ? [b.a, b.b] : [b.b, b.a];
+      const na = adj[a].map((x) => other(x, a)).filter((x) => x !== c);
+      const nc = adj[c].map((x) => other(x, c)).filter((x) => x !== a);
+      if (!na.length || !nc.length) continue;
+      const pa = na.find((x) => where.has(x)) ?? na[0], pc = nc.find((x) => where.has(x)) ?? nc[0];
+      const A = mol.atoms[a], C = mol.atoms[c];
+      const side = (q) => Math.sign((C.x - A.x) * (mol.atoms[q].y - A.y) - (C.y - A.y) * (mol.atoms[q].x - A.x));
+      const name = (q) => (where.has(q) ? `carbon ${where.get(q) + 1}` : `the ${label(q)} group`);
+      text += `; across the double bond, ${name(pa)} and ${name(pc)} are on ${side(pa) === side(pc) ? 'the same side' : 'opposite sides'}`;
+    }
+    return text;
+  }
+
+  function render() {
+    drawInto($('structure'), state.item.mol, state.item.result, { parent: state.showParent, numbers: state.showNumbers, answered: state.answered });
+    $('structure-label').textContent = `Skeletal structure, formula ${$('formula').textContent}. Condensed: ${condensed(state.item.mol, state.item.result.best)}`;
+    if (state.mode === 'pick') drawPicks();
+  }
+
+  function drawInto(svg, mol, result, view) {
+    [...svg.querySelectorAll(':not(title)')].forEach((n) => n.remove());
+    const V = { C: 4, N: 3, O: 2, F: 1, Cl: 1, Br: 1, I: 1 };
+    const adj = mol.atoms.map(() => []);
+    const used = mol.atoms.map(() => 0);
+    mol.bonds.forEach((b) => { adj[b.a].push(b.b); adj[b.b].push(b.a); used[b.a] += b.order; used[b.b] += b.order; });
+    const carbons = mol.atoms.filter((a) => a.el === 'C').length;
+    const P = mol.atoms.map((a) => ({ x: a.x * S, y: a.y * S }));
+    // Heteroatoms always get a label; a carbon only when it stands alone (CH₄, H₃C–OH) or is a
+    // formyl carbon with no carbon neighbour (HCOOH, HCHO).
+    const labelled = mol.atoms.map((a, i) => a.el !== 'C' || carbons === 1 || (adj[i].every((j) => mol.atoms[j].el !== 'C') && mol.bonds.some((b) => b.order === 2 && (b.a === i || b.b === i))));
+    const xs = P.map((p) => p.x), ys = P.map((p) => p.y);
+    const pad = 40;
+    const minX = Math.min(...xs) - pad, maxX = Math.max(...xs) + pad, minY = Math.min(...ys) - pad, maxY = Math.max(...ys) + pad;
+    const w = Math.max(maxX - minX, 220), h = Math.max(maxY - minY, 150);
+    svg.setAttribute('viewBox', `${(minX + maxX) / 2 - w / 2} ${(minY + maxY) / 2 - h / 2} ${w} ${h}`);
+    svg.style.maxWidth = `${Math.min(w * 1.5, 900)}px`;
+
+    const best = result.best;
+    const inParent = new Map(best.atoms.map((a, i) => [a, i + 1]));
+    // Parent highlight underneath everything.
+    if (view.parent) {
+      const g = el('g', {}, svg);
+      if (best.atoms.length === 1) el('circle', { class: 'hl-dot', cx: P[best.atoms[0]].x, cy: P[best.atoms[0]].y, r: 12 }, g);
+      const pts = best.atoms.map((a) => `${P[a].x},${P[a].y}`);
+      if (best.ring) pts.push(pts[0]);
+      if (pts.length > 1) el('polyline', { class: 'hl', points: pts.join(' ') }, g);
+    }
+    const ring = best.ring ? best.atoms : null;
+    const centre = (() => { let x = 0, y = 0; (ring || []).forEach((a) => { x += P[a].x; y += P[a].y; }); return ring ? { x: x / ring.length, y: y / ring.length } : null; })();
+    const inRing = (a, b) => ring && ring.includes(a) && ring.includes(b);
+    for (const b of mol.bonds) {
+      let p = { ...P[b.a] }, q = { ...P[b.b] };
+      const dx = q.x - p.x, dy = q.y - p.y, len = Math.hypot(dx, dy), ux = dx / len, uy = dy / len;
+      const trim = 13;
+      if (labelled[b.a]) { p.x += ux * trim; p.y += uy * trim; }
+      if (labelled[b.b]) { q.x -= ux * trim; q.y -= uy * trim; }
+      const nx = -uy, ny = ux;
+      const line = (o, shorten = 0) => el('line', { class: 'bond', x1: p.x + nx * o + ux * shorten, y1: p.y + ny * o + uy * shorten, x2: q.x + nx * o - ux * shorten, y2: q.y + ny * o - uy * shorten }, svg);
+      if (b.order === 1) line(0);
+      else if (b.order === 3) { line(0); line(5); line(-5); }
+      else {
+        // Inner line toward the ring centre or the crowded side of a chain; centred when terminal.
+        let side = 0;
+        if (inRing(b.a, b.b)) side = Math.sign((centre.x - p.x) * nx + (centre.y - p.y) * ny) || 1;
+        else if (adj[b.a].length > 1 && adj[b.b].length > 1 && !labelled[b.a] && !labelled[b.b]) {
+          let s = 0;
+          for (const [u, v] of [[b.a, b.b], [b.b, b.a]]) for (const k of adj[u]) if (k !== v) s += (P[k].x - P[u].x) * nx + (P[k].y - P[u].y) * ny;
+          side = Math.sign(s) || 1;
+        }
+        if (side) { line(0); line(side * 6.5, 7); } else { line(3.4); line(-3.4); }
+      }
+    }
+    // Labels.
+    mol.atoms.forEach((a, i) => {
+      if (!labelled[i]) return;
+      const hCount = V[a.el] - used[i];
+      const left = adj[i].length === 1 && P[adj[i][0]].x > P[i].x + 4;
+      const t = el('text', { class: 'atom', x: P[i].x, y: P[i].y }, svg);
+      const hPart = hCount ? `H${hCount > 1 ? `<tspan class="sub" dy="4">${hCount}</tspan><tspan dy="-4"></tspan>` : ''}` : '';
+      // The element letter is centred on the atom; hydrogens hang on the side away from the bond.
+      if (left && hCount) { t.setAttribute('text-anchor', 'end'); t.innerHTML = `${hPart}<tspan>${a.el}</tspan>`; t.setAttribute('x', P[i].x + (a.el.length > 1 ? 9 : 6)); }
+      else { t.setAttribute('text-anchor', 'start'); t.innerHTML = `<tspan>${a.el}</tspan>${hPart}`; t.setAttribute('x', P[i].x - (a.el.length > 1 ? 9 : 6)); }
+    });
+    if (view.numbers) {
+      for (const [a, n] of inParent) {
+        // Put the number in the widest gap between the atom's bonds.
+        const angles = adj[a].map((k) => Math.atan2(P[k].y - P[a].y, P[k].x - P[a].x)).sort((x, y) => x - y);
+        let dir = -Math.PI / 2;
+        if (angles.length === 1) dir = angles[0] + Math.PI;
+        else if (angles.length > 1) {
+          let gap = -1;
+          angles.forEach((t, i) => {
+            const u = i + 1 < angles.length ? angles[i + 1] : angles[0] + 2 * Math.PI;
+            if (u - t > gap) { gap = u - t; dir = t + (u - t) / 2; }
+          });
+        }
+        const dx = Math.cos(dir), dy = Math.sin(dir);
+        const off = labelled[a] ? 22 : 18;
+        el('text', { class: 'loc', x: P[a].x + dx * off, y: P[a].y + dy * off }, svg).textContent = n;
+      }
+    }
+    // E/Z: ring the higher-ranked atom on each end once the answer is out.
+    if (view.answered) for (const m of result.stereo.marks) for (const hi of [m.hiA, m.hiB]) el('circle', { class: 'prio', cx: P[hi].x, cy: P[hi].y, r: 13 }, svg);
+  }
+
+  // ---------------------------------------------------------------------- pick the structure --
+  function drawPicks() {
+    const box = $('picks');
+    if (!box.children.length) {
+      state.picks.forEach((p, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.dataset.i = i;
+        b.innerHTML = `<span class="key" aria-hidden="true">${i + 1}</span>`;
+        const svg = document.createElementNS(NS, 'svg');
+        svg.setAttribute('aria-hidden', 'true');
+        const said = document.createElement('span');
+        said.className = 'said';
+        b.append(svg, said);
+        b.setAttribute('aria-label', `Structure ${i + 1}: ${condensed(p.mol, p.result.best)}`);
+        b.addEventListener('click', () => pickStructure(b));
+        box.append(b);
+      });
+    }
+    [...box.children].forEach((b, i) => {
+      const p = state.picks[i];
+      const right = p.result === state.item.result;
+      drawInto(b.querySelector('svg'), p.mol, p.result, { parent: right && state.showParent, numbers: right && state.showNumbers, answered: state.answered && right });
+    });
+  }
+
+  function pickStructure(button) {
+    if (state.answered) return;
+    const p = state.picks[+button.dataset.i];
+    const correct = p.result === state.item.result;
+    [...$('picks').children].forEach((b, i) => {
+      b.disabled = true;
+      const q = state.picks[i];
+      if (q.result === state.item.result) { b.classList.add('right'); b.querySelector('.said').textContent = q.result.text; }
+      else if (b === button) { b.classList.add('wrong'); b.querySelector('.said').textContent = `That is ${q.result.text}`; }
+    });
+    finish(correct, correct ? null : `The structure you picked is ${p.result.text}. ${pickHint(p.result, state.item.result)}`);
+  }
+
+  // What differs between the picked structure and the named one, in the terms of the name.
+  function pickHint(picked, wanted) {
+    const a = picked.best, b = wanted.best;
+    if (picked.principal !== wanted.principal) return 'Check the suffix: it names the main functional group.';
+    if (a.ring !== b.ring || (!a.ring && a.n !== b.n) || (a.ring && a.n !== b.n)) return 'Count the carbons in the parent: the stem (meth-, eth-, prop-…) gives the number.';
+    if (picked.stereo.marks.length && picked.stereo.marks.map((m) => m.mark).join() !== wanted.stereo.marks.map((m) => m.mark).join()) return 'Check E/Z: Z puts the higher-ranked groups on the same side of the double bond.';
+    return 'Number the parent and check where each group sits.';
+  }
+
+  // -------------------------------------------------------------------------------- flow ----
+  function next() {
+    const avoid = new Set(state.seen.slice(-12));
+    let item, others;
+    // In "pick the structure" a compound needs at least two other structures to choose from.
+    for (let k = 0; k < 6; k++) {
+      item = M.generate(state.tier, undefined, avoid) || M.generate(state.tier);
+      others = M.structureChoices(item.result, 3);
+      if (state.mode !== 'pick' || others.length >= 2) break;
+    }
+    state.item = item;
+    state.seen.push(item.result.text);
+    state.answered = false; state.misses = 0; state.showParent = false; state.showNumbers = false;
+    const tier = M.TIERS.find((t) => t.id === state.tier);
+    $('blurb').textContent = `${M.TIERS.indexOf(tier) + 1}. ${tier.title}: ${tier.blurb}`;
+    $('formula').innerHTML = formula(item.mol);
+    $('feedback').textContent = ''; $('feedback').className = 'feedback';
+    $('solution').hidden = true;
+    $('answer').value = '';
+    for (const id of ['show-parent', 'show-numbers']) { $(id).disabled = true; $(id).setAttribute('aria-pressed', 'false'); }
+    $('next').textContent = 'Skip';
+    // Pick mode: the right structure among up to three others, in random order.
+    state.picks = [{ mol: item.mol, result: item.result }, ...others];
+    for (let i = state.picks.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [state.picks[i], state.picks[j]] = [state.picks[j], state.picks[i]]; }
+    $('picks').textContent = '';
+    // Choices: the answer and up to three names the rules reject, in random order.
+    const wrong = M.distractors(item.result, 3);
+    const options = [item.result.text, ...wrong];
+    for (let i = options.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [options[i], options[j]] = [options[j], options[i]]; }
+    const box = $('choices');
+    box.textContent = '';
+    options.forEach((name, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.innerHTML = `<span class="key">${i + 1}</span><span></span>`;
+      b.lastChild.textContent = name;
+      b.dataset.name = name;
+      b.addEventListener('click', () => choose(b));
+      box.append(b);
+    });
+    setMode(state.mode);
+    render();
+    drawScore();
+  }
+
+  function setMode(mode) {
+    // Switching mode mid-question would show the answer (the name, or the drawing), so it starts a new one.
+    const switching = mode !== state.mode && state.item && !state.answered && (mode === 'pick' || state.mode === 'pick');
+    state.mode = mode;
+    for (const m of ['choose', 'type', 'pick']) $(`mode-${m}`).setAttribute('aria-pressed', String(mode === m));
+    $('choices').hidden = mode !== 'choose';
+    $('typed').hidden = mode !== 'type';
+    const pick = mode === 'pick';
+    $('picks').hidden = !pick;
+    $('card').classList.toggle('picking', pick);
+    $('structure').style.display = pick ? 'none' : '';
+    $('formula').hidden = pick;
+    const ask = $('ask');
+    if (pick && state.item) {
+      ask.textContent = 'Which structure is ';
+      const t = document.createElement('span'); t.className = 'target'; t.textContent = state.item.result.text;
+      ask.append(t, '?');
+    } else ask.textContent = 'Name this compound.';
+    if (switching) { next(); return; }
+    if (pick && state.item) drawPicks();
+  }
+
+  function record(correct) {
+    const p = progress[state.tier] || (progress[state.tier] = { right: 0, tried: 0, streak: 0, mastered: false });
+    p.tried++;
+    if (correct) { p.right++; p.streak++; if (p.streak >= 5 && !p.mastered) { p.mastered = true; drawTiers(); } }
+    else p.streak = 0;
+    save();
+    drawScore();
+  }
+
+  function drawScore() {
+    const p = progress[state.tier];
+    if (!p || !p.tried) { $('score').textContent = 'Five right in a row marks a tier ✓.'; return; }
+    const i = M.TIERS.findIndex((t) => t.id === state.tier);
+    const hint = p.mastered && M.TIERS[i + 1] ? ` Tier ${i + 2}, ${M.TIERS[i + 1].title}, is next when you are ready.` : '';
+    $('score').textContent = `This tier: ${p.right} of ${p.tried} right, streak ${p.streak}.${p.mastered ? ' Mastered ✓.' : ''}${hint}`;
+  }
+
+  function choose(button) {
+    if (state.answered) return;
+    const verdict = M.diagnose(state.item.result, button.dataset.name);
+    for (const b of $('choices').children) {
+      b.disabled = true;
+      if (b.dataset.name === state.item.result.text) b.classList.add('right');
+    }
+    if (!verdict.correct) button.classList.add('wrong');
+    finish(verdict.correct, verdict.why);
+  }
+
+  function check(event) {
+    event.preventDefault();
+    if (state.answered) { next(); return; }
+    const text = $('answer').value.trim();
+    if (!text) return;
+    const verdict = M.diagnose(state.item.result, text);
+    if (verdict.correct) { finish(true); return; }
+    state.misses++;
+    const fb = $('feedback');
+    fb.className = 'feedback bad';
+    fb.textContent = `Not yet. ${verdict.why || 'Compare your name with the structure again.'}${state.misses >= 2 ? '' : ' Try again, or show the answer.'}`;
+    if (state.misses >= 2) finish(false, verdict.why);
+  }
+
+  function finish(correct, why) {
+    state.answered = true;
+    record(correct);
+    const fb = $('feedback');
+    fb.className = `feedback ${correct ? 'good' : 'bad'}`;
+    fb.textContent = correct ? 'Correct.' : `Not quite. ${why || 'That name describes a different structure: compare the chain length, the groups and where they sit.'}`;
+    const r = state.item.result;
+    $('solution-name').textContent = r.text;
+    const steps = $('steps');
+    steps.textContent = '';
+    for (const s of r.steps.slice(0, -1)) {
+      const li = document.createElement('li');
+      li.textContent = s.text;
+      if (s.why) { const w = document.createElement('span'); w.className = 'why'; w.textContent = s.why; li.append(w); }
+      steps.append(li);
+    }
+    // Show the forms people meet most; the full list is long when every combination counts.
+    const shown = r.variants.filter((v) => !/^\d*[EZ]-|^[EZ]-|^\(\w\)-/.test(v) || r.variants.length < 4).slice(0, 5);
+    $('also').textContent = shown.length ? `Also accepted: ${shown.join('; ')}.` : '';
+    $('also').hidden = !shown.length;
+    $('solution').hidden = false;
+    state.showParent = true; state.showNumbers = true;
+    for (const id of ['show-parent', 'show-numbers']) { $(id).disabled = false; $(id).setAttribute('aria-pressed', 'true'); }
+    $('next').textContent = 'Next compound';
+    render();
+  }
+
+  $('mode-choose').addEventListener('click', () => setMode('choose'));
+  $('mode-pick').addEventListener('click', () => setMode('pick'));
+  $('mode-type').addEventListener('click', () => { setMode('type'); if (!state.answered) $('answer').focus(); });
+  $('typed').addEventListener('submit', check);
+  $('reveal').addEventListener('click', () => { if (!state.answered) finish(false, null); });
+  $('next').addEventListener('click', next);
+  $('show-parent').addEventListener('click', () => { state.showParent = !state.showParent; $('show-parent').setAttribute('aria-pressed', String(state.showParent)); render(); });
+  $('show-numbers').addEventListener('click', () => { state.showNumbers = !state.showNumbers; $('show-numbers').setAttribute('aria-pressed', String(state.showNumbers)); render(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.target instanceof HTMLInputElement || e.metaKey || e.ctrlKey || e.altKey) return;
+    if ((state.mode === 'choose' || state.mode === 'pick') && !state.answered && /^[1-4]$/.test(e.key)) {
+      const b = $(state.mode === 'pick' ? 'picks' : 'choices').children[+e.key - 1];
+      if (b) b.click();
+    } else if (state.answered && (e.key === 'Enter' || e.key === 'n')) { e.preventDefault(); next(); }
+  });
+
+  drawTiers();
+  next();
+})();
+</script>
+</body>
+</html>

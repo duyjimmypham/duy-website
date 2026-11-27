@@ -205,6 +205,8 @@ SOFTWARE.
 <li><a class="tile" href="simulations/titration/index.html" data-icon="titr"><span class="tile-title">Titration</span><span class="sr-only">. Add base drop by drop and stop at the first lasting pink.</span></a></li>
 <li><a class="tile" href="simulations/acid-base-strength/index.html" data-icon="acid"><span class="tile-title">Acid and Base Strength</span><span class="sr-only">. Dissolve a strong or weak acid or base and see how much ionizes.</span></a></li>
 <li><a class="tile" href="simulations/buffer/index.html" data-icon="buffer"><span class="tile-title">Buffers</span><span class="sr-only">. Add acid or base to water and to a buffer and compare how far the pH moves.</span></a></li>
+<li><a class="tile" href="simulations/nuclear-decay/index.html" data-icon="decay"><span class="tile-title">Nuclear Decay</span><span class="sr-only">. Fire alpha, beta, and gamma radiation from a nucleus and watch a sample fall by half.</span></a></li>
+<li><a class="tile" href="simulations/iupac-naming/index.html" data-icon="iupac"><span class="tile-title">Naming Organic Compounds</span><span class="sr-only">. Name organic molecules tier by tier, from alkanes to benzene rings and E/Z isomers.</span></a></li>
 </ul>
 </section>
 <section class="project-group reveal-item" id="for-fun" aria-labelledby="fun-title">
@@ -405,6 +407,9 @@ const DROP = c => { c.moveTo(0, 33); c.quadraticCurveTo(7, 43, 0, 46); c.quadrat
 const BEADS = [-32, 28, -9, 3, 9, 21, 24, -6, 38, -32];
 const BALLS = [[38, 6, 10], [0, -37, 12], [-37, 22, 13], [10, 38, 14]];
 const ELECTRONS = [0, 1.05, -1.05].map((r, i) => [(i % 2 ? -1 : 1) * 46 * Math.cos(r), (i % 2 ? -1 : 1) * 46 * Math.sin(r)]);
+// Nuclear decay: a close-packed nucleus of seven, and an alpha particle of four leaving it.
+const NUCLEUS = [[-18, 8], ...[0, 1, 2, 3, 4, 5].map(k => [-18 + 18 * Math.cos(k * Math.PI / 3), 8 + 18 * Math.sin(k * Math.PI / 3)])];
+const ALPHA = [[26, -34], [37, -34], [26, -23], [37, -23]];
 const GAS = [[-19, 8], [9, 3], [21, 26], [-3, 23], [-21, 35], [8, 37]];
 // Patch notes: a parchment scroll rolled at both ends, closed with a wax seal.
 const SEAL = [20, 28];
@@ -542,6 +547,19 @@ const ICONS = {
     body(p) { G(p, -34, -40, 34, -40, 34, 38, 26, 46, -26, 46, -34, 38); L(p, 6, -42, -42, 42, -42); },
     tint(p) { R(p, -40, -8, 80, 56); },
     cut(p) { p.stroke(4, c => c.arc(-6, 22, 13, 0, TAU)); D(p, 7, 9, 6); D(p, 20, -1, 5); L(p, 2.5, -26, -30, -26, 26); }
+  },
+  decay: { // a nucleus letting go of an alpha particle, a gamma ray rippling away below it
+    body(p) {
+      NUCLEUS.forEach(([x, y]) => D(p, x, y, 10)); ALPHA.forEach(([x, y]) => D(p, x, y, 6.5));
+      p.stroke(4.5, c => { for (let x = 2; x <= 46; x += .5) c.lineTo(x, 36 + 6 * Math.sin((x - 2) / 3.2) * Math.sin(Math.PI * (x - 2) / 44)); });
+    },
+    tint(p) { [0, 2, 4, 6].forEach(i => D(p, ...NUCLEUS[i], 10)); [0, 3].forEach(i => D(p, ...ALPHA[i], 6.5)); },
+    cut(p) { NUCLEUS.forEach(([x, y]) => shine(p, x, y, 6)); ALPHA.forEach(([x, y]) => shine(p, x, y, 3.5)); L(p, 3, 6, -10, 16, -20); L(p, 3, 12, -2, 20, -10); }
+  },
+  iupac: { // a skeletal formula: a zigzag chain with an OH on its second carbon, the carbon the name numbers
+    body(p) { L(p, 7, -46, 30, -23, 16, 0, 30, 23, 16, 46, 30); L(p, 7, -23, 16, -23, -12); p.text('OH', '900 34px Fraunces, Georgia, serif', -21, -20); },
+    tint(p) { p.text('OH', '900 34px Fraunces, Georgia, serif', -21, -20); },
+    cut(p) { D(p, -46, 30, 2.6); D(p, -23, 16, 2.6); D(p, 0, 30, 2.6); D(p, 23, 16, 2.6); D(p, 46, 30, 2.6); }
   },
   acid: { // just the letters
     body(p) { p.text('pH', '900 76px Fraunces, Georgia, serif', 0, 18); },
